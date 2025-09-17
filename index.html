@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading...</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9; /* slate-100 */
+      overflow: hidden; /* Hide scrollbars */
+    }
+    /* Simple pulsating animation for the logo */
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+      }
+    }
+    .animate-pulse-logo {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="antialiased text-slate-800">
+
+  <!-- Loading Screen Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-slate-100 flex flex-col items-center justify-center z-50 transition-opacity duration-300 ease-in-out">
+    <div class="text-center">
+      <!-- Logo -->
+      <img src="https://i.ibb.co/tTnYjHs1/C-1.png" alt="App Logo" class="w-24 h-24 mx-auto mb-6 rounded-full shadow-lg animate-pulse-logo">
+      
+      <!-- Loading Text and Spinner -->
+      <div class="flex items-center justify-center text-slate-600">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-lg font-medium">Verifying your session...</p>
+      </div>
+      <p class="text-sm text-slate-500 mt-2">Please wait while we get things ready.</p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Helper function to get a cookie by name
+      function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+      }
+
+      // We add a small delay to ensure the loading animation is visible,
+      // which provides a smoother user experience than an instant screen flash.
+      setTimeout(() => {
+        const userId = getCookie('ID');
+        const userRole = getCookie('role');
+
+        // Check if essential cookies are missing
+        if (!userId || !userRole) {
+          // If not logged in, redirect to the login page.
+          // window.location.replace prevents the user from using the back button
+          // to return to this loading page.
+          window.location.replace('login.html');
+          return; // Stop further execution
+        }
+
+        // Redirect based on the user's role
+        if (userRole === 'student') {
+          window.location.replace('studentview.html');
+        } else if (userRole === 'CR') {
+          window.location.replace('CR.html');
+        } else {
+          // If the role is unknown or invalid, send them back to login as a fallback.
+          console.error('Unknown user role:', userRole);
+          window.location.replace('login.html');
+        }
+      }, 500); // 500ms delay
+    });
+  </script>
+
+</body>
+</html>
