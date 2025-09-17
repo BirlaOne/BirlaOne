@@ -855,7 +855,7 @@
     }
     function logout() {
       document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      window.location.href = "/login.html";
+      window.location.href = "https://birlaone.github.io/BirlaOne/login.html";
     }
     function toggleTheme() {
         const root = document.documentElement;
@@ -1304,7 +1304,7 @@
 
         (function checkLogin() {
             if (!getCookie("id")) {
-                window.location.href = "login.html";
+                window.location.href = "https://birlaone.github.io/BirlaOne/login.html";
             }
         })();
         
