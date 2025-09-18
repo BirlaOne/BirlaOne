@@ -398,9 +398,8 @@
       transform: translateY(-5px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     }
-    /* --- Styles for the new banner --- */
     .banner-container {
-      position: relative; /* This is crucial for positioning the "Ad" label */
+      position: relative;
       margin: 20px auto;
       pointer-events: none;
       -webkit-user-select: none;
@@ -424,10 +423,9 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-radius: 12px 0 8px 0; /* Rounds top-left and bottom-right corners */
-      z-index: 1; /* Ensures the label is on top of the image */
+      border-radius: 12px 0 8px 0;
+      z-index: 1;
     }
-    /* ---------------------------------- */
     .card-header {
       display: flex;
       align-items: center;
@@ -810,7 +808,7 @@
 
     // --- GLOBAL STATE & DATA ---
     let selectedName = "Anonymous";
-    window.userId = null;
+    let currentUser = null; // ✅ Central object to hold the logged-in user's data
     
     // --- UI, THEME & UTILITY FUNCTIONS ---
     function showToast(message) {
@@ -862,7 +860,7 @@
         const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        updateAllThemeLinks(newTheme, window.userId);
+        updateAllThemeLinks(newTheme, currentUser ? currentUser.id : null);
     }
     function applySavedTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -905,40 +903,38 @@
             channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
         } else {
             renderChannels(data);
-            updateAllThemeLinks(localStorage.getItem('theme') || 'light', window.userId);
+            updateAllThemeLinks(localStorage.getItem('theme') || 'light', currentUser ? currentUser.id : null);
         }
     }
     async function fetchUserProfile() {
       const id = getCookie("id");
       if (!id) return;
       const { data, error } = await client
-          .from('Users')
-          .select('ID, img, NAME, course')
-          .eq('ID', parseInt(id))
-          .single();
+            .from('Users')
+            .select('ID, img, NAME, course')
+            .eq('ID', parseInt(id))
+            .single();
       if (error) {
           console.error('Supabase error:', error);
           return;
       }
       if (data) {
           const profilePicUrl = data.img || 'default.jpg';
-          const userName = data.NAME || 'Student';
-          const studentId = data.ID || 'N/A';
           document.getElementById('profilePic').src = profilePicUrl;
           document.getElementById('sidebarProfilePic').src = profilePicUrl;
-          document.getElementById('nameButton').innerText = userName;
-          document.getElementById('sidebar-username').innerText = userName;
-          document.getElementById('sidebar-user-id').innerText = `Student ID: ${studentId}`;
-          window.userId = data.ID;
+          document.getElementById('nameButton').innerText = data.NAME || 'Student';
+          document.getElementById('sidebar-username').innerText = data.NAME || 'Student';
+          document.getElementById('sidebar-user-id').innerText = `Student ID: ${data.ID || 'N/A'}`;
+          
+          // ✅ Store user data in the global object for other functions to use
+          currentUser = {
+            id: data.ID,
+            name: data.NAME,
+            course: data.course
+          };
       }
     }
 
-    /**
-     * Helper function to create the HTML for a single confession card.
-     * This makes it easy to add or update individual cards.
-     * @param {object} conf - The confession data object.
-     * @returns {string} - The HTML string for the confession card.
-     */
     function createConfessionHTML(conf) {
         const ticks = {
             blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
@@ -974,7 +970,6 @@
     }
 
     async function fetchConfessions() {
-        const id = getCookie("id");
         const confessionList = document.getElementById('confession-list');
         const { data, error } = await client
             .from('confessions')
@@ -988,18 +983,21 @@
         }
 
         confessionList.innerHTML = '';
-        let userHasConfession = data.some(conf => conf.user_id == id);
+        if (currentUser) {
+          let userHasConfession = data.some(conf => conf.user_id == currentUser.id);
+          document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
+        }
         
         data.forEach(conf => {
             confessionList.insertAdjacentHTML('beforeend', createConfessionHTML(conf));
         });
-
-        document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
     }
 
     async function addConfession() {
-        const id = getCookie("id");
-        if (!id) return;
+        if (!currentUser) {
+            showToast("You must be logged in to confess.");
+            return;
+        }
 
         const message = document.getElementById('messageInput').value.trim();
         if (!message) {
@@ -1010,7 +1008,7 @@
         const { data: userData, error: userError } = await client
             .from('Users')
             .select('tick, img, NAME, confesses')
-            .eq('ID', parseInt(id))
+            .eq('ID', currentUser.id)
             .single();
             
         if (userError || !userData) {
@@ -1027,11 +1025,11 @@
             tick = 'black';
         }
 
-        await client.from('replies').delete().eq('confession_user_id', parseInt(id));
-        await client.from('confessions').delete().eq('user_id', parseInt(id));
+        await client.from('replies').delete().eq('confession_user_id', currentUser.id);
+        await client.from('confessions').delete().eq('user_id', currentUser.id);
 
         const { error: insertError } = await client.from('confessions').insert([{
-            user_id: parseInt(id), c_name, message, tick, pic
+            user_id: currentUser.id, c_name, message, tick, pic
         }]);
 
         if (insertError) {
@@ -1039,23 +1037,20 @@
             console.error("Insert Error:", insertError);
         } else {
             const newCount = (userData.confesses || 0) + 1;
-            await client.from('Users').update({ confesses: newCount }).eq('ID', parseInt(id));
+            await client.from('Users').update({ confesses: newCount }).eq('ID', currentUser.id);
             showToast("Confessed Successfully!");
             document.getElementById('messageInput').value = '';
-            // No need to call fetchConfessions() here, realtime will handle it.
         }
     }
 
     async function removeMyConfession() {
         hideConfirmModal();
-        const id = getCookie("id");
-        if (!id) return;
-        const { error } = await client.from('confessions').delete().eq('user_id', parseInt(id));
+        if (!currentUser) return;
+        const { error } = await client.from('confessions').delete().eq('user_id', currentUser.id);
         if (error) {
             showToast("Delete failed.");
         } else {
             showToast("Confession Removed.");
-             // No need to call fetchConfessions() here, realtime will handle it.
         }
     }
 
@@ -1066,7 +1061,7 @@
 
         if (repliesWrapper.classList.contains('active')) {
             repliesWrapper.classList.remove('active');
-            setTimeout(() => { repliesWrapper.innerHTML = ''; }, 300); // Wait for animation
+            setTimeout(() => { repliesWrapper.innerHTML = ''; }, 300);
             return;
         }
 
@@ -1099,7 +1094,7 @@
                     black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Reply" }
                 };
                 const tick = ticks[reply.tick] ? `<img src="${ticks[reply.tick].src}" width="16" title="${ticks[reply.tick].title}" loading="lazy">` : '';
-                const isUserReply = reply.user_id == window.userId;
+                const isUserReply = currentUser && reply.user_id == currentUser.id;
                 const deleteBtn = isUserReply ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id}, '${confessionUserId}')">Delete</button>` : '';
                 
                 repliesHtml += `
@@ -1141,9 +1136,11 @@
             return;
         }
 
-        const id = getCookie("id");
-        if (!id) return;
-        const { data: userData, error: userError } = await client.from('Users').select('tick, img, NAME').eq('ID', parseInt(id)).single();
+        if (!currentUser) {
+            showToast("You must be logged in to reply.");
+            return;
+        }
+        const { data: userData, error: userError } = await client.from('Users').select('tick, img, NAME').eq('ID', currentUser.id).single();
         if (userError || !userData) {
             showToast("User fetch failed.");
             return;
@@ -1159,7 +1156,7 @@
         }
 
         const { error: insertError } = await client.from('replies').insert([{
-            confession_user_id: parseInt(confessionUserId), message, user_id: parseInt(id), c_name, pic, tick
+            confession_user_id: parseInt(confessionUserId), message, user_id: currentUser.id, c_name, pic, tick
         }]);
 
         if (insertError) {
@@ -1177,13 +1174,12 @@
             const repliesWrapper = button.closest('.replies-wrapper');
             const { data: updatedReplies } = await client.from('replies').select('*').eq('confession_user_id', parseInt(confessionUserId)).order('created_at', { ascending: true });
             renderRepliesAndInput(repliesWrapper, updatedReplies, confessionUserId);
-            
-            // Realtime will update the main confession card's reply count, so no fetchConfessions() needed.
         }
     }
     
     async function deleteReply(button, replyId, confessionUserId) {
-        const { error } = await client.from('replies').delete().eq('id', replyId).eq('user_id', window.userId);
+        if (!currentUser) return;
+        const { error } = await client.from('replies').delete().eq('id', replyId).eq('user_id', currentUser.id);
         if (error) {
             showToast("Failed to delete reply.");
             console.error("Delete Reply Error:", error);
@@ -1194,55 +1190,38 @@
             const newCount = Math.max(0, (confessionData.replies_count || 0) - 1);
             await client.from('confessions').update({ replies_count: newCount }).eq('user_id', parseInt(confessionUserId));
             
-            // Refresh just this confession's replies
             const repliesWrapper = button.closest('.replies-wrapper');
             const { data: updatedReplies } = await client.from('replies').select('*').eq('confession_user_id', parseInt(confessionUserId)).order('created_at', { ascending: true });
             renderRepliesAndInput(repliesWrapper, updatedReplies, confessionUserId);
-
-            // Realtime will update the main confession card's reply count, so no fetchConfessions() needed.
         }
     }
 
+    // ✅ IMPROVED: This function is now more efficient and correct.
     async function logUserVisit() {
-        const id = getCookie("id");
-        if (id) {
-            const { data: userData } = await client.from('Users').select('NAME').eq('ID', parseInt(id)).single();
-            const name = userData ? userData.NAME : 'Unknown';
-            const now = new Date();
-            const options = {
-                timeZone: 'Asia/Kolkata',
-                year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit',
-                hour12: false
-            };
-            const formatter = new Intl.DateTimeFormat('en-CA', options);
-            const parts = formatter.formatToParts(now);
-            const dateParts = {};
-            parts.forEach(p => dateParts[p.type] = p.value);
-            const istTimeString = `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}+05:30`;
-            const { error } = await client.from('logs').insert([{ 
-                id: parseInt(id), Name: name, time: istTimeString
+        if (currentUser) { // Checks if user data was successfully fetched
+            const { error } = await client.from('logs').insert([{
+                time: new Date().toISOString(), // Standard, reliable way to handle timestamps
+                user_id: currentUser.id,        // FIX: Correct column name is 'user_id'
+                Name: currentUser.name,
+                course: currentUser.course      // FIX: Added the 'course' field
             }]);
-            if (error) console.error("Log Error:", error);
+            if (error) {
+                console.error("Log Error:", error.message);
+            }
         }
     }
 
-    /**
-     * Handles incoming realtime updates from Supabase.
-     * @param {object} payload - The realtime event payload.
-     */
     function handleRealtimeUpdate(payload) {
         const confessionList = document.getElementById('confession-list');
-        const id = getCookie("id");
+        const currentUserId = currentUser ? currentUser.id : null;
 
         if (payload.eventType === 'INSERT') {
             const newConfession = payload.new;
-            // Check if the card already exists to prevent duplicates
             if (!document.querySelector(`.confession-card[data-id="${newConfession.user_id}"]`)) {
                 const newConfessionHTML = createConfessionHTML(newConfession);
                 confessionList.insertAdjacentHTML('afterbegin', newConfessionHTML);
             }
-            if (newConfession.user_id == id) {
+            if (newConfession.user_id == currentUserId) {
                 document.getElementById('removeDiv').style.display = 'block';
             }
         }
@@ -1256,7 +1235,7 @@
                 cardToRemove.style.transform = 'scale(0.95)';
                 setTimeout(() => cardToRemove.remove(), 500);
             }
-            if (deletedConfession.user_id == id) {
+            if (deletedConfession.user_id == currentUserId) {
                 document.getElementById('removeDiv').style.display = 'none';
             }
         }
@@ -1265,7 +1244,6 @@
             const updatedConfession = payload.new;
             const cardToUpdate = document.querySelector(`.confession-card[data-id="${updatedConfession.user_id}"]`);
             if (cardToUpdate) {
-                // Just update the reply count display
                 const footer = cardToUpdate.querySelector('.confession-footer');
                 let replyCountSpan = footer.querySelector('.reply-count');
                 
@@ -1285,9 +1263,6 @@
         }
     }
 
-    /**
-     * Subscribes to realtime changes in the 'confessions' table.
-     */
     function subscribeToConfessions() {
         client
             .channel('public:confessions')
@@ -1311,15 +1286,18 @@
         applySavedTheme();
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
         
-        await fetchUserProfile();
+        // Fetch user profile first to populate the `currentUser` object
+        await fetchUserProfile(); 
+        
+        // Now run other functions that might depend on user data
         await Promise.all([
             fetchConfessions(),
             fetchChannels()
         ]);
         
+        // Log the visit after all essential data is loaded
         await logUserVisit();
         
-        // Subscribe to realtime updates instead of using setInterval
         subscribeToConfessions();
     });
 </script>
