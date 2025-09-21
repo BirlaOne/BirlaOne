@@ -170,11 +170,18 @@
   </div>
 
   <script>
-    // ⚡ Your original script remains unchanged here.
     const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ✅ --- NEW: Helper function to set a cookie ---
+    function setCookie(name, value, days) {
+        const d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = "expires=" + d.toUTCString();
+        document.cookie = `${name}=${value};${expires};path=/;SameSite=Lax;Secure`;
+    }
 
     async function login() {
       const studentId = document.getElementById("studentId").value.trim();
@@ -210,6 +217,9 @@
             console.error(authError);
             errorDiv.textContent = "Invalid ID or Password.";
           } else {
+            // ✅ --- UPDATED: Set the cookie on successful login ---
+            setCookie("id", studentId, 100); 
+            
             window.location.href = "index.html";
             return; // Exit after successful redirect
           }
