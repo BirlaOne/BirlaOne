@@ -242,23 +242,19 @@
     }
 
     try {
-      // ✅ UPDATED: Queries the 'Users' table
-      const { data, error } = await supabase
-        .from('Users')
-        .select('*')
-        .eq('ID', userId)
-        .eq('password', password)
-        .single();
+      // ✅ UPDATED: Call the secure database function instead of querying the table directly.
+      const { data, error } = await supabase.rpc('login_with_id_and_pass', {
+        user_id: parseInt(userId),
+        user_password: password
+      });
 
       if (error || !data) {
         console.error("Login failed:", error);
         errorDiv.textContent = "Invalid Student ID or Password.";
       } else {
-        // ✅ UPDATED: Sets 'id' cookie with the user's 'ID'
+        // The 'data' returned by the function is the user's record.
         setCookie("id", data.ID, 100); 
-        
-        // ✅ UPDATED: Redirects to a relative page
-        window.location.href = "index.html";
+        window.location.href = "Home.html";
       }
     } catch (e) {
       console.error("Unexpected error:", e);
