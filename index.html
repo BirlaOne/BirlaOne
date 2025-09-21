@@ -252,9 +252,8 @@
     const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
     
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     // --- GLOBAL STATE & DATA ---
+    let client; // Declare client here, initialize it later
     let selectedName = "Anonymous";
     let currentUser = null;
     let realtimeChannel = null;
@@ -275,8 +274,7 @@
     }
 
     function openProfile() {
-      // You can make this URL dynamic if needed
-      window.location.href = "https://bafbkbnc.github.io/BAFs/profile.html";
+      window.location.href = "profile.html"; // Use a relative path
     }
 
     async function logout() {
@@ -343,10 +341,10 @@
             console.error("Error fetching channels:", error);
             channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
         } else {
-            const channelList = document.getElementById('channel-list');
-            channelList.innerHTML = '';
+            const list = document.getElementById('channel-list');
+            list.innerHTML = '';
             data.forEach(channel => {
-                channelList.insertAdjacentHTML('beforeend', `
+                list.insertAdjacentHTML('beforeend', `
                     <a href="${channel.href}" class="channel-link">
                         <div class="channel-card">
                             <img src="${channel.img}" alt="Channel Icon" class="card-pic" loading="lazy">
@@ -366,19 +364,16 @@
     }
 
     async function fetchUserProfile(authUserId) {
-      // ✅ Fetch public profile from 'Users' table using the secure auth user ID
-      // ⚠️ IMPORTANT: You must have a column in your public 'Users' table that stores the
-      // UUID from auth.users. This example assumes that column is named 'auth_uuid'.
       const { data, error } = await client
             .from('Users')
-            .select('ID, img, NAME, course')
+            .select('ID, img, NAME, course, tick')
             .eq('auth_uuid', authUserId)
             .single();
 
       if (error || !data) {
           console.error('Error fetching user profile:', error);
           showToast("Could not load your profile. Please relogin.");
-          logout(); // Log out if profile is inaccessible
+          logout();
           return false;
       }
       
@@ -390,8 +385,8 @@
       document.getElementById('sidebar-user-id').innerText = `Student ID: ${data.ID || 'N/A'}`;
       
       currentUser = {
-        id: data.ID,           // This is the public Student ID (e.g., 12345)
-        auth_uuid: authUserId, // This is the Supabase Auth ID (UUID)
+        id: data.ID,
+        auth_uuid: authUserId,
         name: data.NAME,
         course: data.course,
         img: data.img,
@@ -409,7 +404,7 @@
             black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Confess" }
         };
         const tick = ticks[conf.tick] ? `<img src="${ticks[conf.tick].src}" width="16" title="${ticks[conf.tick].title}" loading="lazy">` : '';
-        const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
+        const formattedMessage = conf.message.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
         const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
         
         return `
@@ -469,7 +464,6 @@
             return;
         }
 
-        // We already have user data in `currentUser` object
         let c_name = currentUser.name;
         let pic = currentUser.img || 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
         let tick = currentUser.tick || '';
@@ -479,7 +473,6 @@
             tick = 'black';
         }
 
-        // Delete existing confession and replies first
         await client.from('replies').delete().eq('confession_user_id', currentUser.id);
         await client.from('confessions').delete().eq('user_id', currentUser.id);
 
@@ -507,13 +500,6 @@
         }
     }
 
-    async function toggleReplies(button, confessionUserId) {
-        // This and other reply functions (addReply, deleteReply, renderRepliesAndInput)
-        // should work as before because they depend on the `currentUser` object,
-        // which is now populated securely.
-        // For brevity, these functions are not repeated here but should be included from your original file.
-    }
-
     async function logUserVisit() {
         if (currentUser) {
             const { error } = await client.from('logs').insert([{
@@ -522,9 +508,7 @@
                 Name: currentUser.name,
                 course: currentUser.course
             }]);
-            if (error) {
-                console.error("Log Error:", error.message);
-            }
+            if (error) { console.error("Log Error:", error.message); }
         }
     }
 
@@ -555,11 +539,8 @@
         }
     }
 
-
     function subscribeToConfessions() {
-        if (realtimeChannel) {
-            client.removeChannel(realtimeChannel);
-        }
+        if (realtimeChannel) { client.removeChannel(realtimeChannel); }
         realtimeChannel = client
             .channel('public:confessions')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'confessions' }, handleRealtimeUpdate)
@@ -571,21 +552,18 @@
             window.location.href = "login.html";
             return;
         }
-
-        // Fetch profile. If it fails, stop initialization.
         const profileLoaded = await fetchUserProfile(session.user.id);
         if (!profileLoaded) return;
-
-        await Promise.all([
-            fetchConfessions(),
-            fetchChannels()
-        ]);
-        
+        await Promise.all([ fetchConfessions(), fetchChannels() ]);
         await logUserVisit();
         subscribeToConfessions();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // ✅ FIX: Initialize client here, after the Supabase script has loaded.
+        // Also, use supabase.createClient directly.
+        client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         applySavedTheme();
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
 
