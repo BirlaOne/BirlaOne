@@ -19,69 +19,66 @@
   <p id="error" style="color:red;"></p>
 
   <script>
-    const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";
+    // ⚡ Replace with your actual project details
+    const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function login() {
-  const studentId = document.getElementById("studentId").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const errorDiv = document.getElementById("error");
-  const loginBtn = document.getElementById("loginBtn");
+      const studentId = document.getElementById("studentId").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorDiv = document.getElementById("error");
+      const loginBtn = document.getElementById("loginBtn");
 
-  errorDiv.textContent = "";
-  loginBtn.disabled = true;
-  loginBtn.textContent = "Logging in...";
+      errorDiv.textContent = "";
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Logging in...";
 
-  if (!studentId || !password) {
-    errorDiv.textContent = "Please enter Student ID and Password.";
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Login";
-    return;
-  }
+      if (!studentId || !password) {
+        errorDiv.textContent = "Please enter Student ID and Password.";
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Login";
+        return;
+      }
 
-  try {
-    // 1. Get email from users table
-    const { data, error } = await supabase
-      .from("users")
-      .select("mail")
-      .eq("id", parseInt(studentId, 10))   // ✅ force integer
-      .single();
+      try {
+        // 1. ✅ Call the secure RPC to get email from student ID
+        const { data: email, error: rpcError } = await supabase
+          .rpc("get_email_by_student_id", { p_id: parseInt(studentId, 10) });
 
-    if (error || !data) {
-      errorDiv.textContent = "Student ID not found.";
-      loginBtn.disabled = false;
-      loginBtn.textContent = "Login";
-      return;
+        if (rpcError || !email) {
+          console.error(rpcError);
+          errorDiv.textContent = "Student ID not found.";
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Login";
+          return;
+        }
+
+        // 2. ✅ Authenticate with Supabase Auth
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (authError) {
+          console.error(authError);
+          errorDiv.textContent = "Invalid ID or Password.";
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Login";
+          return;
+        }
+
+        // 3. ✅ Success → redirect
+        window.location.href = "index.html";
+      } catch (err) {
+        console.error(err);
+        errorDiv.textContent = "Unexpected error. Please try again.";
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Login";
+      }
     }
-
-    const email = data.mail;
-
-    // 2. Auth login
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (authError) {
-      errorDiv.textContent = "Invalid ID or Password.";
-      loginBtn.disabled = false;
-      loginBtn.textContent = "Login";
-      return;
-    }
-
-    // 3. Success → redirect
-    window.location.href = "index.html";
-  } catch (err) {
-    console.error(err);
-    errorDiv.textContent = "Unexpected error. Please try again.";
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Login";
-  }
-}
-
   </script>
 </body>
 </html>
