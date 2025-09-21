@@ -213,8 +213,8 @@
   </div>
 
  <script>
-  const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+  const SUPABASE_URL = 'https://fuovcuzaxfkyqrridrgy.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1b3ZjdXpheGZreXFycmlkcmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NzIyMjAsImV4cCI6MjA2MTA0ODIyMH0._PkkfWXcn4j6cjBh-yLJjDevrmhuxKxVbcdQUSgCsSk';
 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -242,19 +242,22 @@
     }
 
     try {
-      // ✅ UPDATED: Call the RPC function instead of querying the table
-      const { data, error } = await supabase.rpc('login_user', {
-        user_id_input: parseInt(userId), // Make sure to pass as a number
-        password_input: password
-      });
+      // ✅ UPDATED: Queries the 'Users' table
+      const { data, error } = await supabase
+        .from('Users')
+        .select('*')
+        .eq('ID', userId)
+        .eq('password', password)
+        .single();
 
       if (error || !data) {
         console.error("Login failed:", error);
         errorDiv.textContent = "Invalid Student ID or Password.";
       } else {
-        // The 'data' returned from the RPC is the user object
+        // ✅ UPDATED: Sets 'id' cookie with the user's 'ID'
         setCookie("id", data.ID, 100); 
         
+        // ✅ UPDATED: Redirects to a relative page
         window.location.href = "index.html";
       }
     } catch (e) {
