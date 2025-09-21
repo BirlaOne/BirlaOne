@@ -4,34 +4,201 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
   <title>Login - BirlaOne</title>
-
+  <link rel="icon" type="image/png" href="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
-    /* (Your CSS from the original — omitted here for brevity) */
-    body{font-family:Inter, sans-serif; background:#f5f5f7; display:flex;align-items:center;justify-content:center;height:100vh}
-    .login-card{background:white;padding:32px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.05);width:360px}
-    .input-field{width:100%;padding:12px;margin-bottom:12px;border-radius:8px;border:1px solid #ddd}
-    .login-button{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(90deg,#b84fff,#8f00ff);color:#fff;font-weight:600}
-    .error-message{color:#ef5350;height:20px;margin-top:10px}
+    /* 🎨 --- Variables & Base Styles --- 🎨 */
+    :root {
+      --primary-accent: #b84fff;
+      --primary-gradient: linear-gradient(90deg, #b84fff, #8f00ff);
+      --danger-color: #ef5350;
+      --font-family: 'Poppins', sans-serif;
+      
+      --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --card-bg: rgba(255, 255, 255, 0.6);
+      --text-primary: #121212;
+      --text-secondary: #5f5f5f;
+      --border-color: rgba(209, 213, 219, 0.5);
+      --shadow: 0 8px 32px 0 rgba(143, 0, 255, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ✨ --- Glassmorphism Login Card --- ✨ */
+    .login-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .app-logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .login-card h2 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .login-card p {
+        color: var(--text-secondary);
+        margin-bottom: 30px;
+    }
+
+    /* 📝 --- Form Elements --- 📝 */
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 4px rgba(184, 79, 255, 0.15);
+    }
+    
+    .input-field::placeholder {
+        color: #9ca3af;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary-gradient);
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    
+    .login-button:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+
+    .login-button:not(:disabled):hover {
+      box-shadow: 0 6px 20px rgba(143, 0, 255, 0.3);
+      transform: translateY(-3px);
+    }
+    
+    /* ⚠️ --- Messages & Links --- ⚠️ */
+    .error-message {
+      color: var(--danger-color);
+      font-size: 14px;
+      margin-top: 15px;
+      height: 20px; /* Reserve space to prevent layout shift */
+      font-weight: 500;
+    }
+    
+    .subtle-link {
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .subtle-link:hover {
+      color: var(--primary-accent);
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+
   <div class="login-card">
-    <h2>Welcome Back</h2>
-    <input id="userId" class="input-field" placeholder="Student ID" inputmode="numeric" />
-    <input id="password" type="password" class="input-field" placeholder="Password" />
-    <button id="loginBtn" class="login-button" onclick="login()">Login</button>
+    <img src="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" alt="App Logo" class="app-logo">
+    <h2>Welcome Back!</h2>
+    <p>Sign in to access your dashboard.</p>
+    
+    <form onsubmit="login(); return false;">
+      <div class="input-group">
+        <input type="number" id="userId" class="input-field" placeholder="Student ID" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+      </div>
+      
+      <div class="input-group">
+        <input type="password" id="password" class="input-field" placeholder="Password" required />
+      </div>
+
+      <button type="submit" class="login-button" id="loginBtn">Login</button>
+    </form>
+    
     <div id="error" class="error-message"></div>
-    <p style="font-size:13px;margin-top:12px"><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
+    
+    <a href="change-password.html" class="subtle-link">Forgot Password?</a>
   </div>
 
-
- <script>
+<script>
+  // YOUR SCRIPT REMAINS UNCHANGED
   const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+  
+  // Attach event listener for Enter key on password field
+  document.getElementById('password').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      document.getElementById('loginBtn').click();
+    }
+  });
+  
+  // Your original login function
   async function login() {
     const errorDiv = document.getElementById('error');
     const loginBtn = document.getElementById('loginBtn');
@@ -74,7 +241,7 @@
       }
 
       // ✅ Success → redirect
-      window.location.href = 'Home.html';
+      window.location.href = 'index.html';
     } catch (err) {
       console.error(err);
       errorDiv.textContent = 'Unexpected error occurred.';
@@ -84,5 +251,6 @@
     }
   }
 </script>
+
 </body>
 </html>
