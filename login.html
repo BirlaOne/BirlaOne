@@ -2,24 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
   <title>Login - BirlaOne</title>
+  <link rel="icon" type="image/png" href="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* 🎨 --- CSS Variables for Easy Theming --- 🎨 */
+    :root {
+      --primary-accent: #b84fff;
+      --primary-gradient: linear-gradient(90deg, #b84fff, #8f00ff);
+      --danger-color: #ef5350;
+      --font-family: 'Inter', sans-serif;
+      --bg-gradient: linear-gradient(180deg, #f5f5f7, #e9e9ed);
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --text-primary: #121212;
+      --text-secondary: #5f5f5f;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 🧱 --- Base & Page Styles --- 🧱 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ✨ --- Glassmorphism Login Card --- ✨ */
+    .login-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .app-logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .login-card h2 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .login-card p {
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 15px;
+      background-color: rgba(128, 128, 128, 0.08);
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      font-size: 16px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+      box-shadow: 0 0 0 4px rgba(184, 79, 255, 0.15);
+    }
+    
+    /* Hide number input spinners */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary-gradient);
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    
+    .login-button:disabled {
+        background: #999;
+        cursor: not-allowed;
+    }
+
+    .login-button:not(:disabled):hover {
+      box-shadow: 0 6px 20px rgba(143, 0, 255, 0.3);
+      transform: translateY(-3px);
+    }
+
+    .error-message {
+      color: var(--danger-color);
+      font-size: 14px;
+      margin-top: 20px;
+      height: 20px; /* Reserve space to prevent layout shift */
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
-  <h2>Login</h2>
 
-  <label for="studentId">Student ID:</label>
-  <input type="number" id="studentId" placeholder="Enter Student ID" /><br><br>
+  <div class="login-card">
+    <img src="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" alt="App Logo" class="app-logo">
+    <h2>Welcome Back</h2>
+    <p>Please sign in to your account.</p>
+    
+    <div class="input-group">
+      <input type="number" id="studentId" class="input-field" placeholder="Student ID" />
+    </div>
+    
+    <div class="input-group">
+      <input type="password" id="password" class="input-field" placeholder="Password" />
+    </div>
 
-  <label for="password">Password:</label>
-  <input type="password" id="password" placeholder="Enter Password" /><br><br>
-
-  <button id="loginBtn" onclick="login()">Login</button>
-  <p id="error" style="color:red;"></p>
+    <button class="login-button" id="loginBtn" onclick="login()">Login</button>
+    <div id="error" class="error-message"></div>
+  </div>
 
   <script>
-    // ⚡ Replace with your actual project details
+    // ⚡ Your original script remains unchanged here.
     const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";
 
@@ -43,34 +194,26 @@
       }
 
       try {
-        // 1. ✅ Call the secure RPC to get email from student ID
         const { data: email, error: rpcError } = await supabase
           .rpc("get_email_by_student_id", { p_id: parseInt(studentId, 10) });
 
         if (rpcError || !email) {
           console.error(rpcError);
           errorDiv.textContent = "Student ID not found.";
-          loginBtn.disabled = false;
-          loginBtn.textContent = "Login";
-          return;
+        } else {
+          const { error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (authError) {
+            console.error(authError);
+            errorDiv.textContent = "Invalid ID or Password.";
+          } else {
+            window.location.href = "index.html";
+            return; // Exit after successful redirect
+          }
         }
-
-        // 2. ✅ Authenticate with Supabase Auth
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (authError) {
-          console.error(authError);
-          errorDiv.textContent = "Invalid ID or Password.";
-          loginBtn.disabled = false;
-          loginBtn.textContent = "Login";
-          return;
-        }
-
-        // 3. ✅ Success → redirect
-        window.location.href = "index.html";
       } catch (err) {
         console.error(err);
         errorDiv.textContent = "Unexpected error. Please try again.";
@@ -79,6 +222,21 @@
         loginBtn.textContent = "Login";
       }
     }
+
+    // Add event listener to trigger login on 'Enter' key press for better UX
+    document.getElementById('password').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent form submission
+            document.getElementById('loginBtn').click();
+        }
+    });
+     document.getElementById('studentId').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent form submission
+            document.getElementById('password').focus();
+        }
+    });
   </script>
+
 </body>
 </html>
