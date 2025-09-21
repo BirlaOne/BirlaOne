@@ -25,19 +25,17 @@
     <p style="font-size:13px;margin-top:12px"><a href="#" onclick="forgotPassword()">Forgot password?</a></p>
   </div>
 
-<script>
-  // ------------- CONFIG: put your keys here (Anon key only) -------------
+
+ <script>
   const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c'; // <-- use anon key only
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
 
-  const supabase = supabaseJs.createClient
-    ? supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) // older var name fallback
-    : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const errorDiv = document.getElementById('error');
-  const loginBtn = document.getElementById('loginBtn');
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function login() {
+    const errorDiv = document.getElementById('error');
+    const loginBtn = document.getElementById('loginBtn');
+
     errorDiv.textContent = '';
     loginBtn.disabled = true;
     loginBtn.textContent = 'Logging in...';
@@ -53,86 +51,38 @@
     }
 
     try {
-      // 1) Call RPC to get the email for this student id
+      // Fetch email by Student ID
       const { data: mailData, error: mailError } = await supabase.rpc('get_email_by_student_id', { p_id: parseInt(userId) });
 
-      if (mailError) {
-        console.error('RPC error', mailError);
+      if (mailError || !mailData) {
         errorDiv.textContent = 'Student ID not found.';
         return;
       }
 
-      // supabase.rpc return shape can vary. Handle common cases:
-      let email = null;
-      if (!mailData) {
-        email = null;
-      } else if (Array.isArray(mailData)) {
-        // Could be array like ['email@example.com'] or [{mail: '...'}]
-        if (mailData.length === 0) email = null;
-        else {
-          const first = mailData[0];
-          if (typeof first === 'object') {
-            // might be { get_email_by_student_id: 'x' } or { mail: 'x' }
-            email = first.mail || first.get_email_by_student_id || Object.values(first)[0];
-          } else {
-            email = first; // plain string
-          }
-        }
-      } else if (typeof mailData === 'string') {
-        email = mailData;
-      } else if (mailData.mail) {
-        email = mailData.mail;
-      }
+      let email = Array.isArray(mailData) ? mailData[0] : mailData;
+      if (typeof email === 'object') email = Object.values(email)[0];
 
-      if (!email) {
-        errorDiv.textContent = 'Student ID not linked to an email.';
-        return;
-      }
-
-      // 2) Sign in using the found email
+      // Sign in with email + password
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: String(email),
         password: password
       });
 
       if (authError) {
-        console.error('Auth error', authError);
         errorDiv.textContent = 'Invalid ID or password.';
         return;
       }
 
-      // Successful sign-in. Supabase stores session automatically (browser localStorage).
-      // Redirect to Home page (or fetch profile using auth user id)
+      // ✅ Success → redirect
       window.location.href = 'Home.html';
     } catch (err) {
-      console.error('Unexpected:', err);
+      console.error(err);
       errorDiv.textContent = 'Unexpected error occurred.';
     } finally {
       loginBtn.disabled = false;
       loginBtn.textContent = 'Login';
     }
   }
-
-  // Simple forgot password flow: ask for ID, fetch email and call reset
-  async function forgotPassword() {
-    const id = prompt('Enter your Student ID to reset password:');
-    if (!id) return;
-    try {
-      const { data: mailData, error: mailError } = await supabase.rpc('get_email_by_student_id', { p_id: parseInt(id) });
-      let email = Array.isArray(mailData) ? mailData[0] : mailData;
-      if (!email) { alert('No email found for that ID'); return; }
-      // supabase.auth.resetPasswordForEmail exists in many SDKs — if your SDK supports it:
-      const { data, error } = await supabase.auth.resetPasswordForEmail(String(email));
-      if (error) alert('Error sending reset email: ' + error.message);
-      else alert('Password reset email sent to ' + email);
-    } catch (e) {
-      console.error(e);
-      alert('Unexpected error');
-    }
-  }
-
-  // allow enter key
-  document.getElementById('password').addEventListener('keypress', function(e){ if(e.key==='Enter') login(); });
 </script>
 </body>
 </html>
