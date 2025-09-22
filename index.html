@@ -217,6 +217,11 @@
     let realtimeChannel = null;
     
     // --- UI & UTILITY FUNCTIONS ---
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
     function showToast(message) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -232,6 +237,8 @@
     function openProfile() { showToast("Profile page coming soon!"); }
     async function logout() {
       showToast("Logging out...");
+      // Clear the cookie on logout
+      document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       if (realtimeChannel) await client.removeChannel(realtimeChannel);
       await client.auth.signOut();
     }
@@ -310,7 +317,6 @@
             c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
         }
         
-        // Optimistic UI: Remove old card instantly
         const oldCard = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
         if (oldCard) oldCard.remove();
         
@@ -322,7 +328,7 @@
         const { error } = await client.from('confessions').upsert(newConfessionData);
         if (error) {
             showToast("Failed to post confession.");
-            document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove(); // Revert on error
+            document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove();
             document.getElementById('removeDiv').style.display = 'none';
         } else {
             showToast("Confessed Successfully!");
@@ -333,7 +339,6 @@
         hideConfirmModal();
         if (!currentUser) return;
         
-        // Optimistic UI
         document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove();
         document.getElementById('removeDiv').style.display = 'none';
 
@@ -364,8 +369,9 @@
     }
 
     function createReplyHTML(reply) {
+        const loggedInUserId = getCookie('id');
         const tick = reply.tick === 'black' ? `<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous" loading="lazy">` : '';
-        const deleteBtn = currentUser && reply.user_id == currentUser.id ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id})">Delete</button>` : '';
+        const deleteBtn = loggedInUserId && reply.user_id == loggedInUserId ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id})">Delete</button>` : '';
         return `
             <div class="reply-card" data-reply-id="${reply.id}">
                 <div class="card-header"><img src="${reply.pic}" class="card-pic" alt="pic" style="width:30px;height:30px;" loading="lazy"><div class="card-name" style="font-size:14px;"><span>${reply.c_name}</span>${tick}</div></div>
@@ -386,36 +392,45 @@
     }
 
     async function addReply(button, confessionUserId) {
+        const loggedInUserId = getCookie('id');
         const input = button.closest('.reply-input-bar-inline').querySelector('input');
         const message = input.value.trim();
-        if (!message || !currentUser) return;
+        
+        if (!message || !loggedInUserId) {
+            return showToast("You must be logged in to reply.");
+        }
         
         let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
         if (selectedName.toLowerCase() === 'anonymous') {
             c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
         }
 
-        const newReplyData = { confession_user_id: confessionUserId, message, user_id: currentUser.id, c_name, pic, tick, id: Date.now() }; // Temporary ID
+        const newReplyData = { 
+            confession_user_id: confessionUserId, 
+            message, 
+            user_id: parseInt(loggedInUserId), // Using ID from cookie
+            c_name, pic, tick, 
+            id: Date.now() 
+        };
         
-        // Optimistic UI
         const wrapper = button.closest('.replies-wrapper');
         wrapper.querySelector('.no-replies')?.remove();
         const replyInputBar = wrapper.querySelector('.reply-input-bar-inline');
         replyInputBar.insertAdjacentHTML('beforebegin', createReplyHTML(newReplyData));
         input.value = '';
 
-        const { error } = await client.from('replies').insert([{ ...newReplyData, id: undefined }]); // Send to DB without temp ID
+        const { error } = await client.from('replies').insert([{ ...newReplyData, id: undefined }]);
         if (error) {
             showToast("Couldn't post reply.");
-            wrapper.querySelector(`[data-reply-id="${newReplyData.id}"]`)?.remove(); // Revert on error
+            console.error("Reply Insert Error:", error); 
+            wrapper.querySelector(`[data-reply-id="${newReplyData.id}"]`)?.remove();
         }
     }
 
     async function deleteReply(button, replyId) {
         const card = button.closest('.reply-card');
-        card.style.opacity = '0.5'; // Visual feedback for deletion
+        card.style.opacity = '0.5';
         await client.from('replies').delete().eq('id', replyId);
-        // Realtime will handle removing the card for all users.
     }
     
     // --- REALTIME & INITIALIZATION ---
@@ -437,7 +452,7 @@
             const confessionCard = document.querySelector(`.confession-card[data-id="${record.confession_user_id}"]`);
             if (!confessionCard) return;
             const wrapper = confessionCard.querySelector('.replies-wrapper');
-            if (!wrapper.classList.contains('active')) return; // Only update if replies are visible
+            if (!wrapper.classList.contains('active')) return;
             
             const replyCard = wrapper.querySelector(`[data-reply-id="${record.id}"]`);
             if (eventType === 'INSERT' && !replyCard) {
