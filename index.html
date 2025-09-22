@@ -216,6 +216,7 @@
     let currentUser = null;
     let realtimeChannel = null;
     
+    // --- UI & UTILITY FUNCTIONS ---
     function showToast(message) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -224,43 +225,37 @@
       container.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
     }
-    
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('active');
       document.getElementById('sidebarOverlay').classList.toggle('active');
     }
-
     function openProfile() { showToast("Profile page coming soon!"); }
-
     async function logout() {
       showToast("Logging out...");
       if (realtimeChannel) await client.removeChannel(realtimeChannel);
       await client.auth.signOut();
     }
-
     function toggleTheme() {
         const root = document.documentElement;
         const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
     }
-
     function applySavedTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         const themeCheckbox = document.getElementById('theme-checkbox');
         if (themeCheckbox) themeCheckbox.checked = savedTheme === 'dark';
     }
-
     function selectName(button) {
       document.querySelectorAll('.name-button').forEach(btn => btn.classList.remove('selected-name-button'));
       button.classList.add('selected-name-button');
       selectedName = button.innerText.trim();
     }
-
     function confirmRemove() { document.getElementById('confirm-modal').style.display = 'flex'; }
     function hideConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
     
+    // --- DATA FETCHING & RENDERING ---
     async function fetchChannels() {
         const channelList = document.getElementById('channel-list');
         channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading...</p>';
@@ -282,23 +277,14 @@
     }
     
     function createConfessionHTML(conf) {
-        const ticks = {
-            black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous" }
-        };
-        const tick = ticks[conf.tick] ? `<img src="${ticks[conf.tick].src}" width="16" title="${ticks[conf.tick].title}" loading="lazy">` : '';
+        const tick = conf.tick === 'black' ? `<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous" loading="lazy">` : '';
         const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
         const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
         return `
             <div class="confession-card" data-id="${conf.user_id}">
-                <div class="card-header">
-                    <img src="${conf.pic}" class="card-pic" alt="User picture" loading="lazy">
-                    <div class="card-name"><span>${conf.c_name}</span>${tick}</div>
-                </div>
+                <div class="card-header"><img src="${conf.pic}" class="card-pic" alt="User picture" loading="lazy"><div class="card-name"><span>${conf.c_name}</span>${tick}</div></div>
                 <p class="confession-message">${formattedMessage}</p>
-                <div class="confession-footer">
-                    ${replyCount}
-                    <button onclick="toggleReplies(this, '${conf.user_id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Reply</button>
-                </div>
+                <div class="confession-footer">${replyCount}<button onclick="toggleReplies(this, '${conf.user_id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Reply</button></div>
                 <div class="replies-wrapper"></div>
             </div>`;
     }
@@ -306,7 +292,6 @@
     async function fetchConfessions() {
         const { data, error } = await client.from('confessions').select('*').order('created_at', { ascending: false });
         if (error) return;
-        
         document.getElementById('confession-list').innerHTML = data.map(createConfessionHTML).join('');
         if (currentUser) {
           const userHasConfession = data.some(conf => conf.user_id == currentUser.id);
@@ -315,7 +300,7 @@
     }
 
     async function addConfession() {
-        if (!currentUser) return showToast("You must be logged in to confess.");
+        if (!currentUser) return showToast("You must be logged in.");
         const messageInput = document.getElementById('messageInput');
         const message = messageInput.value.trim();
         if (!message) return showToast("Please write something!");
@@ -328,38 +313,33 @@
         // Optimistic UI: Remove old card instantly
         const oldCard = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
         if (oldCard) oldCard.remove();
+        
+        const newConfessionData = { user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0 };
+        document.getElementById('confession-list').insertAdjacentHTML('afterbegin', createConfessionHTML(newConfessionData));
+        document.getElementById('removeDiv').style.display = 'block';
+        messageInput.value = '';
 
-        const { error } = await client.from('confessions').upsert({
-            user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0
-        });
-
+        const { error } = await client.from('confessions').upsert(newConfessionData);
         if (error) {
             showToast("Failed to post confession.");
-            fetchConfessions(); // Re-fetch to fix UI state on error
+            document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove(); // Revert on error
+            document.getElementById('removeDiv').style.display = 'none';
         } else {
             showToast("Confessed Successfully!");
-            messageInput.value = '';
-            // Optimistic UI: Add new card instantly
-            const newConfessionData = { user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0 };
-            document.getElementById('confession-list').insertAdjacentHTML('afterbegin', createConfessionHTML(newConfessionData));
-            document.getElementById('removeDiv').style.display = 'block';
         }
     }
 
     async function removeMyConfession() {
         hideConfirmModal();
         if (!currentUser) return;
-
-        // Optimistic UI: Remove card instantly
-        const cardToRemove = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
-        if (cardToRemove) cardToRemove.remove();
+        
+        // Optimistic UI
+        document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove();
         document.getElementById('removeDiv').style.display = 'none';
 
         const { error } = await client.from('confessions').delete().eq('user_id', currentUser.id);
-        
         if (error) {
             showToast("Delete failed. Please refresh.");
-            document.getElementById('removeDiv').style.display = 'block'; // Show button again on error
         } else {
             showToast("Confession Removed.");
         }
@@ -369,6 +349,7 @@
         if (currentUser) await client.from('logs').insert([{ time: new Date().toISOString(), user_id: currentUser.id, Name: currentUser.name }]);
     }
 
+    // --- REPLY FUNCTIONS ---
     async function toggleReplies(button, confessionUserId) {
         const wrapper = button.closest('.confession-card').querySelector('.replies-wrapper');
         if (wrapper.classList.contains('active')) {
@@ -378,24 +359,25 @@
         }
         wrapper.classList.add('active');
         wrapper.innerHTML = '<p style="text-align:center; padding:10px; color:var(--text-secondary);">Loading...</p>';
-        const { data, error } = await client.from('replies').select('*').eq('confession_user_id', confessionUserId).order('created_at', { ascending: true });
+        const { data } = await client.from('replies').select('*').eq('confession_user_id', confessionUserId).order('created_at', { ascending: true });
         renderRepliesAndInput(wrapper, data || [], confessionUserId);
+    }
+
+    function createReplyHTML(reply) {
+        const tick = reply.tick === 'black' ? `<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous" loading="lazy">` : '';
+        const deleteBtn = currentUser && reply.user_id == currentUser.id ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id})">Delete</button>` : '';
+        return `
+            <div class="reply-card" data-reply-id="${reply.id}">
+                <div class="card-header"><img src="${reply.pic}" class="card-pic" alt="pic" style="width:30px;height:30px;" loading="lazy"><div class="card-name" style="font-size:14px;"><span>${reply.c_name}</span>${tick}</div></div>
+                <p class="confession-message">${reply.message}</p>
+                <div class="reply-card-footer">${deleteBtn}</div>
+            </div>`;
     }
 
     function renderRepliesAndInput(container, replies, confessionUserId) {
         let repliesHtml = replies.length > 0
-            ? replies.map(reply => {
-                const tick = reply.tick === 'black' ? `<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous" loading="lazy">` : '';
-                const deleteBtn = currentUser && reply.user_id == currentUser.id ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id})">Delete</button>` : '';
-                return `
-                    <div class="reply-card" data-reply-id="${reply.id}">
-                        <div class="card-header"><img src="${reply.pic}" class="card-pic" alt="pic" style="width:30px;height:30px;" loading="lazy"><div class="card-name" style="font-size:14px;"><span>${reply.c_name}</span>${tick}</div></div>
-                        <p class="confession-message">${reply.message}</p>
-                        <div class="reply-card-footer">${deleteBtn}</div>
-                    </div>`;
-            }).join('')
-            : '<p style="text-align:center;color:var(--text-secondary); padding:10px 0;">Be the first to reply!</p>';
-
+            ? replies.map(createReplyHTML).join('')
+            : '<p class="no-replies" style="text-align:center;color:var(--text-secondary); padding:10px 0;">Be the first to reply!</p>';
         container.innerHTML = repliesHtml + `
             <div class="reply-input-bar-inline">
                 <input type="text" placeholder="Replying as ${selectedName}..."/>
@@ -407,43 +389,70 @@
         const input = button.closest('.reply-input-bar-inline').querySelector('input');
         const message = input.value.trim();
         if (!message || !currentUser) return;
+        
         let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
         if (selectedName.toLowerCase() === 'anonymous') {
             c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
         }
-        const { error } = await client.from('replies').insert([{ confession_user_id: confessionUserId, message, user_id: currentUser.id, c_name, pic, tick }]);
-        if (!error) input.value = '';
-    }
 
-    async function deleteReply(button, replyId) {
+        const newReplyData = { confession_user_id: confessionUserId, message, user_id: currentUser.id, c_name, pic, tick, id: Date.now() }; // Temporary ID
+        
         // Optimistic UI
-        button.closest('.reply-card').remove();
-        await client.from('replies').delete().eq('id', replyId);
-    }
-    
-    function handleRealtimeUpdate(payload) {
-        const list = document.getElementById('confession-list');
-        const event = payload.eventType;
-        const record = event === 'INSERT' || event === 'UPDATE' ? payload.new : payload.old;
-        const cardId = record.user_id;
+        const wrapper = button.closest('.replies-wrapper');
+        wrapper.querySelector('.no-replies')?.remove();
+        const replyInputBar = wrapper.querySelector('.reply-input-bar-inline');
+        replyInputBar.insertAdjacentHTML('beforebegin', createReplyHTML(newReplyData));
+        input.value = '';
 
-        if (event === 'INSERT') {
-            if (!document.querySelector(`.confession-card[data-id="${cardId}"]`)) {
-                list.insertAdjacentHTML('afterbegin', createConfessionHTML(record));
-            }
-        } else if (event === 'DELETE') {
-            const card = document.querySelector(`.confession-card[data-id="${cardId}"]`);
-            if (card) card.remove();
-        } else if (event === 'UPDATE') {
-            const card = document.querySelector(`.confession-card[data-id="${cardId}"]`);
-            if (card) card.outerHTML = createConfessionHTML(record);
+        const { error } = await client.from('replies').insert([{ ...newReplyData, id: undefined }]); // Send to DB without temp ID
+        if (error) {
+            showToast("Couldn't post reply.");
+            wrapper.querySelector(`[data-reply-id="${newReplyData.id}"]`)?.remove(); // Revert on error
         }
     }
 
-    async function subscribeToConfessions() {
+    async function deleteReply(button, replyId) {
+        const card = button.closest('.reply-card');
+        card.style.opacity = '0.5'; // Visual feedback for deletion
+        await client.from('replies').delete().eq('id', replyId);
+        // Realtime will handle removing the card for all users.
+    }
+    
+    // --- REALTIME & INITIALIZATION ---
+    function handleRealtimeUpdate(payload) {
+        const { eventType, table, new: newRecord, old: oldRecord } = payload;
+        const record = eventType === 'DELETE' ? oldRecord : newRecord;
+
+        if (table === 'confessions') {
+            const list = document.getElementById('confession-list');
+            const card = list.querySelector(`.confession-card[data-id="${record.user_id}"]`);
+            if (eventType === 'INSERT' && !card) {
+                list.insertAdjacentHTML('afterbegin', createConfessionHTML(record));
+            } else if (eventType === 'DELETE' && card) {
+                card.remove();
+            } else if (eventType === 'UPDATE' && card) {
+                card.outerHTML = createConfessionHTML(record);
+            }
+        } else if (table === 'replies') {
+            const confessionCard = document.querySelector(`.confession-card[data-id="${record.confession_user_id}"]`);
+            if (!confessionCard) return;
+            const wrapper = confessionCard.querySelector('.replies-wrapper');
+            if (!wrapper.classList.contains('active')) return; // Only update if replies are visible
+            
+            const replyCard = wrapper.querySelector(`[data-reply-id="${record.id}"]`);
+            if (eventType === 'INSERT' && !replyCard) {
+                wrapper.querySelector('.no-replies')?.remove();
+                wrapper.querySelector('.reply-input-bar-inline').insertAdjacentHTML('beforebegin', createReplyHTML(record));
+            } else if (eventType === 'DELETE' && replyCard) {
+                replyCard.remove();
+            }
+        }
+    }
+
+    async function subscribeToChanges() {
         if (realtimeChannel) await client.removeChannel(realtimeChannel);
-        realtimeChannel = client.channel('public:confessions')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'confessions' }, handleRealtimeUpdate)
+        realtimeChannel = client.channel('public-db-changes')
+            .on('postgres_changes', { event: '*', schema: 'public' }, handleRealtimeUpdate)
             .subscribe();
     }
 
@@ -469,7 +478,7 @@
         }
         await Promise.all([fetchConfessions(), fetchChannels()]);
         await logUserVisit();
-        subscribeToConfessions();
+        subscribeToChanges();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
