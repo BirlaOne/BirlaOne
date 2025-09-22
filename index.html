@@ -118,7 +118,7 @@
 <script>
     // --- SUPABASE CLIENT SETUP ---
     const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI_NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
     
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -128,8 +128,6 @@
     let realtimeChannel = null;
     
     // --- UI, THEME & UTILITY FUNCTIONS ---
-    // REMOVED: getCookie function is no longer needed.
-    
     function showToast(message) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -139,6 +137,15 @@
       setTimeout(() => toast.remove(), 3000);
     }
     
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function openProfile() {
+      window.location.href = "https://bafbkbnc.github.io/BAFs/profile.html";
+    }
+
     async function logout() {
       showToast("Logging out...");
       if (realtimeChannel) {
@@ -152,11 +159,190 @@
       }
     }
 
-    // Other utility functions (toggleSidebar, etc.) remain here...
-    
-    // --- REALTIME & INITIALIZATION LOGIC ---
+    function toggleTheme() {
+        const root = document.documentElement;
+        const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateAllThemeLinks(newTheme, currentUser ? currentUser.id : null);
+    }
 
-    // MODIFIED: This function now ONLY uses the secure session. The cookie fallback is removed.
+    function applySavedTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('theme-checkbox').checked = savedTheme === 'dark';
+    }
+
+    function updateAllThemeLinks(theme, id) {
+        document.querySelectorAll('.channel-link').forEach(link => {
+            try {
+                const url = new URL(link.href);
+                url.searchParams.set('theme', theme);
+                if (id) url.searchParams.set('id', id);
+                link.href = url.toString();
+            } catch (e) {
+                console.error("Invalid URL for channel link:", link.href);
+            }
+        });
+    }
+
+    function selectName(button) {
+      document.querySelectorAll('.name-button').forEach(btn => btn.classList.remove('selected-name-button'));
+      button.classList.add('selected-name-button');
+      selectedName = button.innerText.trim();
+    }
+
+    function confirmRemove() {
+        document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    function hideConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
+    }
+    
+    // --- DATA FETCHING & RENDERING ---
+    async function fetchChannels() {
+        const channelList = document.getElementById('channel-list');
+        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
+        const { data, error } = await client.from('Channels').select('*');
+        if (error) {
+            console.error("Error fetching channels:", error);
+            channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
+        } else {
+            const list = document.getElementById('channel-list');
+            list.innerHTML = '';
+            data.forEach(channel => {
+                list.insertAdjacentHTML('beforeend', `
+                    <a href="${channel.href}" class="channel-link">
+                        <div class="channel-card">
+                            <img src="${channel.img}" alt="Channel Icon" class="card-pic" loading="lazy">
+                            <div class="channel-info">
+                                <div class="channel-title">
+                                    ${channel.name}
+                                    <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
+                                </div>
+                                <div class="channel-description">${channel.tagline}</div>
+                            </div>
+                        </div>
+                    </a>
+                `);
+            });
+            updateAllThemeLinks(localStorage.getItem('theme') || 'light', currentUser ? currentUser.id : null);
+        }
+    }
+    
+    function createConfessionHTML(conf) {
+        const ticks = {
+            blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
+            silver: { src: "https://i.ibb.co/gLJLF9Z2/silver.png", title: "Special User" },
+            gold: { src: "https://i.ibb.co/Q2C7MrM/gold.png", title: "Admin User" },
+            green: { src: "https://i.ibb.co/SXGL4Nq0/green.png", title: "Official Channel" },
+            black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Confess" }
+        };
+        const tick = ticks[conf.tick] ? `<img src="${ticks[conf.tick].src}" width="16" title="${ticks[conf.tick].title}" loading="lazy">` : '';
+        const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
+        const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
+        
+        return `<div class="confession-card" data-id="${conf.user_id}"></div>`;
+    }
+
+    async function fetchConfessions() {
+        const confessionList = document.getElementById('confession-list');
+        const { data, error } = await client
+            .from('confessions')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error("Fetch Confessions Error:", error);
+            confessionList.innerHTML = '<p style="text-align:center;color:gray;">Error loading confessions!</p>';
+            return;
+        }
+
+        confessionList.innerHTML = '';
+        if (currentUser) {
+          let userHasConfession = data.some(conf => conf.user_id == currentUser.id);
+          document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
+        }
+        
+        data.forEach(conf => {
+            confessionList.insertAdjacentHTML('beforeend', createConfessionHTML(conf));
+        });
+    }
+
+    async function addConfession() {
+        if (!currentUser) {
+            showToast("You must be logged in to confess.");
+            return;
+        }
+        const message = document.getElementById('messageInput').value.trim();
+        if (!message) {
+            showToast("Please write something!");
+            return;
+        }
+
+        let c_name = currentUser.name;
+        let pic = currentUser.img || 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
+        let tick = currentUser.tick || '';
+        if (selectedName.toLowerCase() === 'anonymous') {
+            c_name = 'Anonymous';
+            pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
+            tick = 'black';
+        }
+
+        await client.from('replies').delete().eq('confession_user_id', currentUser.id);
+        await client.from('confessions').delete().eq('user_id', currentUser.id);
+
+        const { error: insertError } = await client.from('confessions').insert([{
+            user_id: currentUser.id, c_name, message, tick, pic
+        }]);
+
+        if (insertError) {
+            showToast("Failed to post confession.");
+            console.error("Insert Error:", insertError);
+        } else {
+            showToast("Confessed Successfully!");
+            document.getElementById('messageInput').value = '';
+        }
+    }
+
+    async function removeMyConfession() {
+        hideConfirmModal();
+        if (!currentUser) return;
+        const { error } = await client.from('confessions').delete().eq('user_id', currentUser.id);
+        if (error) {
+            showToast("Delete failed.");
+        } else {
+            showToast("Confession Removed.");
+        }
+    }
+
+    async function logUserVisit() {
+        if (currentUser) {
+            const { error } = await client.from('logs').insert([{
+                time: new Date().toISOString(),
+                user_id: currentUser.id,
+                Name: currentUser.name,
+                course: currentUser.course
+            }]);
+            if (error) console.error("Log Error:", error.message);
+        }
+    }
+
+    // --- REALTIME & INITIALIZATION LOGIC ---
+    function handleRealtimeUpdate(payload) {
+        // ... realtime logic ...
+    }
+
+    function subscribeToConfessions() {
+        if (realtimeChannel) client.removeChannel(realtimeChannel);
+        
+        realtimeChannel = client
+            .channel('public:confessions')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'confessions' }, handleRealtimeUpdate)
+            .subscribe();
+    }
+
     async function fetchAndSetCurrentUser(session) {
       let authUserId = session.user.id;
       
@@ -169,12 +355,11 @@
       
       if (error || !profileData) {
         console.error("❌ Profile fetch failed:", error?.message);
-        return false; // Indicate failure
+        return false;
       }
 
       console.log("✅ Profile fetch success:", profileData);
       
-      // Set the global user object for the app to use
       currentUser = {
         id: profileData.id,
         auth_uuid: authUserId,
@@ -184,7 +369,6 @@
         tick: profileData.tick
       };
 
-      // Update the UI with the fetched profile data
       const profilePicUrl = profileData.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
       document.getElementById('profilePic').src = profilePicUrl;
       document.getElementById('sidebarProfilePic').src = profilePicUrl;
@@ -192,10 +376,9 @@
       document.getElementById('sidebar-username').innerText = profileData.name || 'Student';
       document.getElementById('sidebar-user-id').innerText = `Student ID: ${profileData.id || 'N/A'}`;
       
-      return true; // Indicate success
+      return true;
     }
 
-    // MODIFIED: Main app initializer updated for the new secure logic.
     async function initializeApp(session) {
         if (!session || !session.user) {
             window.location.href = "login.html";
@@ -210,7 +393,6 @@
             return;
         }
 
-        // If profile is loaded, proceed to load the rest of the app content
         await Promise.all([
             fetchConfessions(),
             fetchChannels()
@@ -234,9 +416,6 @@
             }
         });
     });
-
-    // NOTE: Your other functions (fetchConfessions, addConfession, etc.) should be included here.
-    // They are omitted for brevity.
 </script>
 </body>
 </html>
