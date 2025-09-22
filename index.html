@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Debug Dashboard</title>
+  <title>Supabase Debug</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <h1>Debug Dashboard</h1>
+  <h1>Debug Page</h1>
   <pre id="output">Loading...</pre>
 
 <script>
 const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";  // replace
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";  // replace with your anon key
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function getCookie(name) {
@@ -20,17 +20,17 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(";").shift();
 }
 
-async function loadProfile() {
+async function debugCheck() {
   const out = document.getElementById("output");
 
-  console.log("🔎 Checking session...");
+  console.log("🔎 Checking Supabase session...");
   const { data: { session }, error: sessErr } = await supabase.auth.getSession();
-  console.log("Session:", session, sessErr);
+  console.log("Session result:", session, sessErr);
 
   let profile = null;
 
   if (session?.user) {
-    console.log("✅ Found session. Trying auth_id lookup:", session.user.id);
+    console.log("✅ Session found. Trying auth_id lookup:", session.user.id);
     const { data, error } = await supabase
       .from("users")
       .select("id, name, email, mob, role, auth_id")
@@ -42,7 +42,7 @@ async function loadProfile() {
 
   if (!profile) {
     const studentId = getCookie("id");
-    console.log("⚠️ Auth_id fetch failed. Cookie studentId:", studentId);
+    console.log("⚠️ auth_id fetch failed. Cookie ID:", studentId);
     if (studentId) {
       const { data, error } = await supabase
         .from("users")
@@ -55,16 +55,16 @@ async function loadProfile() {
   }
 
   if (!profile) {
-    out.textContent = "❌ No profile found. Redirecting to login in 10s...\nCheck console logs!";
-    console.log("❌ No profile found. Redirecting in 10s...");
-    setTimeout(() => window.location.href = "login.html", 10000); // wait 10s
+    out.textContent = "❌ No profile found. (We will NOT redirect here)";
+    console.log("❌ No profile found. Debug stop here, no redirect.");
     return;
   }
 
   out.textContent = "✅ Profile loaded:\n\n" + JSON.stringify(profile, null, 2);
   console.log("✅ Profile loaded:", profile);
 }
-loadProfile();
+
+debugCheck();
 </script>
 </body>
 </html>
