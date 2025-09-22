@@ -11,7 +11,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <script>
-    // This script runs early to prevent a "flash of the wrong theme."
     (function() {
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -19,7 +18,6 @@
   </script>
 
   <style>
-    /* 🎨 --- Color & Theme Variables --- 🎨 */
     :root {
       --primary-accent: #56ab2f;
       --primary-gradient: linear-gradient(90deg, #a8e063, #56ab2f);
@@ -106,9 +104,7 @@
     .toast { background: var(--card-bg); color: var(--text-primary); padding: 12px 20px; margin-top: 10px; border-left: 5px solid var(--primary-accent); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); font-weight: 500; font-size: 14px; animation: slideInUp 0.4s ease, fadeOut 0.4s ease 2.6s; }
     @keyframes slideInUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-    /* --- Confession & Reply Styles --- */
-    .confession-card, .channel-card { background: var(--card-bg); margin: 16px auto; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; border-left: 4px solid var(--primary-accent); animation: fadeUp 0.4s ease; }
+    .confession-card, .channel-card { background: var(--card-bg); margin: 16px auto; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease; position: relative; border-left: 4px solid var(--primary-accent); animation: fadeUp 0.4s ease; }
     .confession-card:hover, .channel-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
     @keyframes fadeUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -118,7 +114,7 @@
     .confession-message::before { content: "“"; font-size: 24px; position: absolute; left: 0; top: -4px; color: var(--primary-accent); font-weight: bold; }
     .confession-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; }
     .confession-footer button { background: none; border: none; color: var(--primary-accent); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 4px; font-size: 14px; transition: color 0.2s; }
-    .confession-footer button:hover { color: #2e7d32; } /* Darker green for hover */
+    .confession-footer button:hover { color: #2e7d32; }
     .reply-count { font-size: 14px; color: var(--text-secondary); margin-right: 12px; }
     .replies-wrapper { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, margin-top 0.5s ease-in-out, opacity 0.4s ease; border-top: 1px solid transparent; margin-top: 0; opacity: 0; }
     .replies-wrapper.active { max-height: 1000px; border-top: 1px solid var(--border-color); margin-top: 16px; opacity: 1; }
@@ -137,8 +133,6 @@
     .channel-info { flex: 1; }
     .channel-title { font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 6px; }
     .channel-description { font-size: 14px; color: var(--text-secondary); }
-
-    /* --- Modal Styles --- */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); justify-content: center; align-items: center; }
     #confirm-modal { display: none; }
     .confirm-content { background: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: var(--shadow); width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--border-color); animation: fadeIn 0.3s ease; }
@@ -151,7 +145,6 @@
   </style>
 </head>
 <body>
-
   <div id="toast-container"></div>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
@@ -164,43 +157,24 @@
       </div>
     </div>
     <nav>
-      <a href="#" onclick="location.reload()">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span>Home</span>
-      </a>
-      <a href="about-us.html">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-        <span>About Us</span>
-      </a>
-      <a href="contact-us.html">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        <span>Contact Us</span>
-      </a>
-      <a href="change-password.html">
-        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-        <span>Change Password</span>
-      </a>
+      <a href="#" onclick="location.reload()"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Home</span></a>
+      <a href="about-us.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><span>About Us</span></a>
+      <a href="contact-us.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>Contact Us</span></a>
+      <a href="change-password.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>Change Password</span></a>
     </nav>
     <div class="sidebar-footer">
       <div class="theme-switch-wrapper">
         <span class="theme-switch-label">Theme</span>
-        <label class="theme-switch">
-          <input type="checkbox" id="theme-checkbox" />
-          <span class="slider"></span>
-        </label>
+        <label class="theme-switch"><input type="checkbox" id="theme-checkbox" /><span class="slider"></span></label>
       </div>
       <button class="logout-button" onclick="logout()">Logout</button>
     </div>
   </aside>
 
   <header class="top-bar">
-    <button class="menu-toggle" onclick="toggleSidebar()">
-      <span class="menu-icon">☰</span>
-    </button>
+    <button class="menu-toggle" onclick="toggleSidebar()"><span class="menu-icon">☰</span></button>
     <h1>BirlaOne</h1>
-    <a href="#" class="profile-link" onclick="openProfile()">
-        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/>
-    </a>
+    <a href="#" class="profile-link" onclick="openProfile()"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/></a>
   </header>
 
   <main class="container">
@@ -208,23 +182,16 @@
       <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
       <button class="name-button" id="nameButton" onclick="selectName(this)">Loading...</button>
     </div>
-
     <div class="input-bar">
       <input type="text" id="messageInput" placeholder="🌟 What's on your mind?"/>
-      <button onclick="addConfession()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-      </button>
+      <button onclick="addConfession()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
     </div>
-
     <div class="remove_div" id="removeDiv" style="display:none;">
       <button class="remove-my-confession" onclick="confirmRemove()">Remove my confession</button>
     </div>
-
     <h3 class="section-title">College Confessions</h3>
     <div id="confession-list"></div>
-    
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
-
     <h3 class="section-title">Channels</h3>
     <div id="channel-list"></div>
     <div class="encrypted">Made with ♥️ by Developer Mohit Mali.</div>
@@ -241,18 +208,14 @@
   </div>
   
 <script>
-    // --- SUPABASE CLIENT SETUP ---
     const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
-    
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- GLOBAL STATE & DATA ---
     let selectedName = "Anonymous";
     let currentUser = null;
     let realtimeChannel = null;
     
-    // --- UI, THEME & UTILITY FUNCTIONS ---
     function showToast(message) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -267,19 +230,12 @@
       document.getElementById('sidebarOverlay').classList.toggle('active');
     }
 
-    function openProfile() {
-      // This could link to a dedicated profile page in the future
-      showToast("Profile page coming soon!");
-    }
+    function openProfile() { showToast("Profile page coming soon!"); }
 
     async function logout() {
       showToast("Logging out...");
-      if (realtimeChannel) {
-        await client.removeChannel(realtimeChannel);
-        realtimeChannel = null;
-      }
+      if (realtimeChannel) await client.removeChannel(realtimeChannel);
       await client.auth.signOut();
-      // onAuthStateChange listener will handle the redirect
     }
 
     function toggleTheme() {
@@ -287,29 +243,13 @@
         const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        updateAllThemeLinks(newTheme, currentUser ? currentUser.id : null);
     }
 
     function applySavedTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         const themeCheckbox = document.getElementById('theme-checkbox');
-        if (themeCheckbox) {
-            themeCheckbox.checked = savedTheme === 'dark';
-        }
-    }
-
-    function updateAllThemeLinks(theme, id) {
-        document.querySelectorAll('.channel-link').forEach(link => {
-            try {
-                const url = new URL(link.href);
-                url.searchParams.set('theme', theme);
-                if (id) url.searchParams.set('id', id);
-                link.href = url.toString();
-            } catch (e) {
-                console.error("Invalid URL for channel link:", link.href);
-            }
-        });
+        if (themeCheckbox) themeCheckbox.checked = savedTheme === 'dark';
     }
 
     function selectName(button) {
@@ -318,388 +258,226 @@
       selectedName = button.innerText.trim();
     }
 
-    function confirmRemove() {
-        document.getElementById('confirm-modal').style.display = 'flex';
-    }
-
-    function hideConfirmModal() {
-        document.getElementById('confirm-modal').style.display = 'none';
-    }
+    function confirmRemove() { document.getElementById('confirm-modal').style.display = 'flex'; }
+    function hideConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
     
-    // --- DATA FETCHING & RENDERING ---
     async function fetchChannels() {
         const channelList = document.getElementById('channel-list');
-        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
+        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading...</p>';
         const { data, error } = await client.from('Channels').select('*');
         if (error) {
-            console.error("Error fetching channels:", error);
             channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
         } else {
-            const list = document.getElementById('channel-list');
-            list.innerHTML = '';
-            data.forEach(channel => {
-                list.insertAdjacentHTML('beforeend', `
-                    <a href="${channel.href}" class="channel-link">
-                        <div class="channel-card">
-                            <img src="${channel.img}" alt="Channel Icon" class="card-pic" loading="lazy">
-                            <div class="channel-info">
-                                <div class="channel-title">
-                                    ${channel.name}
-                                    <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
-                                </div>
-                                <div class="channel-description">${channel.tagline}</div>
-                            </div>
+            channelList.innerHTML = data.map(channel => `
+                <a href="${channel.href}" class="channel-link" target="_blank">
+                    <div class="channel-card">
+                        <img src="${channel.img}" alt="Icon" class="card-pic" loading="lazy">
+                        <div class="channel-info">
+                            <div class="channel-title">${channel.name} <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;"></div>
+                            <div class="channel-description">${channel.tagline}</div>
                         </div>
-                    </a>
-                `);
-            });
-            updateAllThemeLinks(localStorage.getItem('theme') || 'light', currentUser ? currentUser.id : null);
+                    </div>
+                </a>`).join('');
         }
     }
     
     function createConfessionHTML(conf) {
         const ticks = {
-            blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
-            silver: { src: "https://i.ibb.co/gLJLF9Z2/silver.png", title: "Special User" },
-            gold: { src: "https://i.ibb.co/Q2C7MrM/gold.png", title: "Admin User" },
-            green: { src: "https://i.ibb.co/SXGL4Nq0/green.png", title: "Official Channel" },
-            black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Confess" }
+            black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous" }
         };
         const tick = ticks[conf.tick] ? `<img src="${ticks[conf.tick].src}" width="16" title="${ticks[conf.tick].title}" loading="lazy">` : '';
         const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
         const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
-        
         return `
             <div class="confession-card" data-id="${conf.user_id}">
                 <div class="card-header">
                     <img src="${conf.pic}" class="card-pic" alt="User picture" loading="lazy">
-                    <div class="card-name">
-                        <span>${conf.c_name}</span>
-                        ${tick}
-                    </div>
+                    <div class="card-name"><span>${conf.c_name}</span>${tick}</div>
                 </div>
                 <p class="confession-message">${formattedMessage}</p>
                 <div class="confession-footer">
                     ${replyCount}
-                    <button onclick="toggleReplies(this, '${conf.user_id}')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                        Reply
-                    </button>
+                    <button onclick="toggleReplies(this, '${conf.user_id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Reply</button>
                 </div>
                 <div class="replies-wrapper"></div>
-            </div>
-        `;
+            </div>`;
     }
 
     async function fetchConfessions() {
-        const confessionList = document.getElementById('confession-list');
         const { data, error } = await client.from('confessions').select('*').order('created_at', { ascending: false });
-        if (error) {
-            console.error("Fetch Confessions Error:", error);
-            confessionList.innerHTML = '<p>Error loading confessions!</p>';
-            return;
-        }
-        confessionList.innerHTML = '';
+        if (error) return;
+        
+        document.getElementById('confession-list').innerHTML = data.map(createConfessionHTML).join('');
         if (currentUser) {
-          let userHasConfession = data.some(conf => conf.user_id == currentUser.id);
+          const userHasConfession = data.some(conf => conf.user_id == currentUser.id);
           document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
         }
-        data.forEach(conf => {
-            confessionList.insertAdjacentHTML('beforeend', createConfessionHTML(conf));
-        });
     }
 
     async function addConfession() {
-        if (!currentUser) {
-            showToast("You must be logged in to confess.");
-            return;
-        }
-        const message = document.getElementById('messageInput').value.trim();
-        if (!message) {
-            showToast("Please write something!");
-            return;
-        }
+        if (!currentUser) return showToast("You must be logged in to confess.");
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+        if (!message) return showToast("Please write something!");
 
-        let c_name = currentUser.name;
-        let pic = currentUser.img || 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
-        let tick = currentUser.tick || '';
+        let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
         if (selectedName.toLowerCase() === 'anonymous') {
-            c_name = 'Anonymous';
-            pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
-            tick = 'black';
+            c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
         }
+        
+        // Optimistic UI: Remove old card instantly
+        const oldCard = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
+        if (oldCard) oldCard.remove();
 
-        // Delete existing confession and its replies first
-        await client.from('replies').delete().eq('confession_user_id', currentUser.id);
-        await client.from('confessions').delete().eq('user_id', currentUser.id);
+        const { error } = await client.from('confessions').upsert({
+            user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0
+        });
 
-        const { error: insertError } = await client.from('confessions').insert([{
-            user_id: currentUser.id, c_name, message, tick, pic
-        }]);
-
-        if (insertError) {
+        if (error) {
             showToast("Failed to post confession.");
-            console.error("Insert Error:", insertError);
+            fetchConfessions(); // Re-fetch to fix UI state on error
         } else {
             showToast("Confessed Successfully!");
-            document.getElementById('messageInput').value = '';
+            messageInput.value = '';
+            // Optimistic UI: Add new card instantly
+            const newConfessionData = { user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0 };
+            document.getElementById('confession-list').insertAdjacentHTML('afterbegin', createConfessionHTML(newConfessionData));
+            document.getElementById('removeDiv').style.display = 'block';
         }
     }
 
     async function removeMyConfession() {
         hideConfirmModal();
         if (!currentUser) return;
+
+        // Optimistic UI: Remove card instantly
+        const cardToRemove = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
+        if (cardToRemove) cardToRemove.remove();
+        document.getElementById('removeDiv').style.display = 'none';
+
         const { error } = await client.from('confessions').delete().eq('user_id', currentUser.id);
+        
         if (error) {
-            showToast("Delete failed.");
+            showToast("Delete failed. Please refresh.");
+            document.getElementById('removeDiv').style.display = 'block'; // Show button again on error
         } else {
             showToast("Confession Removed.");
         }
     }
 
     async function logUserVisit() {
-        if (currentUser) {
-            const { error } = await client.from('logs').insert([{
-                time: new Date().toISOString(),
-                user_id: currentUser.id,
-                Name: currentUser.name,
-                course: currentUser.course
-            }]);
-            if (error) console.error("Log Error:", error.message);
-        }
+        if (currentUser) await client.from('logs').insert([{ time: new Date().toISOString(), user_id: currentUser.id, Name: currentUser.name }]);
     }
 
-    // --- REPLY FUNCTIONS ---
     async function toggleReplies(button, confessionUserId) {
-        const confessionCard = button.closest('.confession-card');
-        const repliesWrapper = confessionCard.querySelector('.replies-wrapper');
-
-        if (repliesWrapper.classList.contains('active')) {
-            repliesWrapper.classList.remove('active');
-            setTimeout(() => { repliesWrapper.innerHTML = ''; }, 300);
+        const wrapper = button.closest('.confession-card').querySelector('.replies-wrapper');
+        if (wrapper.classList.contains('active')) {
+            wrapper.classList.remove('active');
+            setTimeout(() => { wrapper.innerHTML = ''; }, 300);
             return;
         }
-
-        repliesWrapper.classList.add('active');
-        repliesWrapper.innerHTML = '<p style="text-align:center; padding: 10px; color:var(--text-secondary);">Loading...</p>';
-
-        const { data, error } = await client
-            .from('replies')
-            .select('*')
-            .eq('confession_user_id', parseInt(confessionUserId))
-            .order('created_at', { ascending: true });
-
-        if (error) {
-            repliesWrapper.innerHTML = '<p style="text-align:center;color:gray;">Error loading replies.</p>';
-            return;
-        }
-        renderRepliesAndInput(repliesWrapper, data, confessionUserId);
+        wrapper.classList.add('active');
+        wrapper.innerHTML = '<p style="text-align:center; padding:10px; color:var(--text-secondary);">Loading...</p>';
+        const { data, error } = await client.from('replies').select('*').eq('confession_user_id', confessionUserId).order('created_at', { ascending: true });
+        renderRepliesAndInput(wrapper, data || [], confessionUserId);
     }
 
     function renderRepliesAndInput(container, replies, confessionUserId) {
-        let repliesHtml = '';
-        if (replies.length > 0) {
-            replies.forEach(reply => {
-                const ticks = {
-                    black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous Reply" }
-                };
-                const tick = ticks[reply.tick] ? `<img src="${ticks[reply.tick].src}" width="16" title="${ticks[reply.tick].title}" loading="lazy">` : '';
-                const isUserReply = currentUser && reply.user_id == currentUser.id;
-                const deleteBtn = isUserReply ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id}, '${confessionUserId}')">Delete</button>` : '';
-                
-                repliesHtml += `
-                    <div class="reply-card">
-                        <div class="card-header">
-                            <img src="${reply.pic}" class="card-pic" alt="User picture" style="width:30px;height:30px;" loading="lazy">
-                            <div class="card-name" style="font-size:14px;">
-                                <span>${reply.c_name}</span>
-                                ${tick}
-                            </div>
-                        </div>
+        let repliesHtml = replies.length > 0
+            ? replies.map(reply => {
+                const tick = reply.tick === 'black' ? `<img src="https://i.ibb.co/zVNSNzrK/black.png" width="16" title="Anonymous" loading="lazy">` : '';
+                const deleteBtn = currentUser && reply.user_id == currentUser.id ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id})">Delete</button>` : '';
+                return `
+                    <div class="reply-card" data-reply-id="${reply.id}">
+                        <div class="card-header"><img src="${reply.pic}" class="card-pic" alt="pic" style="width:30px;height:30px;" loading="lazy"><div class="card-name" style="font-size:14px;"><span>${reply.c_name}</span>${tick}</div></div>
                         <p class="confession-message">${reply.message}</p>
                         <div class="reply-card-footer">${deleteBtn}</div>
-                    </div>
-                `;
-            });
-        } else {
-            repliesHtml = '<p style="text-align:center;color:var(--text-secondary); padding: 10px 0;">Be the first to reply!</p>';
-        }
+                    </div>`;
+            }).join('')
+            : '<p style="text-align:center;color:var(--text-secondary); padding:10px 0;">Be the first to reply!</p>';
 
-        const replyInputHtml = `
+        container.innerHTML = repliesHtml + `
             <div class="reply-input-bar-inline">
                 <input type="text" placeholder="Replying as ${selectedName}..."/>
-                <button onclick="addReply(this, '${confessionUserId}')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </button>
-            </div>
-        `;
-        container.innerHTML = repliesHtml + replyInputHtml;
+                <button onclick="addReply(this, '${confessionUserId}')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+            </div>`;
     }
 
     async function addReply(button, confessionUserId) {
-        const inputBar = button.closest('.reply-input-bar-inline');
-        const input = inputBar.querySelector('input');
+        const input = button.closest('.reply-input-bar-inline').querySelector('input');
         const message = input.value.trim();
-
-        if (!message) return;
-        if (!currentUser) {
-            showToast("You must be logged in to reply.");
-            return;
-        }
-
-        let c_name = currentUser.name;
-        let pic = currentUser.img || '...';
-        let tick = currentUser.tick || '';
+        if (!message || !currentUser) return;
+        let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
         if (selectedName.toLowerCase() === 'anonymous') {
-            c_name = 'Anonymous';
-            pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg';
-            tick = 'black';
+            c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
         }
-
-        const { error } = await client.from('replies').insert([{
-            confession_user_id: parseInt(confessionUserId), 
-            message, 
-            user_id: currentUser.id, 
-            c_name, pic, tick
-        }]);
-
-        if (error) {
-            showToast("Failed to post reply.");
-        } else {
-            input.value = '';
-        }
+        const { error } = await client.from('replies').insert([{ confession_user_id: confessionUserId, message, user_id: currentUser.id, c_name, pic, tick }]);
+        if (!error) input.value = '';
     }
 
-    async function deleteReply(button, replyId, confessionUserId) {
-        if (!currentUser) return;
-        const { error } = await client.from('replies').delete().eq('id', replyId).eq('user_id', currentUser.id);
-        if (error) {
-            showToast("Failed to delete reply.");
-        }
+    async function deleteReply(button, replyId) {
+        // Optimistic UI
+        button.closest('.reply-card').remove();
+        await client.from('replies').delete().eq('id', replyId);
     }
     
-    // --- REALTIME & INITIALIZATION LOGIC ---
     function handleRealtimeUpdate(payload) {
-        const confessionList = document.getElementById('confession-list');
+        const list = document.getElementById('confession-list');
+        const event = payload.eventType;
+        const record = event === 'INSERT' || event === 'UPDATE' ? payload.new : payload.old;
+        const cardId = record.user_id;
 
-        if (payload.table === 'confessions') {
-            if (payload.eventType === 'INSERT') {
-                if (!document.querySelector(`.confession-card[data-id="${payload.new.user_id}"]`)) {
-                    confessionList.insertAdjacentHTML('afterbegin', createConfessionHTML(payload.new));
-                }
-                if (currentUser && payload.new.user_id == currentUser.id) {
-                    document.getElementById('removeDiv').style.display = 'block';
-                }
-            } else if (payload.eventType === 'DELETE') {
-                const card = document.querySelector(`.confession-card[data-id="${payload.old.user_id}"]`);
-                if (card) card.remove();
-                if (currentUser && payload.old.user_id == currentUser.id) {
-                    document.getElementById('removeDiv').style.display = 'none';
-                }
-            } else if (payload.eventType === 'UPDATE') {
-                const card = document.querySelector(`.confession-card[data-id="${payload.new.user_id}"]`);
-                if (card) {
-                   const countSpan = card.querySelector('.reply-count');
-                   const count = payload.new.replies_count;
-                   if (count > 0) {
-                       if(countSpan) countSpan.textContent = `${count} ${count === 1 ? 'Reply' : 'Replies'}`;
-                       else {
-                           const footer = card.querySelector('.confession-footer');
-                           footer.insertAdjacentHTML('afterbegin', `<span class="reply-count">${count} ${count === 1 ? 'Reply' : 'Replies'}</span>`);
-                       }
-                   } else if (countSpan) {
-                       countSpan.remove();
-                   }
-                }
+        if (event === 'INSERT') {
+            if (!document.querySelector(`.confession-card[data-id="${cardId}"]`)) {
+                list.insertAdjacentHTML('afterbegin', createConfessionHTML(record));
             }
-        } else if (payload.table === 'replies') {
-            const card = document.querySelector(`.confession-card[data-id="${payload.new?.confession_user_id || payload.old?.confession_user_id}"]`);
-            if (card) {
-                const wrapper = card.querySelector('.replies-wrapper');
-                if (wrapper.classList.contains('active')) {
-                    // Refresh replies if the section is open
-                    toggleReplies(wrapper, payload.new?.confession_user_id || payload.old?.confession_user_id);
-                }
-            }
+        } else if (event === 'DELETE') {
+            const card = document.querySelector(`.confession-card[data-id="${cardId}"]`);
+            if (card) card.remove();
+        } else if (event === 'UPDATE') {
+            const card = document.querySelector(`.confession-card[data-id="${cardId}"]`);
+            if (card) card.outerHTML = createConfessionHTML(record);
         }
     }
 
-    async function subscribeToChanges() {
+    async function subscribeToConfessions() {
         if (realtimeChannel) await client.removeChannel(realtimeChannel);
-        realtimeChannel = client.channel('public-changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'confessions' }, (payload) => {
-                 handleRealtimeUpdate(payload);
-                 // Update reply count on parent confession
-                 if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
-                    client.rpc('update_reply_count', { confession_id: payload.new?.user_id || payload.old?.user_id });
-                 }
-            })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'replies' }, (payload) => {
-                 handleRealtimeUpdate(payload);
-                 // Update reply count on parent confession
-                 if (payload.new?.confession_user_id || payload.old?.confession_user_id) {
-                    client.rpc('update_reply_count_for_confession', { c_user_id: payload.new?.confession_user_id || payload.old?.confession_user_id });
-                 }
-            })
+        realtimeChannel = client.channel('public:confessions')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'confessions' }, handleRealtimeUpdate)
             .subscribe();
     }
 
     async function fetchAndSetCurrentUser(session) {
-      let authUserId = session.user.id;
-      const { data: profileData, error } = await client.from('users').select('id, img, name, course, tick').eq('auth_id', authUserId).single();
-      
-      if (error || !profileData) {
-        console.error("Profile fetch failed:", error?.message);
-        return false;
-      }
-
-      currentUser = {
-        id: profileData.id,
-        auth_uuid: authUserId,
-        name: profileData.name,
-        course: profileData.course,
-        img: profileData.img,
-        tick: profileData.tick
-      };
-
-      const profilePicUrl = profileData.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-      document.getElementById('profilePic').src = profilePicUrl;
-      document.getElementById('sidebarProfilePic').src = profilePicUrl;
-      document.getElementById('nameButton').innerText = profileData.name || 'Student';
-      document.getElementById('sidebar-username').innerText = profileData.name || 'Student';
-      document.getElementById('sidebar-user-id').innerText = `Student ID: ${profileData.id || 'N/A'}`;
-      
+      const { data, error } = await client.from('users').select('id, img, name, course, tick').eq('auth_id', session.user.id).single();
+      if (error) return false;
+      currentUser = data;
+      const picUrl = data.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      document.getElementById('profilePic').src = picUrl;
+      document.getElementById('sidebarProfilePic').src = picUrl;
+      document.getElementById('nameButton').innerText = data.name || 'Student';
+      document.getElementById('sidebar-username').innerText = data.name || 'Student';
+      document.getElementById('sidebar-user-id').innerText = `Student ID: ${data.id || 'N/A'}`;
       return true;
     }
 
     async function initializeApp(session) {
-        if (!session || !session.user) {
-            window.location.href = "login.html";
-            return;
-        }
-
+        if (!session || !session.user) { window.location.href = "login.html"; return; }
         const profileLoaded = await fetchAndSetCurrentUser(session);
-
         if (!profileLoaded) {
-            showToast("Could not load your profile. Logging out.");
-            setTimeout(logout, 1500);  
-            return;
+            showToast("Could not load profile. Logging out.");
+            setTimeout(logout, 1500); return;
         }
-
-        await Promise.all([ fetchConfessions(), fetchChannels() ]);
+        await Promise.all([fetchConfessions(), fetchChannels()]);
         await logUserVisit();
-        subscribeToChanges();
+        subscribeToConfessions();
     }
 
-    // --- PAGE LOAD EVENT LISTENER ---
     document.addEventListener("DOMContentLoaded", () => {
         applySavedTheme();
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
-
         client.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-                initializeApp(session);
-            } else if (event === 'SIGNED_OUT') {
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') initializeApp(session);
+            else if (event === 'SIGNED_OUT') {
                 currentUser = null;
                 window.location.href = "login.html";
             }
