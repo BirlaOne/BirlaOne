@@ -2,251 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - BirlaOne</title>
   <link rel="icon" type="image/png" href="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
   <style>
-    /* 🎨 --- CSS Variables for Easy Theming --- 🎨 */
-    :root {
-      --primary-accent: #b84fff;
-      --primary-gradient: linear-gradient(90deg, #b84fff, #8f00ff);
-      --danger-color: #ef5350;
-      --font-family: 'Inter', sans-serif;
-      --bg-gradient: linear-gradient(180deg, #f5f5f7, #e9e9ed);
-      --card-bg: rgba(255, 255, 255, 0.75);
-      --text-primary: #121212;
-      --text-secondary: #5f5f5f;
-      --border-color: rgba(0, 0, 0, 0.1);
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    /* 🧱 --- Base & Page Styles --- 🧱 */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: var(--font-family);
-      background: var(--bg-gradient);
-      color: var(--text-primary);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    /* ✨ --- Glassmorphism Login Card --- ✨ */
-    .login-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 20px;
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow);
-      padding: 40px;
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
-      animation: fadeIn 0.6s ease-out forwards;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .app-logo {
-      width: 60px;
-      height: 60px;
-      margin-bottom: 20px;
-      animation: pulse 2.5s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-
-    .login-card h2 {
-      font-size: 26px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    
-    .login-card p {
-      color: var(--text-secondary);
-      margin-bottom: 30px;
-      font-size: 16px;
-    }
-
-    .input-group {
-      margin-bottom: 20px;
-    }
-
-    .input-field {
-      width: 100%;
-      padding: 15px;
-      background-color: rgba(128, 128, 128, 0.08);
-      border: 1px solid transparent;
-      border-radius: 12px;
-      color: var(--text-primary);
-      font-family: var(--font-family);
-      font-size: 16px;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: var(--primary-accent);
-      box-shadow: 0 0 0 4px rgba(184, 79, 255, 0.15);
-    }
-    
-    /* Hide number input spinners */
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    input[type=number] {
-        -moz-appearance: textfield;
-    }
-
-    .login-button {
-      width: 100%;
-      padding: 15px;
-      background: var(--primary-gradient);
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.3s;
-    }
-    
-    .login-button:disabled {
-        background: #999;
-        cursor: not-allowed;
-    }
-
-    .login-button:not(:disabled):hover {
-      box-shadow: 0 6px 20px rgba(143, 0, 255, 0.3);
-      transform: translateY(-3px);
-    }
-
-    .error-message {
-      color: var(--danger-color);
-      font-size: 14px;
-      margin-top: 20px;
-      height: 20px; /* Reserve space to prevent layout shift */
-      font-weight: 500;
-    }
+    body { font-family: Arial, sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f5f5f5; }
+    .login-card { background:white; padding:30px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1); width:350px; }
+    .input-field { width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:8px; }
+    .login-button { width:100%; padding:12px; background:#8f00ff; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+    .error { color:red; margin-top:10px; }
   </style>
 </head>
 <body>
-
   <div class="login-card">
-    <img src="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" alt="App Logo" class="app-logo">
     <h2>Welcome Back</h2>
-    <p>Please sign in to your account.</p>
-    
-    <div class="input-group">
-      <input type="number" id="studentId" class="input-field" placeholder="Student ID" />
-    </div>
-    
-    <div class="input-group">
-      <input type="password" id="password" class="input-field" placeholder="Password" />
-    </div>
-
-    <button class="login-button" id="loginBtn" onclick="login()">Login</button>
-    <div id="error" class="error-message"></div>
+    <p>Login with your Student Email</p>
+    <input type="email" id="email" class="input-field" placeholder="Email" />
+    <input type="password" id="password" class="input-field" placeholder="Password" />
+    <button class="login-button" onclick="login()">Login</button>
+    <div id="error" class="error"></div>
   </div>
 
   <script>
     const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";
-
+    const SUPABASE_ANON_KEY = "YOUR-ANON-KEY"; // replace with real anon key
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ✅ --- NEW: Helper function to set a cookie ---
-    function setCookie(name, value, days) {
-        const d = new Date();
-        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-        const expires = "expires=" + d.toUTCString();
-        document.cookie = `${name}=${value};${expires};path=/;SameSite=Lax;Secure`;
-    }
-
     async function login() {
-      const studentId = document.getElementById("studentId").value.trim();
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
       const errorDiv = document.getElementById("error");
-      const loginBtn = document.getElementById("loginBtn");
 
       errorDiv.textContent = "";
-      loginBtn.disabled = true;
-      loginBtn.textContent = "Logging in...";
 
-      if (!studentId || !password) {
-        errorDiv.textContent = "Please enter Student ID and Password.";
-        loginBtn.disabled = false;
-        loginBtn.textContent = "Login";
+      if (!email || !password) {
+        errorDiv.textContent = "Please enter email and password.";
         return;
       }
 
-      try {
-        const { data: email, error: rpcError } = await supabase
-          .rpc("get_email_by_student_id", { p_id: parseInt(studentId, 10) });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-        if (rpcError || !email) {
-          console.error(rpcError);
-          errorDiv.textContent = "Student ID not found.";
-        } else {
-          const { error: authError } = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
-
-          if (authError) {
-            console.error(authError);
-            errorDiv.textContent = "Invalid ID or Password.";
-          } else {
-            // ✅ --- UPDATED: Set the cookie on successful login ---
-            setCookie("id", studentId, 100); 
-            
-            window.location.href = "index.html";
-            return; // Exit after successful redirect
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        errorDiv.textContent = "Unexpected error. Please try again.";
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = "Login";
+      if (error) {
+        console.error(error);
+        errorDiv.textContent = "Invalid email or password.";
+        return;
       }
+
+      // Update users table with auth_id after login
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        await supabase
+          .from("users")
+          .update({ auth_id: userData.user.id })
+          .eq("email", userData.user.email);
+      }
+
+      // Redirect to dashboard
+      window.location.href = "index.html";
     }
-
-    // Add event listener to trigger login on 'Enter' key press for better UX
-    document.getElementById('password').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent form submission
-            document.getElementById('loginBtn').click();
-        }
-    });
-     document.getElementById('studentId').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent form submission
-            document.getElementById('password').focus();
-        }
-    });
   </script>
-
 </body>
 </html>
