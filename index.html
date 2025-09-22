@@ -2,74 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard - BirlaOne</title>
-  <link rel="icon" type="image/png" href="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; }
-    header { background:#8f00ff; color:white; padding:15px; text-align:center; }
-    .profile { max-width:500px; margin:30px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-    .profile img { width:100px; height:100px; border-radius:50%; object-fit:cover; }
-    .profile h2 { margin:10px 0; }
-    .logout { background:#ef5350; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; margin-top:20px; }
+    body {font-family: 'Inter', sans-serif; padding:20px; background:#fafafa;}
+    .profile {background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-width:400px; margin:auto;}
+    img {border-radius:50%; width:80px; height:80px; object-fit:cover;}
+    h2 {margin:10px 0;}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Welcome to BirlaOne Dashboard</h1>
-  </header>
 
-  <div class="profile" id="profileCard" style="display:none;">
-    <img id="profilePic" src="" alt="Profile Picture"/>
-    <h2 id="profileName"></h2>
-    <p><b>Email:</b> <span id="profileEmail"></span></p>
-    <p><b>Mobile:</b> <span id="profileMob"></span></p>
-    <button class="logout" onclick="logout()">Logout</button>
+  <div class="profile" id="profileBox">
+    <p>Loading profile...</p>
   </div>
 
-  <script>
-    const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c"; // replace with real anon key
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script>
+const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";  // replace with your key
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function loadProfile() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = "login.html";
-        return;
-      }
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+}
 
-      const authId = session.user.id;
+async function loadProfile() {
+  const { data: { session } } = await supabase.auth.getSession();
 
-      // Fetch user profile via auth_id
+  let profile = null;
+
+  if (session?.user) {
+    // Preferred: fetch via auth_id
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, name, email, mob, img, role")
+      .eq("auth_id", session.user.id)
+      .single();
+
+    if (!error && data) profile = data;
+  }
+
+  if (!profile) {
+    // Fallback: use student ID cookie
+    const studentId = getCookie("id");
+    if (studentId) {
       const { data, error } = await supabase
         .from("users")
-        .select("id, name, email, mob, img")
-        .eq("auth_id", authId)
+        .select("id, name, email, mob, img, role")
+        .eq("id", parseInt(studentId, 10))
         .single();
 
-      if (error || !data) {
-        console.error("Profile error:", error);
-        window.location.href = "login.html";
-        return;
-      }
-
-      document.getElementById("profilePic").src = data.img || "https://via.placeholder.com/100";
-      document.getElementById("profileName").innerText = data.name;
-      document.getElementById("profileEmail").innerText = data.email;
-      document.getElementById("profileMob").innerText = data.mob;
-
-      document.getElementById("profileCard").style.display = "block";
+      if (!error && data) profile = data;
     }
+  }
 
-    async function logout() {
-      await supabase.auth.signOut();
-      window.location.href = "login.html";
-    }
+  if (!profile) {
+    window.location.href = "login.html";
+    return;
+  }
 
-    // Run when page loads
-    loadProfile();
-  </script>
+  document.getElementById("profileBox").innerHTML = `
+    <img src="${profile.img || "https://via.placeholder.com/80"}" alt="Profile">
+    <h2>${profile.name}</h2>
+    <p><b>ID:</b> ${profile.id}</p>
+    <p><b>Email:</b> ${profile.email}</p>
+    <p><b>Mobile:</b> ${profile.mob}</p>
+    <p><b>Role:</b> ${profile.role}</p>
+    <button onclick="logout()">Logout</button>
+  `;
+}
+
+async function logout() {
+  await supabase.auth.signOut();
+  document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  window.location.href = "login.html";
+}
+
+loadProfile();
+</script>
+
 </body>
 </html>
