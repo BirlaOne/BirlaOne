@@ -395,24 +395,32 @@
             c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
         }
 
+        // Create the data object for the UI, including a temporary ID
         const newReplyData = { 
             confession_user_id: confessionUserId, 
             message, 
-            user_id: currentUser.id, // Using the secure currentUser object
+            user_id: currentUser.id,
             c_name, pic, tick, 
-            id: Date.now() 
+            id: Date.now() // This temporary ID is only for the UI
         };
         
+        // Optimistic UI update
         const wrapper = button.closest('.replies-wrapper');
         wrapper.querySelector('.no-replies')?.remove();
         const replyInputBar = wrapper.querySelector('.reply-input-bar-inline');
         replyInputBar.insertAdjacentHTML('beforebegin', createReplyHTML(newReplyData));
         input.value = '';
 
-        const { error } = await client.from('replies').insert([{ ...newReplyData, id: undefined }]);
+        // **THE FIX IS HERE:**
+        // We create a new object for the database that *omits* the temporary 'id'.
+        const { id, ...dbReplyData } = newReplyData;
+
+        const { error } = await client.from('replies').insert([dbReplyData]);
+
         if (error) {
             showToast("Couldn't post reply.");
             console.error("Reply Insert Error:", error); 
+            // If the database insert fails, remove the optimistic UI element
             wrapper.querySelector(`[data-reply-id="${newReplyData.id}"]`)?.remove();
         }
     }
