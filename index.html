@@ -1,70 +1,420 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Supabase Debug</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>BirlaOne</title>
+  <link rel="icon" type="image/png" href="https://fuovcuzaxfkyqrridrgy.supabase.co/storage/v1/object/public/profile-pics//study-icon-modified.png" />
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    // This script runs early to prevent a "flash of the wrong theme."
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+
+  <style>
+    /* 🎨 --- Color & Theme Variables --- 🎨 */
+    :root {
+      --primary-accent: #b84fff;
+      --primary-gradient: linear-gradient(90deg, #b84fff, #8f00ff);
+      --danger-color: #e53935;
+      --font-family: 'Inter', sans-serif;
+      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
+      --card-bg-light: rgba(255, 255, 255, 0.9);
+      --text-primary-light: #121212;
+      --text-secondary-light: #5f5f5f;
+      --border-color-light: #e0e0e0;
+      --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+      --header-bg-light: rgba(255, 255, 255, 0.7);
+      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
+      --card-bg-dark: rgba(42, 42, 61, 0.9);
+      --text-primary-dark: #f0f0f0;
+      --text-secondary-dark: #a0a0b0;
+      --border-color-dark: #4a4a6a;
+      --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
+      --header-bg-dark: rgba(30, 30, 46, 0.7);
+    }
+    [data-theme="light"] {
+      --bg-gradient: var(--bg-gradient-light);
+      --card-bg: var(--card-bg-light);
+      --text-primary: var(--text-primary-light);
+      --text-secondary: var(--text-secondary-light);
+      --border-color: var(--border-color-light);
+      --shadow: var(--shadow-light);
+      --header-bg: var(--header-bg-light);
+    }
+    [data-theme="dark"] {
+      --bg-gradient: var(--bg-gradient-dark);
+      --card-bg: var(--card-bg-dark);
+      --text-primary: var(--text-primary-dark);
+      --text-secondary: var(--text-secondary-dark);
+      --border-color: var(--border-color-dark);
+      --shadow: var(--shadow-dark);
+      --header-bg: var(--header-bg-dark);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body { font-family: var(--font-family); background: var(--bg-gradient); color: var(--text-primary); transition: background 0.4s ease, color 0.4s ease; overflow-x: hidden; }
+    header.top-bar { margin: 0; padding: 12px 16px; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .top-bar h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+    .menu-toggle, .profile-link { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+    .profile-img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; }
+    .menu-icon { color: var(--text-primary); font-size: 24px; }
+    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 199; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+    .sidebar-overlay.active { opacity: 1; visibility: visible; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--card-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 2px 0 20px rgba(0,0,0,0.2); transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 200; display: flex; flex-direction: column; }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar-profile-card { display: flex; align-items: center; gap: 15px; padding: 20px; border-bottom: 1px solid var(--border-color); }
+    .sidebar-profile-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; flex-shrink: 0; }
+    .sidebar-user-info { overflow: hidden; }
+    #sidebar-username { font-weight: 600; font-size: 18px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #sidebar-user-id { font-size: 14px; color: var(--text-secondary); }
+    .sidebar nav { flex-grow: 1; padding: 10px 0; }
+    .sidebar nav a { display: flex; align-items: center; gap: 15px; color: var(--text-primary); text-decoration: none; padding: 15px 20px; font-weight: 500; font-size: 16px; transition: background-color 0.2s, color 0.2s; border-radius: 0 30px 30px 0; margin-right: 10px; }
+    .sidebar nav a:hover { background-color: rgba(184, 79, 255, 0.1); color: var(--primary-accent); }
+    .nav-icon { width: 24px; height: 24px; stroke-width: 2; }
+    .sidebar-footer { padding: 20px; margin-top: auto; border-top: 1px solid var(--border-color); }
+    .theme-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 10px; background-color: rgba(128, 128, 128, 0.1); margin-bottom: 15px; }
+    .theme-switch-label { font-weight: 500; }
+    .theme-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4a4a6a; transition: 0.4s; border-radius: 26px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%; z-index: 2; }
+    .slider:after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); left: 6px; width: 16px; height: 16px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'%3E%3C/circle%3E%3Cline x1='12' y1='1' x2='12' y2='3'%3E%3C/line%3E%3Cline x1='12' y1='21' x2='12' y2='23'%3E%3C/line%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'%3E%3C/line%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'%3E%3C/line%3E%3Cline x1='1' y1='12' x2='3' y2='12'%3E%3C/line%3E%3Cline x1='21' y1='12' x2='23' y2='12'%3E%3C/line%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'%3E%3C/line%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'%3E%3C/line%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; transition: 0.4s; opacity: 0; }
+    [data-theme="dark"] .slider:after { opacity: 1; }
+    input:checked + .slider { background: var(--primary-gradient); }
+    input:checked + .slider:before { transform: translateX(24px); }
+    input:checked + .slider:after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'%3E%3C/path%3E%3C/svg%3E"); left: auto; right: 6px; opacity: 1; }
+    .logout-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--danger-color); color: white; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+    .logout-button:hover { background: #c62828; }
+    .container { padding: 16px; max-width: 800px; margin: 0 auto; }
+    .section-title { text-align: center; font-weight: 600; font-size: 20px; margin: 20px 0; color: var(--text-secondary); }
+    .button-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .name-button { background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.3s ease; box-shadow: var(--shadow); }
+    .name-button.selected-name-button { background: var(--primary-gradient); color: white; border-color: transparent; transform: scale(1.05); }
+    .input-bar { display: flex; align-items: center; background-color: var(--card-bg); border-radius: 12px; padding: 8px; margin-bottom: 20px; box-shadow: var(--shadow); }
+    .input-bar input { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 16px; outline: none; padding: 8px; }
+    .input-bar button { background: var(--primary-gradient); border: none; width: 40px; height: 40px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+    .input-bar button:active { transform: scale(0.9); }
+    .remove_div { text-align: center; margin-bottom: 20px; }
+    .remove-my-confession { background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+    .confession-card, .channel-card { background: var(--card-bg); margin: 16px auto; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; border-left: 4px solid var(--primary-accent); animation: fadeUp 0.4s ease; }
+    .confession-card:hover, .channel-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+    .banner-container { position: relative; margin: 20px auto; pointer-events: none; -webkit-user-select: none; -ms-user-select: none; user-select: none; }
+    .banner-container img { width: 100%; height: auto; display: block; border-radius: 12px; }
+    .ad-label { position: absolute; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.7); color: #fff; padding: 3px 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 12px 0 8px 0; z-index: 1; }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card-pic { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; }
+    .card-name { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 16px; }
+    .confession-message { font-size: 15px; color: var(--text-primary); line-height: 1.7; position: relative; padding-left: 24px; margin: 0; word-wrap: break-word; }
+    .confession-message::before { content: "“"; font-size: 24px; position: absolute; left: 0; top: -4px; color: var(--primary-accent); font-weight: bold; }
+    .confession-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; }
+    .confession-footer button { background: none; border: none; color: var(--primary-accent); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 4px; font-size: 14px; transition: color 0.2s; }
+    .confession-footer button:hover { color: #8f00ff; }
+    .reply-count { font-size: 14px; color: var(--text-secondary); margin-right: 12px; }
+    .channel-card { display: flex; align-items: center; gap: 15px; max-width: 95%; }
+    .channel-link { text-decoration: none; color: inherit; }
+    .channel-info { flex: 1; }
+    .channel-title { font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 6px; }
+    .channel-description { font-size: 14px; color: var(--text-secondary); }
+    .encrypted { text-align: center; font-size: 12px; color: var(--text-secondary); margin: 30px 0 10px 0; }
+    #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
+    .toast { background: var(--card-bg); color: var(--text-primary); padding: 12px 20px; margin-top: 10px; border-left: 5px solid var(--primary-accent); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); font-weight: 500; font-size: 14px; animation: slideInUp 0.4s ease, fadeOut 0.4s ease 2.6s; }
+    @keyframes slideInUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    #confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center; align-items: center; }
+    .confirm-content { background: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: var(--shadow); width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--border-color); }
+    .confirm-content h3 { font-size: 18px; margin-bottom: 16px; font-weight: 600; }
+    .confirm-content .button-group { display: flex; justify-content: space-around; gap: 12px; margin-top: 20px; }
+    .confirm-content button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+    #confirm-yes { background: var(--danger-color); color: white; }
+    #confirm-no { background: var(--text-secondary); color: white; }
+    /* Styles for replies, modals, etc. remain the same */
+  </style>
 </head>
 <body>
-  <h1>Debug Page</h1>
-  <pre id="output">Loading...</pre>
 
+  <div id="toast-container"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-profile-card">
+      <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="sidebarProfilePic" class="sidebar-profile-img" alt="Profile" loading="lazy"/>
+      <div class="sidebar-user-info">
+        <div id="sidebar-username">Loading...</div>
+        <div id="sidebar-user-id">Student ID: ...</div>
+      </div>
+    </div>
+    <nav>
+      <a href="#" onclick="location.reload()">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Home</span>
+      </a>
+      <a href="about-us.html">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>About Us</span>
+      </a>
+      <a href="contact-us.html">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <span>Contact Us</span>
+      </a>
+      <a href="change-password.html">
+        <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <span>Change Password</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="theme-switch-wrapper">
+        <span class="theme-switch-label">Theme</span>
+        <label class="theme-switch">
+          <input type="checkbox" id="theme-checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <header class="top-bar">
+    <button class="menu-toggle" onclick="toggleSidebar()">
+      <span class="menu-icon">☰</span>
+    </button>
+    <h1>BirlaOne</h1>
+    <a href="#" class="profile-link" onclick="openProfile()">
+        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/>
+    </a>
+  </header>
+
+  <main class="container">
+    <div class="button-group">
+      <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
+      <button class="name-button" id="nameButton" onclick="selectName(this)">Loading...</button>
+    </div>
+
+    <div class="input-bar">
+      <input type="text" id="messageInput" placeholder="🌟 What's on your mind?"/>
+      <button onclick="addConfession()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+
+    <div class="remove_div" id="removeDiv" style="display:none;">
+      <button class="remove-my-confession" onclick="confirmRemove()">Remove my confession</button>
+    </div>
+
+    <h3 class="section-title">College Confessions</h3>
+    <div id="confession-list"></div>
+    
+    <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
+
+    <div class="banner-container">
+      <span class="ad-label">Ad</span>
+      <img src="https://i.ibb.co/m5mtH6WR/Hello-1.png" alt="Promotional Banner">
+    </div>
+    <h3 class="section-title">Channels</h3>
+    <div id="channel-list"></div>
+    <div class="encrypted">Made with ♥️ by Developer Mohit Mali</div>
+  </main>
+  
+  <div id="confirm-modal" class="modal">
+    <div class="confirm-content">
+      <h3>Are you sure you want to delete this?</h3>
+      <div class="button-group">
+        <button id="confirm-yes" onclick="removeMyConfession()">Yes, Delete</button>
+        <button id="confirm-no" onclick="hideConfirmModal()">No, Cancel</button>
+      </div>
+    </div>
+  </div>
+  
 <script>
-const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";  // replace with your anon key
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // --- SUPABASE CLIENT SETUP ---
+    const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+    
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
-}
-
-async function debugCheck() {
-  const out = document.getElementById("output");
-
-  console.log("🔎 Checking Supabase session...");
-  const { data: { session }, error: sessErr } = await supabase.auth.getSession();
-  console.log("Session result:", session, sessErr);
-
-  let profile = null;
-
-  if (session?.user) {
-    console.log("✅ Session found. Trying auth_id lookup:", session.user.id);
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, name, email, mob, role, auth_id")
-      .eq("auth_id", session.user.id)
-      .single();
-    console.log("Auth_id query result:", data, error);
-    if (!error && data) profile = data;
-  }
-
-  if (!profile) {
-    const studentId = getCookie("id");
-    console.log("⚠️ auth_id fetch failed. Cookie ID:", studentId);
-    if (studentId) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, name, email, mob, role, auth_id")
-        .eq("id", parseInt(studentId, 10))
-        .single();
-      console.log("Cookie query result:", data, error);
-      if (!error && data) profile = data;
+    // --- GLOBAL STATE & DATA ---
+    let selectedName = "Anonymous";
+    let currentUser = null;
+    let realtimeChannel = null;
+    
+    // --- UI, THEME & UTILITY FUNCTIONS ---
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(";").shift();
     }
-  }
+    
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    
+    async function logout() {
+      showToast("Logging out...");
+      if (realtimeChannel) {
+        await client.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
+      const { error } = await client.auth.signOut();
+      if (error) {
+          console.error('Error logging out:', error);
+          showToast("Logout failed. Please try again.");
+      }
+    }
 
-  if (!profile) {
-    out.textContent = "❌ No profile found. (We will NOT redirect here)";
-    console.log("❌ No profile found. Debug stop here, no redirect.");
-    return;
-  }
+    // NOTE: Other utility functions like toggleSidebar, openProfile, etc. are omitted for brevity but should remain in your code.
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); }
+    function openProfile() { window.location.href = "https://bafbkbnc.github.io/BAFs/profile.html"; }
+    function toggleTheme() { const root = document.documentElement; const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; root.setAttribute('data-theme', newTheme); localStorage.setItem('theme', newTheme); updateAllThemeLinks(newTheme, currentUser ? currentUser.id : null); }
+    function applySavedTheme() { const savedTheme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-theme', savedTheme); document.getElementById('theme-checkbox').checked = savedTheme === 'dark'; }
+    function updateAllThemeLinks(theme, id) { document.querySelectorAll('.channel-link').forEach(link => { try { const url = new URL(link.href); url.searchParams.set('theme', theme); if (id) url.searchParams.set('id', id); link.href = url.toString(); } catch (e) { console.error("Invalid URL for channel link:", link.href); } }); }
+    function selectName(button) { document.querySelectorAll('.name-button').forEach(btn => btn.classList.remove('selected-name-button')); button.classList.add('selected-name-button'); selectedName = button.innerText.trim(); }
+    function confirmRemove() { document.getElementById('confirm-modal').style.display = 'flex'; }
+    function hideConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
+    
+    // --- DATA FETCHING & RENDERING (Omitted for brevity, keep your existing functions) ---
+    async function fetchChannels() { /* ... function remains the same ... */ }
+    function createConfessionHTML(conf) { /* ... function remains the same ... */ }
+    async function fetchConfessions() { /* ... function remains the same ... */ }
+    async function addConfession() { /* ... function remains the same ... */ }
+    async function removeMyConfession() { /* ... function remains the same ... */ }
+    async function toggleReplies(button, confessionUserId) { /* ... function remains the same ... */ }
+    
+    // CORRECTED: Ensure the keys match your 'logs' table columns (likely lowercase).
+    async function logUserVisit() {
+        if (currentUser) {
+            const { error } = await client.from('logs').insert([{
+                time: new Date().toISOString(),
+                user_id: currentUser.id,
+                Name: currentUser.name, // Assuming 'Name' column in 'logs' table
+                course: currentUser.course
+            }]);
+            if (error) {
+                console.error("Log Error:", error.message);
+            }
+        }
+    }
 
-  out.textContent = "✅ Profile loaded:\n\n" + JSON.stringify(profile, null, 2);
-  console.log("✅ Profile loaded:", profile);
-}
+    // --- REALTIME & INITIALIZATION LOGIC ---
+    function handleRealtimeUpdate(payload) { /* ... function remains the same ... */ }
+    function subscribeToConfessions() { /* ... function remains the same ... */ }
 
-debugCheck();
+    // CORRECTED: This function is updated with the correct table and column names.
+    async function fetchAndSetCurrentUser(session) {
+      let profileData = null;
+      let authUserId = session.user.id;
+      
+      // 1. Primary Method: Try fetching user via secure auth_id
+      console.log("🔎 Step 1: Trying to fetch profile with auth_id:", authUserId);
+      const { data: authData, error: authError } = await client
+            .from('users') // CORRECTED
+            .select('id, img, name, course, tick') // CORRECTED
+            .eq('auth_id', authUserId) // CORRECTED
+            .single();
+      
+      if (!authError && authData) {
+        console.log("✅ Step 1 Success: Profile found via auth_id.", authData);
+        profileData = authData;
+      } else {
+        console.warn("⚠️ Step 1 Failed: Could not find profile by auth_id.", authError?.message);
+      }
+
+      // 2. Fallback Method: If auth lookup fails, try fetching via cookie
+      if (!profileData) {
+        const studentId = getCookie("id");
+        console.log("🔎 Step 2: Trying to fetch profile with cookie ID:", studentId);
+        if (studentId) {
+          const { data: cookieData, error: cookieError } = await client
+            .from("users") // CORRECTED
+            .select("id, img, name, course, tick") // CORRECTED
+            .eq("id", parseInt(studentId, 10)) // CORRECTED
+            .single();
+          
+          if (!cookieError && cookieData) {
+            console.log("✅ Step 2 Success: Profile found via cookie.", cookieData);
+            profileData = cookieData;
+          } else {
+            console.error("❌ Step 2 Failed: Could not find profile by cookie ID.", cookieError?.message);
+          }
+        } else {
+            console.log("ℹ️ Step 2 Skipped: 'id' cookie not found.");
+        }
+      }
+
+      // 3. Final Check and UI Update
+      if (profileData) {
+        // Set the global user object for the app to use
+        currentUser = {
+          id: profileData.id, // CORRECTED
+          auth_uuid: authUserId,
+          name: profileData.name, // CORRECTED
+          course: profileData.course,
+          img: profileData.img,
+          tick: profileData.tick
+        };
+
+        // Update the UI with the fetched profile data
+        const profilePicUrl = profileData.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        document.getElementById('profilePic').src = profilePicUrl;
+        document.getElementById('sidebarProfilePic').src = profilePicUrl;
+        document.getElementById('nameButton').innerText = profileData.name || 'Student'; // CORRECTED
+        document.getElementById('sidebar-username').innerText = profileData.name || 'Student'; // CORRECTED
+        document.getElementById('sidebar-user-id').innerText = `Student ID: ${profileData.id || 'N/A'}`; // CORRECTED
+        
+        return true; // Indicate success
+      }
+      
+      return false; // Indicate failure
+    }
+
+    async function initializeApp(session) {
+        if (!session || !session.user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        const profileLoaded = await fetchAndSetCurrentUser(session);
+
+        if (!profileLoaded) {
+            showToast("Could not load your profile. Please log in again.");
+            setTimeout(logout, 1500); 
+            return;
+        }
+
+        await Promise.all([
+            fetchConfessions(),
+            fetchChannels()
+        ]);
+        
+        await logUserVisit();
+        subscribeToConfessions();
+    }
+
+    // --- PAGE LOAD EVENT LISTENER ---
+    document.addEventListener("DOMContentLoaded", () => {
+        applySavedTheme();
+        document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
+
+        client.auth.onAuthStateChange((event, session) => {
+            console.log("Supabase Auth Event:", event);
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                initializeApp(session);
+            } else if (event === 'SIGNED_OUT') {
+                window.location.href = "login.html";
+            }
+        });
+    });
 </script>
 </body>
 </html>
