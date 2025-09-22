@@ -29,80 +29,93 @@
     <div id="error" class="error-message"></div>
   </div>
 
+
 <script>
-const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";  // replace with your key
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c"; // keep your real key here
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function setCookie(name, value, days) {
-  const d = new Date();
-  d.setTime(d.getTime() + (days*24*60*60*1000));
-  document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Lax;`;
-}
+  async function login() {
+    const studentId = document.getElementById("studentId").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorDiv = document.getElementById("error");
+    const loginBtn = document.getElementById("loginBtn");
 
-async function login() {
-  const studentId = document.getElementById("studentId").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const errorDiv = document.getElementById("error");
-  const loginBtn = document.getElementById("loginBtn");
+    errorDiv.textContent = "";
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Logging in...";
 
-  errorDiv.textContent = "";
-  loginBtn.disabled = true;
-  loginBtn.textContent = "Logging in...";
-
-  if (!studentId || !password) {
-    errorDiv.textContent = "Please enter Student ID and Password.";
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Login";
-    return;
-  }
-
-  try {
-    // 1. Get email from student ID
-    const { data: email, error: rpcError } = await supabase
-      .rpc("get_email_by_student_id", { p_id: parseInt(studentId, 10) });
-
-    if (rpcError || !email) {
-      errorDiv.textContent = "Student ID not found.";
+    if (!studentId || !password) {
+      errorDiv.textContent = "Please enter Student ID and Password.";
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Login";
       return;
     }
 
-    // 2. Auth login
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    try {
+      // 🔹 Step 1: Get email by student ID
+      const { data: email, error: rpcError } = await supabase
+        .rpc("get_email_by_student_id", { p_id: parseInt(studentId, 10) });
 
-    if (authError) {
-      errorDiv.textContent = "Invalid ID or Password.";
-      return;
+      if (rpcError || !email) {
+        console.error("Email lookup failed:", rpcError);
+        errorDiv.textContent = "Student ID not found.";
+        return;
+      }
+
+      // 🔹 Step 2: Try Supabase login
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (authError) {
+        console.error("Auth error:", authError);
+        errorDiv.textContent = "Invalid ID or Password.";
+        return;
+      }
+
+      console.log("✅ Logged in:", authData);
+
+      // 🔹 Step 3: Update auth_id in users table
+      const user = authData.user;
+      if (user && user.id) {
+        console.log("🔗 Linking auth_id to users row...");
+        const { error: updateError } = await supabase
+          .from("users")
+          .update({ auth_id: user.id })
+          .eq("id", parseInt(studentId, 10));
+
+        if (updateError) {
+          console.error("⚠️ Failed to update auth_id:", updateError);
+        } else {
+          console.log("✅ auth_id linked successfully for student:", studentId);
+        }
+      }
+
+      // 🔹 Step 4: Set cookie for fallback
+      document.cookie = `id=${studentId}; path=/; max-age=${60 * 60 * 24 * 7}`;
+      console.log("🍪 Cookie set: id =", studentId);
+
+      // 🔹 Step 5: Redirect
+      window.location.href = "index.html";
+
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      errorDiv.textContent = "Unexpected error. Please try again.";
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Login";
     }
-
-    // 3. Link auth_id to users table
-    const { data: userData } = await supabase.auth.getUser();
-    if (userData?.user) {
-      const { error: updateError } = await supabase
-        .from("users")
-        .update({ auth_id: userData.user.id })
-        .eq("id", parseInt(studentId, 10));
-
-      if (updateError) console.error("Failed to update auth_id:", updateError);
-    }
-
-    // 4. Save student ID cookie for fallback
-    setCookie("id", studentId, 7);
-
-    // 5. Redirect
-    window.location.href = "index.html";
-
-  } catch (err) {
-    console.error(err);
-    errorDiv.textContent = "Unexpected error. Please try again.";
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Login";
   }
-}
+
+  // Enter key support
+  document.getElementById('password').addEventListener('keypress', e => {
+    if (e.key === 'Enter') login();
+  });
+  document.getElementById('studentId').addEventListener('keypress', e => {
+    if (e.key === 'Enter') document.getElementById('password').focus();
+  });
 </script>
 
 </body>
