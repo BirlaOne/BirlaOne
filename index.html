@@ -1,25 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Dashboard - BirlaOne</title>
+  <meta charset="UTF-8">
+  <title>Debug Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body {font-family: 'Inter', sans-serif; padding:20px; background:#fafafa;}
-    .profile {background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-width:400px; margin:auto;}
-    img {border-radius:50%; width:80px; height:80px; object-fit:cover;}
-    h2 {margin:10px 0;}
-  </style>
 </head>
 <body>
-
-  <div class="profile" id="profileBox">
-    <p>Loading profile...</p>
-  </div>
+  <h1>Debug Dashboard</h1>
+  <pre id="output">Loading...</pre>
 
 <script>
 const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";  // replace with your key
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";  // replace
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function getCookie(name) {
@@ -29,59 +21,49 @@ function getCookie(name) {
 }
 
 async function loadProfile() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const out = document.getElementById("output");
+
+  console.log("🔎 Checking session...");
+  const { data: { session }, error: sessErr } = await supabase.auth.getSession();
+  console.log("Session:", session, sessErr);
 
   let profile = null;
 
   if (session?.user) {
-    // Preferred: fetch via auth_id
+    console.log("✅ Found session. Trying auth_id lookup:", session.user.id);
     const { data, error } = await supabase
       .from("users")
-      .select("id, name, email, mob, img, role")
+      .select("id, name, email, mob, role, auth_id")
       .eq("auth_id", session.user.id)
       .single();
-
+    console.log("Auth_id query result:", data, error);
     if (!error && data) profile = data;
   }
 
   if (!profile) {
-    // Fallback: use student ID cookie
     const studentId = getCookie("id");
+    console.log("⚠️ Auth_id fetch failed. Cookie studentId:", studentId);
     if (studentId) {
       const { data, error } = await supabase
         .from("users")
-        .select("id, name, email, mob, img, role")
+        .select("id, name, email, mob, role, auth_id")
         .eq("id", parseInt(studentId, 10))
         .single();
-
+      console.log("Cookie query result:", data, error);
       if (!error && data) profile = data;
     }
   }
 
   if (!profile) {
-    window.location.href = "login.html";
+    out.textContent = "❌ No profile found. Redirecting to login...";
+    console.log("❌ No profile found. Redirecting to login...");
+    setTimeout(() => window.location.href = "login.html", 2000);
     return;
   }
 
-  document.getElementById("profileBox").innerHTML = `
-    <img src="${profile.img || "https://via.placeholder.com/80"}" alt="Profile">
-    <h2>${profile.name}</h2>
-    <p><b>ID:</b> ${profile.id}</p>
-    <p><b>Email:</b> ${profile.email}</p>
-    <p><b>Mobile:</b> ${profile.mob}</p>
-    <p><b>Role:</b> ${profile.role}</p>
-    <button onclick="logout()">Logout</button>
-  `;
+  out.textContent = "✅ Profile loaded:\n\n" + JSON.stringify(profile, null, 2);
 }
-
-async function logout() {
-  await supabase.auth.signOut();
-  document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-  window.location.href = "login.html";
-}
-
 loadProfile();
 </script>
-
 </body>
 </html>
