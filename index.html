@@ -105,6 +105,31 @@
     .input-bar input { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 16px; outline: none; padding: 8px; }
     .input-bar button { background: var(--primary-gradient); border: none; width: 40px; height: 40px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
     .input-bar button:active { transform: scale(0.9); }
+    
+    /* --- NEW: Channel Search Bar Styles --- */
+    .search-bar-container {
+      display: flex;
+      align-items: center;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 8px 15px;
+      margin: 30px 0 10px 0;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+    .search-bar-container svg {
+      color: var(--text-secondary);
+      margin-right: 10px;
+    }
+    .search-bar-container input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 16px;
+      outline: none;
+    }
+
     .remove_div { text-align: center; margin-bottom: 20px; }
     .remove-my-confession { background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; }
     .encrypted { text-align: center; font-size: 12px; color: var(--text-secondary); margin: 30px 0 10px 0; }
@@ -200,6 +225,13 @@
     <h3 class="section-title">College Confessions</h3>
     <div id="confession-list"></div>
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
+    
+    <!-- NEW: Search bar for channels -->
+    <div class="search-bar-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="search" id="channelSearch" placeholder="Search for channels...">
+    </div>
+
     <h3 class="section-title">Channels</h3>
     <div id="channel-list"></div>
     <div class="encrypted">Made with ♥️ by Developer Mohit Mali.</div>
@@ -223,7 +255,8 @@
     let selectedName = "Anonymous";
     let currentUser = null;
     let realtimeChannel = null;
-    
+    let allChannels = []; // NEW: To store all channels for searching
+
     // --- UI & UTILITY FUNCTIONS ---
     function showToast(message) {
       const container = document.getElementById('toast-container');
@@ -248,6 +281,7 @@
         const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
+        updateChannelLinks(); // UPDATED: Call the new function
     }
     function applySavedTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -264,29 +298,59 @@
     function hideConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
     
     // --- DATA FETCHING & RENDERING ---
+
+    // NEW: Function to update channel links with URL parameters
+    function updateChannelLinks() {
+      if (!currentUser) return; // Wait until user data is available
+
+      const theme = localStorage.getItem('theme') || 'light';
+      document.querySelectorAll('.channel-link').forEach(link => {
+        try {
+          const url = new URL(link.href);
+          url.searchParams.set('id', currentUser.id);
+          url.searchParams.set('course', currentUser.course);
+          url.searchParams.set('theme', theme);
+          link.href = url.toString();
+        } catch (e) {
+          console.error("Failed to update channel link href:", e);
+        }
+      });
+    }
+
+    // NEW: Function to render a list of channels
+    function renderChannels(channelsToRender) {
+        const channelList = document.getElementById('channel-list');
+        if (channelsToRender.length === 0) {
+            channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No channels found.</p>';
+            return;
+        }
+        channelList.innerHTML = channelsToRender.map(channel => `
+            <a href="${channel.href}" class="channel-link" target="_blank">
+                <div class="channel-card">
+                    <img src="${channel.img}" alt="Channel Icon" class="card-pic" loading="lazy">
+                    <div class="channel-info">
+                        <div class="channel-title">
+                            ${channel.name}
+                            <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
+                        </div>
+                        <div class="channel-description">${channel.tagline}</div>
+                    </div>
+                </div>
+            </a>
+        `).join('');
+        updateChannelLinks(); // Update links every time channels are rendered
+    }
+
     async function fetchChannels() {
         const channelList = document.getElementById('channel-list');
         channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
-        // Note: The table name is "Channels" with a capital C as per your SQL file.
         const { data, error } = await client.from('Channels').select('*');
         if (error) {
             console.error("Error fetching channels:", error);
             channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
         } else {
-            channelList.innerHTML = data.map(channel => `
-                <a href="${channel.href}" class="channel-link" target="_blank">
-                    <div class="channel-card">
-                        <img src="${channel.img}" alt="Channel Icon" class="card-pic" loading="lazy">
-                        <div class="channel-info">
-                            <div class="channel-title">
-                                ${channel.name}
-                                <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
-                            </div>
-                            <div class="channel-description">${channel.tagline}</div>
-                        </div>
-                    </div>
-                </a>
-            `).join('');
+            allChannels = data; // Store all channels
+            renderChannels(allChannels); // Render them initially
         }
     }
     
@@ -445,11 +509,8 @@
         const wrapper = button.closest('.replies-wrapper');
         const confessionCard = button.closest('.confession-card');
         const confessionUserId = confessionCard.dataset.id;
-
         card.remove();
-
         const { error } = await client.from('replies').delete().eq('id', replyId);
-
         if (error) {
             showToast("Failed to delete reply.");
             console.error("Delete Reply Error:", error);
@@ -524,6 +585,17 @@
     document.addEventListener("DOMContentLoaded", () => {
         applySavedTheme();
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
+        
+        // NEW: Event listener for the channel search bar
+        document.getElementById('channelSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredChannels = allChannels.filter(channel => 
+                channel.name.toLowerCase().includes(searchTerm) || 
+                channel.tagline.toLowerCase().includes(searchTerm)
+            );
+            renderChannels(filteredChannels);
+        });
+
         client.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') initializeApp(session);
             else if (event === 'SIGNED_OUT') {
@@ -535,3 +607,4 @@
 </script>
 </body>
 </html>
+
