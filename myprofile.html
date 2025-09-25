@@ -122,7 +122,15 @@
         <a href="#" target="_blank" class="social-link-display" id="instagramDisplay">Not Set</a>
         <input type="text" id="instagramInput" class="social-link-input" style="display:none;" placeholder="https://instagram.com/username">
       </div>
-    </div>
+      <div class="info-item">
+        <span class="title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            LinkedIn
+        </span>
+        <a href="#" target="_blank" class="social-link-display" id="linkedinDisplay">Not Set</a>
+        <input type="text" id="linkedinInput" class="social-link-input" style="display:none;" placeholder="https://linkedin.com/in/username">
+      </div>
+      </div>
     
     <div class="profile-card qr-card">
       <h3>Attendance QR Code</h3>
@@ -146,10 +154,12 @@
     const displayElements = {
         bio: document.getElementById('bioDisplay'),
         instagram: document.getElementById('instagramDisplay'),
+        linkedin: document.getElementById('linkedinDisplay'), // Added
     };
     const inputElements = {
         bio: document.getElementById('bioInput'),
         instagram: document.getElementById('instagramInput'),
+        linkedin: document.getElementById('linkedinInput'), // Added
     };
     const profilePicContainer = document.getElementById('profilePicContainer');
     const uploadInput = document.getElementById('uploadInput');
@@ -158,25 +168,24 @@
     async function loadProfile() {
       const { data: { session }, error: sessionError } = await client.auth.getSession();
       if (sessionError || !session) {
-        console.error("Not logged in:", sessionError);
         window.location.href = "login.html"; 
         return;
       }
 
+      // Updated select query to include 'linkedin'
       const { data, error } = await client
         .from('users')
-        .select('id, name, course, role, mob, img, tick, bio, instagram')
+        .select('id, name, course, role, mob, img, tick, bio, instagram, linkedin')
         .eq('auth_id', session.user.id)
         .single();
 
       if (error || !data) {
-        console.error("Error loading profile:", error);
         alert("Could not load your profile. Please try logging in again.");
         window.location.href = "login.html";
         return;
       }
       
-      currentUser = data; // Store current user data globally
+      currentUser = data;
       populateUI(currentUser);
       generateQRCode(currentUser);
     }
@@ -196,7 +205,6 @@
         document.getElementById("course").textContent = data.course || "N/A";
         document.getElementById("mobile").textContent = data.mob || "Not Provided";
         
-        // Populate new fields
         displayElements.bio.textContent = data.bio || "Click 'Edit Profile' to add a bio!";
         inputElements.bio.value = data.bio || "";
 
@@ -208,6 +216,16 @@
             displayElements.instagram.removeAttribute('href');
         }
         inputElements.instagram.value = data.instagram || "";
+
+        // Added logic for LinkedIn
+        if (data.linkedin) {
+            displayElements.linkedin.textContent = "View Profile";
+            displayElements.linkedin.href = data.linkedin;
+        } else {
+            displayElements.linkedin.textContent = "Not Set";
+            displayElements.linkedin.removeAttribute('href');
+        }
+        inputElements.linkedin.value = data.linkedin || "";
     }
 
     // --- QR Code Generation ---
@@ -215,14 +233,9 @@
         if (!data || !data.id) return;
         const qrData = JSON.stringify({ id: data.id, name: data.name });
         const qrCodeContainer = document.getElementById('qrcode');
-        qrCodeContainer.innerHTML = ""; // Clear previous QR code
+        qrCodeContainer.innerHTML = "";
         qrcode = new QRCode(qrCodeContainer, {
-            text: qrData,
-            width: 128,
-            height: 128,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+            text: qrData, width: 128, height: 128,
         });
     }
 
@@ -246,6 +259,7 @@
         const updates = {
             bio: inputElements.bio.value.trim(),
             instagram: inputElements.instagram.value.trim(),
+            linkedin: inputElements.linkedin.value.trim(), // Added
         };
 
         const { error } = await client
@@ -254,12 +268,9 @@
             .eq('auth_id', currentUser.auth_id);
 
         if (error) {
-            console.error('Error updating profile:', error);
             alert('Failed to save changes. Please try again.');
         } else {
-            // Update UI optimistically
-            currentUser.bio = updates.bio;
-            currentUser.instagram = updates.instagram;
+            currentUser = {...currentUser, ...updates};
             populateUI(currentUser);
             
             editBtnText.textContent = "Edit Profile";
@@ -277,8 +288,7 @@
         if (!file || !currentUser) return;
 
         const fileExt = file.name.split('.').pop();
-        const fileName = `${currentUser.id}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = `${currentUser.id}.${fileExt}`;
 
         editBtn.disabled = true;
         editBtnText.textContent = 'Uploading...';
@@ -288,18 +298,14 @@
             .upload(filePath, file, { upsert: true });
 
         if (uploadError) {
-            console.error('Error uploading image:', uploadError);
             alert('Failed to upload image.');
             editBtn.disabled = false;
             editBtnText.textContent = 'Edit Profile';
             return;
         }
 
-        const { data } = client.storage
-            .from('profile-pics')
-            .getPublicUrl(filePath);
-        
-        const publicURL = data.publicUrl + '?t=' + new Date().getTime(); // Add timestamp to bust cache
+        const { data } = client.storage.from('profile-pics').getPublicUrl(filePath);
+        const publicURL = data.publicUrl + '?t=' + new Date().getTime();
 
         const { error: dbError } = await client
             .from('users')
@@ -307,7 +313,6 @@
             .eq('auth_id', currentUser.auth_id);
 
         if (dbError) {
-            console.error('Error updating image URL in DB:', dbError);
             alert('Image uploaded, but failed to update profile.');
         } else {
             document.getElementById("profilePic").src = publicURL;
