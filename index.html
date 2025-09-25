@@ -106,7 +106,6 @@
     .input-bar button { background: var(--primary-gradient); border: none; width: 40px; height: 40px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
     .input-bar button:active { transform: scale(0.9); }
     
-    /* --- NEW: Channel Search Bar Styles --- */
     .search-bar-container {
       display: flex;
       align-items: center;
@@ -226,7 +225,6 @@
     <div id="confession-list"></div>
     <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
     
-    <!-- NEW: Search bar for channels -->
     <div class="search-bar-container">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <input type="search" id="channelSearch" placeholder="Search for channels...">
@@ -255,7 +253,7 @@
     let selectedName = "Anonymous";
     let currentUser = null;
     let realtimeChannel = null;
-    let allChannels = []; // NEW: To store all channels for searching
+    let allChannels = [];
 
     // --- UI & UTILITY FUNCTIONS ---
     function showToast(message) {
@@ -281,7 +279,7 @@
         const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         root.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        updateChannelLinks(); // UPDATED: Call the new function
+        updateChannelLinks();
     }
     function applySavedTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -299,10 +297,8 @@
     
     // --- DATA FETCHING & RENDERING ---
 
-    // NEW: Function to update channel links with URL parameters
     function updateChannelLinks() {
-      if (!currentUser) return; // Wait until user data is available
-
+      if (!currentUser) return;
       const theme = localStorage.getItem('theme') || 'light';
       document.querySelectorAll('.channel-link').forEach(link => {
         try {
@@ -311,13 +307,10 @@
           url.searchParams.set('course', currentUser.course);
           url.searchParams.set('theme', theme);
           link.href = url.toString();
-        } catch (e) {
-          console.error("Failed to update channel link href:", e);
-        }
+        } catch (e) { console.error("Failed to update channel link href:", e); }
       });
     }
 
-    // NEW: Function to render a list of channels
     function renderChannels(channelsToRender) {
         const channelList = document.getElementById('channel-list');
         if (channelsToRender.length === 0) {
@@ -338,19 +331,29 @@
                 </div>
             </a>
         `).join('');
-        updateChannelLinks(); // Update links every time channels are rendered
+        updateChannelLinks();
     }
 
     async function fetchChannels() {
+        if (!currentUser || !currentUser.course) {
+            document.getElementById('channel-list').innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading user data...</p>';
+            return;
+        }
+
         const channelList = document.getElementById('channel-list');
         channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
-        const { data, error } = await client.from('Channels').select('*');
+        
+        const { data, error } = await client
+            .from('Channels')
+            .select('*')
+            .or(`allowed_courses.cs.{"all"},allowed_courses.cs.{"${currentUser.course}"}`);
+
         if (error) {
             console.error("Error fetching channels:", error);
             channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
         } else {
-            allChannels = data; // Store all channels
-            renderChannels(allChannels); // Render them initially
+            allChannels = data;
+            renderChannels(allChannels);
         }
     }
     
@@ -577,7 +580,9 @@
             showToast("Could not load profile. Logging out.");
             setTimeout(logout, 1500); return;
         }
-        await Promise.all([fetchConfessions(), fetchChannels()]);
+        await fetchConfessions();
+        await fetchChannels();
+
         await logUserVisit();
         subscribeToChanges();
     }
@@ -586,12 +591,11 @@
         applySavedTheme();
         document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
         
-        // NEW: Event listener for the channel search bar
         document.getElementById('channelSearch').addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
             const filteredChannels = allChannels.filter(channel => 
                 channel.name.toLowerCase().includes(searchTerm) || 
-                channel.tagline.toLowerCase().includes(searchTerm)
+                (channel.tagline && channel.tagline.toLowerCase().includes(searchTerm))
             );
             renderChannels(filteredChannels);
         });
@@ -607,4 +611,3 @@
 </script>
 </body>
 </html>
-
