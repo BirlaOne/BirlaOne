@@ -142,7 +142,9 @@
       const { data: { session } } = await client.auth.getSession();
       if (!session) { window.location.href = "login.html"; return; }
 
-      const { data, error } = await client.from('users').select('id, name, course, role, mob, img, tick, bio, instagram, linkedin').eq('auth_id', session.user.id).single();
+      // ***** FIX IS HERE *****
+      // Added 'auth_id' to the select query
+      const { data, error } = await client.from('users').select('id, auth_id, name, course, role, mob, img, tick, bio, instagram, linkedin').eq('auth_id', session.user.id).single();
       if (error || !data) { alert("Could not load your profile."); window.location.href = "login.html"; return; }
       
       currentUser = data;
@@ -192,9 +194,6 @@
         const { error } = await client.from('users').update(updates).eq('auth_id', currentUser.auth_id);
 
         if (error) {
-            // --- THIS IS THE IMPORTANT PART FOR DEBUGGING ---
-            // It prints the detailed Supabase error to the browser's console.
-            // Look for this message to find the true cause of the error.
             console.error('Error updating profile:', error); 
             alert('Failed to save changes. Please try again.');
         } else {
