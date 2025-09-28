@@ -206,7 +206,7 @@
   <header class="top-bar">
     <button class="menu-toggle" onclick="toggleSidebar()"><span class="menu-icon">☰</span></button>
     <h1>BirlaOne</h1>
-    <a href="myprofile.html" class="profile-link" onclick="openProfile()"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/></a>
+    <a href="myprofile.html" class="profile-link"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/></a>
   </header>
 
   <main class="container">
@@ -268,7 +268,7 @@
       document.getElementById('sidebar').classList.toggle('active');
       document.getElementById('sidebarOverlay').classList.toggle('active');
     }
-    function openProfile() { showToast("Profile page coming soon!"); }
+    
     async function logout() {
       showToast("Logging out...");
       if (realtimeChannel) await client.removeChannel(realtimeChannel);
