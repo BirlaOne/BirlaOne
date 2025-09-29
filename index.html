@@ -391,30 +391,40 @@
         }
     }
 
+    // --- 🚀 MODIFIED FUNCTION ---
     async function addConfession() {
         if (!currentUser) return showToast("You must be logged in.");
         const messageInput = document.getElementById('messageInput');
         const message = messageInput.value.trim();
         if (!message) return showToast("Please write something!");
 
+        // --- Optimistic UI Update ---
+        const oldCard = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
+        if (oldCard) oldCard.remove();
+
         let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
         if (selectedName.toLowerCase() === 'anonymous') {
             c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
         }
-        
-        const oldCard = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
-        if (oldCard) oldCard.remove();
-        
         const newConfessionData = { user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0 };
+        
         document.getElementById('confession-list').insertAdjacentHTML('afterbegin', createConfessionHTML(newConfessionData));
         document.getElementById('removeDiv').style.display = 'block';
         messageInput.value = '';
 
-        const { error } = await client.from('confessions').upsert(newConfessionData);
-        if (error) {
+        // --- Database Operations ---
+        // 1. Delete the user's old confession. It's okay if this fails (e.g., they didn't have one).
+        await client.from('confessions').delete().eq('user_id', currentUser.id);
+
+        // 2. Insert the new confession.
+        const { error: insertError } = await client.from('confessions').insert([newConfessionData]);
+
+        // --- Handle potential errors ---
+        if (insertError) {
             showToast("Failed to post confession.");
-            document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove();
-            document.getElementById('removeDiv').style.display = 'none';
+            console.error("Confession insert error:", insertError);
+            // Re-fetch all confessions to sync the UI with the actual database state
+            await fetchConfessions(); 
         } else {
             showToast("Confessed Successfully!");
         }
