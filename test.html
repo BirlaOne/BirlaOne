@@ -1,296 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <title>Profile - BirlaOne</title>
-  <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
-  
-  <script>
-    // This script runs first to set the theme and avoid a flash of the wrong theme.
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>Profile - BirlaOne</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+  
+  <script>
+    // This script runs first to set the theme and avoid a flash of the wrong theme.
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
 
-  <style>
-    :root {
-      --primary-accent: #56ab2f;
-      --primary-gradient: linear-gradient(90deg, #a8e063, #56ab2f);
-      --font-family: 'Inter', sans-serif;
-      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
-      --card-bg-light: rgba(255, 255, 255, 0.8);
-      --text-primary-light: #121212;
-      --text-secondary-light: #5f5f5f;
-      --border-color-light: #e0e0e0;
-      --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
-      --header-bg-light: rgba(255, 255, 255, 0.7);
-      --skeleton-bg-light: #e0e0e0;
-      
-      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
-      --card-bg-dark: rgba(42, 42, 61, 0.8);
-      --text-primary-dark: #f0f0f0;
-      --text-secondary-dark: #a0a0b0;
-      --border-color-dark: #4a4a6a;
-      --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.25);
-      --header-bg-dark: rgba(30, 30, 46, 0.7);
-      --skeleton-bg-dark: #4a4a6a;
-    }
-    [data-theme="light"] {
-      --bg-gradient: var(--bg-gradient-light); --card-bg: var(--card-bg-light); --text-primary: var(--text-primary-light); --text-secondary: var(--text-secondary-light); --border-color: var(--border-color-light); --shadow: var(--shadow-light); --header-bg: var(--header-bg-light); --skeleton-bg: var(--skeleton-bg-light);
-    }
-    [data-theme="dark"] {
-      --bg-gradient: var(--bg-gradient-dark); --card-bg: var(--card-bg-dark); --text-primary: var(--text-primary-dark); --text-secondary: var(--text-secondary-dark); --border-color: var(--border-color-dark); --shadow: var(--shadow-dark); --header-bg: var(--header-bg-dark); --skeleton-bg: var(--skeleton-bg-dark);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { min-height: 100%; }
-    body { font-family: var(--font-family); background: var(--bg-gradient); color: var(--text-primary); transition: background 0.4s ease, color 0.4s ease; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--header-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
-    .top-bar h1 { font-family: 'Pacifico', cursive; font-size: 26px; font-weight: 400; color: var(--text-primary); }
-    .header-button { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: var(--text-primary); text-decoration: none; }
-    .container { padding: 16px; max-width: 600px; margin: 20px auto; }
-    .profile-card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 20px; padding: 24px; text-align: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); animation: fadeUp 0.6s ease-out; }
-    @keyframes fadeUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .profile-pic-container { position: relative; width: 120px; height: 120px; margin: 0 auto 15px auto; }
-    .profile-pic-large { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--primary-accent); object-fit: cover; display: block; transition: transform 0.3s ease, opacity 0.3s ease; }
-    .profile-pic-large:hover { transform: scale(1.05); }
-    .upload-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.3s ease; cursor: pointer; }
-    .profile-pic-container:hover .upload-overlay { opacity: 1; }
-    .profile-name { font-size: 24px; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 28px; }
-    .profile-name img { width: 22px; height: 22px; }
-    .profile-role { font-size: 16px; color: var(--text-secondary); margin-top: 4px; min-height: 20px; }
-    .profile-bio { font-size: 15px; color: var(--text-primary); line-height: 1.6; margin-top: 20px; text-align: center; white-space: pre-wrap; word-wrap: break-word; }
-    .bio-textarea { width: 100%; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid var(--border-color); padding: 10px; font-family: var(--font-family); color: var(--text-primary); font-size: 15px; min-height: 80px; resize: vertical; display: none; margin-top: 20px;}
-    .bio-textarea:focus { outline: 2px solid var(--primary-accent); }
-    .action-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s ease; margin: 20px auto 0 auto; box-shadow: 0 4px 15px rgba(86, 171, 47, 0.2); }
-    .action-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(86, 171, 47, 0.3); }
-    .action-button:active { transform: translateY(0px) scale(0.98); }
-    .info-list .info-item, .social-links .info-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-color); }
-    .info-list .info-item:last-child, .social-links .info-item:last-child { border-bottom: none; }
-    .info-item .title { font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
-    .info-item .value { font-size: 16px; font-weight: 500; text-align: right; }
-    .social-links h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; text-align: left; color: var(--text-primary); }
-    .social-link-display { color: var(--primary-accent); text-decoration: none; font-weight: 600; }
-    .social-link-display.not-set { color: var(--text-secondary); font-style: italic; font-weight: 400; }
-    .social-link-input { font-size: 16px; font-weight: 500; text-align: right; background: rgba(128,128,128,0.1); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 70%; padding: 8px 12px; transition: border-color 0.3s, box-shadow 0.3s; }
-    .social-link-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(86, 171, 47, 0.2); }
-    .qr-card { padding: 16px; }
-    #qrcode { display: flex; justify-content: center; padding: 10px; background: white; border-radius: 8px; margin: 16px auto 8px auto; min-width: 148px; min-height: 148px; align-items: center; }
-    .qr-note { font-size: 12px; color: var(--text-secondary); text-align: center; }
-    
-    /* Skeleton Loader Styles */
-    .skeleton { background-color: var(--skeleton-bg); color: transparent; border-radius: 6px; user-select: none; position: relative; overflow: hidden; }
-    .skeleton::after { content: ''; position: absolute; top: 0; left: -150%; height: 100%; width: 150%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); animation: shimmer 1.5s infinite; }
-    @keyframes shimmer { from { left: -150%; } to { left: 150%; } }
-    .skeleton-text { display: inline-block; }
-    .skeleton-img { border-radius: 50%; background-color: var(--skeleton-bg); }
-  </style>
+  <style>
+    :root {
+      --primary-accent: #56ab2f;
+      --primary-gradient: linear-gradient(90deg, #a8e063, #56ab2f);
+      --font-family: 'Inter', sans-serif;
+      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
+      --card-bg-light: rgba(255, 255, 255, 0.8);
+      --text-primary-light: #121212;
+      --text-secondary-light: #5f5f5f;
+      --border-color-light: #e0e0e0;
+      --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --header-bg-light: rgba(255, 255, 255, 0.7);
+      --skeleton-bg-light: #e0e0e0;
+      
+      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
+      --card-bg-dark: rgba(42, 42, 61, 0.8);
+      --text-primary-dark: #f0f0f0;
+      --text-secondary-dark: #a0a0b0;
+      --border-color-dark: #4a4a6a;
+      --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.25);
+      --header-bg-dark: rgba(30, 30, 46, 0.7);
+      --skeleton-bg-dark: #4a4a6a;
+    }
+    [data-theme="light"] {
+      --bg-gradient: var(--bg-gradient-light); --card-bg: var(--card-bg-light); --text-primary: var(--text-primary-light); --text-secondary: var(--text-secondary-light); --border-color: var(--border-color-light); --shadow: var(--shadow-light); --header-bg: var(--header-bg-light); --skeleton-bg: var(--skeleton-bg-light);
+    }
+    [data-theme="dark"] {
+      --bg-gradient: var(--bg-gradient-dark); --card-bg: var(--card-bg-dark); --text-primary: var(--text-primary-dark); --text-secondary: var(--text-secondary-dark); --border-color: var(--border-color-dark); --shadow: var(--shadow-dark); --header-bg: var(--header-bg-dark); --skeleton-bg: var(--skeleton-bg-dark);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { min-height: 100%; }
+    body { font-family: var(--font-family); background: var(--bg-gradient); color: var(--text-primary); transition: background 0.4s ease, color 0.4s ease; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--header-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
+    .top-bar h1 { font-family: 'Pacifico', cursive; font-size: 26px; font-weight: 400; color: var(--text-primary); }
+    .header-button { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: var(--text-primary); text-decoration: none; }
+    .container { padding: 16px; max-width: 600px; margin: 20px auto; }
+    .profile-card { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow); margin-bottom: 20px; padding: 24px; text-align: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); animation: fadeUp 0.6s ease-out; }
+    @keyframes fadeUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .profile-pic-container { position: relative; width: 120px; height: 120px; margin: 0 auto 15px auto; }
+    .profile-pic-large { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--primary-accent); object-fit: cover; display: block; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .profile-pic-large:hover { transform: scale(1.05); }
+    .upload-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.3s ease; cursor: pointer; }
+    .profile-pic-container:hover .upload-overlay { opacity: 1; }
+    .profile-name { font-size: 24px; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 28px; }
+    .profile-name img { width: 22px; height: 22px; }
+    .profile-role { font-size: 16px; color: var(--text-secondary); margin-top: 4px; min-height: 20px; }
+    .profile-bio { font-size: 15px; color: var(--text-primary); line-height: 1.6; margin-top: 20px; text-align: center; white-space: pre-wrap; word-wrap: break-word; }
+    .bio-textarea { width: 100%; background: rgba(128,128,128,0.1); border-radius: 8px; border: 1px solid var(--border-color); padding: 10px; font-family: var(--font-family); color: var(--text-primary); font-size: 15px; min-height: 80px; resize: vertical; display: none; margin-top: 20px;}
+    .bio-textarea:focus { outline: 2px solid var(--primary-accent); }
+    .action-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.3s ease; margin: 20px auto 0 auto; box-shadow: 0 4px 15px rgba(86, 171, 47, 0.2); }
+    .action-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(86, 171, 47, 0.3); }
+    .action-button:active { transform: translateY(0px) scale(0.98); }
+    .info-list .info-item, .social-links .info-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-color); }
+    .info-list .info-item:last-child, .social-links .info-item:last-child { border-bottom: none; }
+    .info-item .title { font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+    .info-item .value { font-size: 16px; font-weight: 500; text-align: right; }
+    .social-links h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; text-align: left; color: var(--text-primary); }
+    .social-link-display { color: var(--primary-accent); text-decoration: none; font-weight: 600; }
+    .social-link-display.not-set { color: var(--text-secondary); font-style: italic; font-weight: 400; }
+    .social-link-input { font-size: 16px; font-weight: 500; text-align: right; background: rgba(128,128,128,0.1); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 70%; padding: 8px 12px; transition: border-color 0.3s, box-shadow 0.3s; }
+    .social-link-input:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(86, 171, 47, 0.2); }
+    .qr-card { padding: 16px; }
+    #qrcode { display: flex; justify-content: center; padding: 10px; background: white; border-radius: 8px; margin: 16px auto 8px auto; min-width: 148px; min-height: 148px; align-items: center; }
+    .qr-note { font-size: 12px; color: var(--text-secondary); text-align: center; }
+    
+    /* Skeleton Loader Styles */
+    .skeleton { background-color: var(--skeleton-bg); color: transparent; border-radius: 6px; user-select: none; position: relative; overflow: hidden; }
+    .skeleton::after { content: ''; position: absolute; top: 0; left: -150%; height: 100%; width: 150%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { from { left: -150%; } to { left: 150%; } }
+    .skeleton-text { display: inline-block; }
+    .skeleton-img { border-radius: 50%; background-color: var(--skeleton-bg); }
+  </style>
 </head>
 <body>
 
- <header class="top-bar">
-    <a href="index.html" class="header-button">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-    </a>
-    <h1>My Profile</h1>
-    <div style="width: 40px;"></div>
-  </header>
+ <header class="top-bar">
+    <a href="index.html" class="header-button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+    <h1>My Profile</h1>
+    <div style="width: 40px;"></div>
+  </header>
 
-  <main class="container">
-    <div class="profile-card">
-        <div class="profile-pic-container" id="profilePicContainer">
-            <img src="" alt="Profile Picture" class="profile-pic-large skeleton-img" id="profilePic">
-            <div class="upload-overlay">Change</div>
-        </div>
-        <input type="file" id="uploadInput" accept="image/*" style="display: none;">
+  <main class="container">
+    <div class="profile-card">
+        <div class="profile-pic-container" id="profilePicContainer">
+            <img src="" alt="Profile Picture" class="profile-pic-large skeleton-img" id="profilePic">
+            <div class="upload-overlay">Change</div>
+        </div>
+        <input type="file" id="uploadInput" accept="image/*" style="display: none;">
 
-        <div class="profile-name" id="studentName"><span class="skeleton skeleton-text">Student Name</span></div>
-        <div class="profile-role" id="roleText"><span class="skeleton skeleton-text">Student Role</span></div>
-        
-        <div class="profile-bio" id="bioDisplay"><span class="skeleton skeleton-text">Loading bio...</span></div>
-        <textarea id="bioInput" class="bio-textarea"></textarea>
-        
-        <button class="action-button" id="editBtn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-            <span id="editBtnText">Edit Profile</span>
-        </button>
-    </div>
+        <div class="profile-name" id="studentName"><span class="skeleton skeleton-text">Student Name</span></div>
+        <div class="profile-role" id="roleText"><span class="skeleton skeleton-text">Student Role</span></div>
+        
+        <div class="profile-bio" id="bioDisplay"><span class="skeleton skeleton-text">Loading bio...</span></div>
+        <textarea id="bioInput" class="bio-textarea"></textarea>
+        
+        <button class="action-button" id="editBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            <span id="editBtnText">Edit Profile</span>
+        </button>
+    </div>
 
-    <div class="profile-card info-list">
-      <div class="info-item"><span class="title">Student ID</span><span class="value" id="id"><span class="skeleton skeleton-text">5000000</span></span></div>
-      <div class="info-item"><span class="title">Course</span><span class="value" id="course"><span class="skeleton skeleton-text">B.Sc. IT</span></span></div>
-      <div class="info-item"><span class="title">Mobile</span><span class="value" id="mobile"><span class="skeleton skeleton-text">9876543210</span></span></div>
-    </div>
+    <div class="profile-card info-list">
+      <div class="info-item"><span class="title">Student ID</span><span class="value" id="id"><span class="skeleton skeleton-text">5000000</span></span></div>
+      <div class="info-item"><span class="title">Course</span><span class="value" id="course"><span class="skeleton skeleton-text">B.Sc. IT</span></span></div>
+      <div class="info-item"><span class="title">Mobile</span><span class="value" id="mobile"><span class="skeleton skeleton-text">9876543210</span></span></div>
+    </div>
 
-    <div class="profile-card social-links">
-      <h3>Social Links</h3>
-      <div class="info-item">
-        <span class="title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-          Instagram
-        </span>
-        <span class="value" id="instagramContainer"><span class="skeleton skeleton-text">@username</span></span>
-      </div>
-      <div class="info-item">
-        <span class="title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-            LinkedIn
-        </span>
-        <span class="value" id="linkedinContainer"><span class="skeleton skeleton-text">@username</span></span>
-      </div>
-    </div>
-    
-    <div class="profile-card qr-card">
-      <h3>Attendance QR Code</h3>
-      <div id="qrcode" class="skeleton"></div>
-      <p class="qr-note">Scan this to mark your attendance</p>
-    </div>
-  </main>
-
-  <script>
-    const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let isEditing = false;
-    let currentUser = null;
-
-    const editBtn = document.getElementById('editBtn');
-    const editBtnText = document.getElementById('editBtnText');
-    const displayElements = {
-        bio: document.getElementById('bioDisplay'),
-        instagram: document.getElementById('instagramContainer'),
-        linkedin: document.getElementById('linkedinContainer'),
-    };
-    const inputElements = {}; // Will be populated dynamically
-    const profilePicEl = document.getElementById('profilePic');
-
-    async function loadProfile() {
-      const { data: { session } } = await client.auth.getSession();
-      if (!session) { window.location.href = "login.html"; return; }
-
-      const { data, error } = await client.from('users').select('id, auth_id, name, course, role, mob, img, tick, bio, instagram, linkedin').eq('auth_id', session.user.id).single();
-      if (error || !data) { alert("Could not load your profile."); window.location.href = "login.html"; return; }
-      
-      currentUser = data;
-      populateUI(currentUser);
-      generateQRCode(currentUser);
-    }
-
-    function populateUI(data) {
-        profilePicEl.classList.remove('skeleton-img');
-        document.getElementById('qrcode').classList.remove('skeleton');
-
-        const tickUrls = { silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png" };
-        const tickHtml = data.tick && tickUrls[data.tick.toLowerCase()] ? `<img src="${tickUrls[data.tick.toLowerCase()]}" alt="Verified Tick">` : "";
-        document.getElementById("studentName").innerHTML = `${data.name || "Student"} ${tickHtml}`;
-        profilePicEl.src = data.img || "https://via.placeholder.com/120";
-        document.getElementById("roleText").textContent = data.role || "Student";
-        document.getElementById("id").textContent = data.id || "N/A";
-        document.getElementById("course").textContent = data.course ? data.course.toUpperCase() : "N/A";
-        document.getElementById("mobile").textContent = data.mob || "Not Provided";
-        
-        displayElements.bio.textContent = data.bio || "Click 'Edit Profile' to add a bio!";
-
-        // Populate Social Links
-        displayElements.instagram.innerHTML = createSocialLinkHTML('instagram', data.instagram, 'https://www.instagram.com/');
-        displayElements.linkedin.innerHTML = createSocialLinkHTML('linkedin', data.linkedin, 'https://www.linkedin.com/in/');
-    }
-
-    function extractUsername(url, platform) {
-        if (!url) return '';
-        try {
-            const urlObj = new URL(url);
-            let path = urlObj.pathname.split('/').filter(p => p);
-            if (platform === 'linkedin' && path[0] === 'in') return path[1] || '';
-            return path[0] || '';
-        } catch (e) {
-            return url.split('/').pop();
-        }
-    }
-
-    function createSocialLinkHTML(type, value, base) {
-        const username = extractUsername(value, type);
-        const displayLink = value && username 
-            ? `<a href="${value}" target="_blank" class="social-link-display">@${username}</a>` 
-            : `<span class="social-link-display not-set">Not Set</span>`;
-        const inputField = `<input type="text" id="${type}Input" class="social-link-input" style="display:none;" value="${username}" placeholder="username">`;
-        inputElements[type] = `#${type}Input`;
-        return displayLink + inputField;
-    }
-
-    function generateQRCode(data) {
-        if (!data || !data.id) return;
-        const qrData = JSON.stringify({ id: data.id, name: data.name });
-        const qrCodeContainer = document.getElementById('qrcode');
-        qrCodeContainer.innerHTML = "";
-        new QRCode(qrCodeContainer, { text: qrData, width: 128, height: 128 });
-    }
-
-    function toggleEditMode() {
-      isEditing = !isEditing;
-      const bioDisplay = document.getElementById('bioDisplay');
-      const bioInput = document.getElementById('bioInput');
-      
-      if (isEditing) {
-        editBtnText.textContent = "Save Changes";
-        bioDisplay.style.display = 'none';
-        bioInput.style.display = 'block';
-        bioInput.value = currentUser.bio || '';
-        
-        for (const key in inputElements) {
-            document.querySelector(inputElements[key]).style.display = 'block';
-            const container = document.querySelector(`#${key}Container`);
-            if (container) {
-                const link = container.querySelector('a');
-                const span = container.querySelector('span');
-                if(link) link.style.display = 'none';
-                if(span) span.style.display = 'none';
-            }
-        }
-      } else { 
-        saveProfile();
-      }
-    }
-    
-    function buildSocialUrl(value, base) {
-        if (!value) return '';
-        if (value.startsWith('http://') || value.startsWith('https://')) return value;
-        return `${base}${value.replace('@', '')}`;
-    }
-
-    async function saveProfile() {
-        const instagramUsername = document.querySelector(inputElements.instagram).value.trim();
-        const linkedinUsername = document.querySelector(inputElements.linkedin).value.trim();
-
-        const updates = {
-            bio: document.getElementById('bioInput').value.trim(),
-            instagram: buildSocialUrl(instagramUsername, 'https://www.instagram.com/'),
-            linkedin: buildSocialUrl(linkedinUsername, 'https://www.linkedin.com/in/'),
-        };
-
-        const { error } = await client.from('users').update(updates).eq('auth_id', currentUser.auth_id);
-
-        if (error) {
-            console.error('Error updating profile:', error); 
-            alert('Failed to save changes. Please try again.');
-        } else {
-            currentUser = {...currentUser, ...updates};
-            populateUI(currentUser); // Repopulate to reset view
-            
-            document.getElementById('bioDisplay').style.display = 'block';
-            document.getElementById('bioInput').style.display = 'none';
-            editBtnText.textContent = "Edit Profile";
-            isEditing = false;
-        }
-    }
+    <div class="profile-card social-links">
+      <h3>Social Links</h3>
+      <div class="info-item">
+        <span class="title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          Instagram
+        </span>
+        <span class="value" id="instagramContainer"><span class="skeleton skeleton-text">@username</span></span>
+      </div>
+      <div class="info-item">
+        <span class="title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            LinkedIn
+        </span>
+        <span class="value" id="linkedinContainer"><span class="skeleton skeleton-text">@username</span></span>
+      </div>
+    </div>
     
-    // ⭐️ START: NEW UPLOAD FUNCTION
+    <div class="profile-card qr-card">
+      <h3>Attendance QR Code</h3>
+      <div id="qrcode" class="skeleton"></div>
+      <p class="qr-note">Scan this to mark your attendance</p>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isEditing = false;
+    let currentUser = null;
+
+    const editBtn = document.getElementById('editBtn');
+    const editBtnText = document.getElementById('editBtnText');
+    const displayElements = {
+        bio: document.getElementById('bioDisplay'),
+        instagram: document.getElementById('instagramContainer'),
+        linkedin: document.getElementById('linkedinContainer'),
+    };
+    const inputElements = {}; // Will be populated dynamically
+    const profilePicEl = document.getElementById('profilePic');
+
+    async function loadProfile() {
+      const { data: { session } } = await client.auth.getSession();
+      if (!session) { window.location.href = "login.html"; return; }
+
+      const { data, error } = await client.from('users').select('id, auth_id, name, course, role, mob, img, tick, bio, instagram, linkedin').eq('auth_id', session.user.id).single();
+      if (error || !data) { alert("Could not load your profile."); window.location.href = "login.html"; return; }
+      
+      currentUser = data;
+      populateUI(currentUser);
+      generateQRCode(currentUser);
+    }
+
+    function populateUI(data) {
+        profilePicEl.classList.remove('skeleton-img');
+        document.getElementById('qrcode').classList.remove('skeleton');
+
+        const tickUrls = { silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png" };
+        const tickHtml = data.tick && tickUrls[data.tick.toLowerCase()] ? `<img src="${tickUrls[data.tick.toLowerCase()]}" alt="Verified Tick">` : "";
+        document.getElementById("studentName").innerHTML = `${data.name || "Student"} ${tickHtml}`;
+        profilePicEl.src = data.img || "https://via.placeholder.com/120";
+        document.getElementById("roleText").textContent = data.role || "Student";
+        document.getElementById("id").textContent = data.id || "N/A";
+        document.getElementById("course").textContent = data.course ? data.course.toUpperCase() : "N/A";
+        document.getElementById("mobile").textContent = data.mob || "Not Provided";
+        
+        displayElements.bio.textContent = data.bio || "Click 'Edit Profile' to add a bio!";
+
+        // Populate Social Links
+        displayElements.instagram.innerHTML = createSocialLinkHTML('instagram', data.instagram, 'https://www.instagram.com/');
+        displayElements.linkedin.innerHTML = createSocialLinkHTML('linkedin', data.linkedin, 'https://www.linkedin.com/in/');
+    }
+
+    function extractUsername(url, platform) {
+        if (!url) return '';
+        try {
+            const urlObj = new URL(url);
+            let path = urlObj.pathname.split('/').filter(p => p);
+            if (platform === 'linkedin' && path[0] === 'in') return path[1] || '';
+            return path[0] || '';
+        } catch (e) {
+            return url.split('/').pop();
+        }
+    }
+
+    function createSocialLinkHTML(type, value, base) {
+        const username = extractUsername(value, type);
+        const displayLink = value && username 
+            ? `<a href="${value}" target="_blank" class="social-link-display">@${username}</a>` 
+            : `<span class="social-link-display not-set">Not Set</span>`;
+        const inputField = `<input type="text" id="${type}Input" class="social-link-input" style="display:none;" value="${username}" placeholder="username">`;
+        inputElements[type] = `#${type}Input`;
+        return displayLink + inputField;
+    }
+
+    function generateQRCode(data) {
+        if (!data || !data.id) return;
+        const qrData = JSON.stringify({ id: data.id, name: data.name });
+        const qrCodeContainer = document.getElementById('qrcode');
+        qrCodeContainer.innerHTML = "";
+        new QRCode(qrCodeContainer, { text: qrData, width: 128, height: 128 });
+    }
+
+    function toggleEditMode() {
+      isEditing = !isEditing;
+      const bioDisplay = document.getElementById('bioDisplay');
+      const bioInput = document.getElementById('bioInput');
+      
+      if (isEditing) {
+        editBtnText.textContent = "Save Changes";
+        bioDisplay.style.display = 'none';
+        bioInput.style.display = 'block';
+        bioInput.value = currentUser.bio || '';
+        
+        for (const key in inputElements) {
+            document.querySelector(inputElements[key]).style.display = 'block';
+            const container = document.querySelector(`#${key}Container`);
+            if (container) {
+                const link = container.querySelector('a');
+                const span = container.querySelector('span');
+                if(link) link.style.display = 'none';
+                if(span) span.style.display = 'none';
+            }
+        }
+      } else { 
+        saveProfile();
+      }
+    }
+    
+    function buildSocialUrl(value, base) {
+        if (!value) return '';
+        if (value.startsWith('http://') || value.startsWith('https://')) return value;
+        return `${base}${value.replace('@', '')}`;
+    }
+
+    async function saveProfile() {
+        const instagramUsername = document.querySelector(inputElements.instagram).value.trim();
+        const linkedinUsername = document.querySelector(inputElements.linkedin).value.trim();
+
+        const updates = {
+            bio: document.getElementById('bioInput').value.trim(),
+            instagram: buildSocialUrl(instagramUsername, 'https://www.instagram.com/'),
+            linkedin: buildSocialUrl(linkedinUsername, 'https://www.linkedin.com/in/'),
+        };
+
+        const { error } = await client.from('users').update(updates).eq('auth_id', currentUser.auth_id);
+
+        if (error) {
+            console.error('Error updating profile:', error); 
+            alert('Failed to save changes. Please try again.');
+        } else {
+            currentUser = {...currentUser, ...updates};
+            populateUI(currentUser); // Repopulate to reset view
+            
+            document.getElementById('bioDisplay').style.display = 'block';
+            document.getElementById('bioInput').style.display = 'none';
+            editBtnText.textContent = "Edit Profile";
+            isEditing = false;
+        }
+    }
+
     async function uploadProfilePic(event) {
         if (!currentUser) {
             alert("User data has not loaded yet. Please wait a moment.");
@@ -331,7 +330,8 @@
             .from('avatars')
             .getPublicUrl(filePath);
 
-        const newImageUrl = urlData.publicUrl;
+        // Add a timestamp to the URL to bypass browser cache
+        const newImageUrl = `${urlData.publicUrl}?t=${new Date().getTime()}`;
 
         // 3. Update the 'img' column in your 'users' table
         const { error: dbError } = await client
@@ -352,16 +352,13 @@
         profilePicEl.style.opacity = '1';
         alert('Profile picture updated successfully!');
     }
-    // ⭐️ END: NEW UPLOAD FUNCTION
-    
-    document.addEventListener("DOMContentLoaded", () => {
-      loadProfile();
-      document.getElementById('editBtn').addEventListener('click', toggleEditMode);
-      document.getElementById('profilePicContainer').addEventListener('click', () => document.getElementById('uploadInput').click());
-      
-      // ⭐️ ADD THIS LINE
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      loadProfile();
+      document.getElementById('editBtn').addEventListener('click', toggleEditMode);
+      document.getElementById('profilePicContainer').addEventListener('click', () => document.getElementById('uploadInput').click());
       document.getElementById('uploadInput').addEventListener('change', uploadProfilePic);
-    });
-  </script>
+    });
+  </script>
 </body>
 </html>
