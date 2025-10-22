@@ -1,371 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <title>Professor Feedback | BirlaOne</title>
-  <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
-  
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <script>
-    // Apply theme from localStorage on initial load
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
-
-  <style>
-    /* --- Copied directly from your index.html for consistency --- */
-    :root {
-      --primary-accent: #56ab2f;
-      --primary-gradient: linear-gradient(90deg, #a8e063, #56ab2f);
-      --danger-color: #e53935;
-      --font-family: 'Inter', sans-serif;
-      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
-      --card-bg-light: rgba(255, 255, 255, 0.9);
-      --card-bg-rgb-light: 255, 255, 255;
-      --text-primary-light: #121212;
-      --text-secondary-light: #5f5f5f;
-      --border-color-light: #e0e0e0;
-      --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
-      --header-bg-light: rgba(255, 255, 255, 0.7);
-      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
-      --card-bg-dark: rgba(42, 42, 61, 0.9);
-      --card-bg-rgb-dark: 42, 42, 61;
-      --text-primary-dark: #f0f0f0;
-      --text-secondary-dark: #a0a0b0;
-      --border-color-dark: #4a4a6a;
-      --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
-      --header-bg-dark: rgba(30, 30, 46, 0.7);
-    }
-    [data-theme="light"] {
-      --bg-gradient: var(--bg-gradient-light);
-      --card-bg: var(--card-bg-light);
-      --card-bg-rgb: var(--card-bg-rgb-light);
-      --text-primary: var(--text-primary-light);
-      --text-secondary: var(--text-secondary-light);
-      --border-color: var(--border-color-light);
-      --shadow: var(--shadow-light);
-      --header-bg: var(--header-bg-light);
-    }
-    [data-theme="dark"] {
-      --bg-gradient: var(--bg-gradient-dark);
-      --card-bg: var(--card-bg-dark);
-      --card-bg-rgb: var(--card-bg-rgb-dark);
-      --text-primary: var(--text-primary-dark);
-      --text-secondary: var(--text-secondary-dark);
-      --border-color: var(--border-color-dark);
-      --shadow: var(--shadow-dark);
-      --header-bg: var(--header-bg-dark);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; }
-    body { font-family: var(--font-family); background: var(--bg-gradient); color: var(--text-primary); transition: background 0.4s ease, color 0.4s ease; overflow-x: hidden; }
-    header.top-bar { margin: 0; padding: 12px 16px; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-    .top-bar h1 { font-family: 'Pacifico', cursive; font-size: 26px; font-weight: 400; color: var(--text-primary); }
-    .menu-toggle, .profile-link { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
-    .profile-img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; }
-    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 199; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-    .sidebar-overlay.active { opacity: 1; visibility: visible; }
-    .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--card-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 2px 0 20px rgba(0,0,0,0.2); transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 200; display: flex; flex-direction: column; }
-    .sidebar.active { transform: translateX(0); }
-    .sidebar-profile-card { display: flex; align-items: center; gap: 15px; padding: 20px; border-bottom: 1px solid var(--border-color); }
-    .sidebar-profile-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; flex-shrink: 0; }
-    .sidebar-user-info { overflow: hidden; }
-    #sidebar-username { font-weight: 600; font-size: 18px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #sidebar-user-id { font-size: 14px; color: var(--text-secondary); }
-    .sidebar nav { flex-grow: 1; padding: 10px 0; }
-    .sidebar nav a { display: flex; align-items: center; gap: 15px; color: var(--text-primary); text-decoration: none; padding: 15px 20px; font-weight: 500; font-size: 16px; transition: background-color 0.2s, color 0.2s; border-radius: 0 30px 30px 0; margin-right: 10px; }
-    .sidebar nav a:hover { background-color: rgba(86, 171, 47, 0.1); color: var(--primary-accent); }
-    .nav-icon { width: 24px; height: 24px; stroke-width: 2; }
-    .sidebar-footer { padding: 20px; margin-top: auto; border-top: 1px solid var(--border-color); }
-    .theme-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 10px; background-color: rgba(128, 128, 128, 0.1); margin-bottom: 15px; }
-    .theme-switch-label { font-weight: 500; }
-    .theme-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-    .theme-switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4a4a6a; transition: 0.4s; border-radius: 26px; }
-    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%; z-index: 2; }
-    input:checked + .slider { background: var(--primary-gradient); }
-    input:checked + .slider:before { transform: translateX(24px); }
-    .logout-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--danger-color); color: white; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
-    .logout-button:hover { background: #c62828; }
-    .container { padding: 16px; max-width: 800px; margin: 0 auto; }
-    #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
-    .toast { background: var(--card-bg); color: var(--text-primary); padding: 12px 20px; margin-top: 10px; border-left: 5px solid var(--primary-accent); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); font-weight: 500; font-size: 14px; animation: slideInUp 0.4s ease, fadeOut 0.4s ease 2.6s; }
-    @keyframes slideInUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
-    /* --- NEW STYLES FOR FEEDBACK FORM --- */
-    .survey-header { text-align: center; margin: 20px 0 30px; }
-    .survey-header h2 { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
-    .survey-header p { font-size: 16px; color: var(--text-secondary); }
-    .professor-card { display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem 0; border-bottom: 1px solid var(--border-color); }
-    .professor-card:last-of-type { border-bottom: none; }
-    @media (min-width: 600px) { .professor-card { flex-direction: row; align-items: center; } }
-    .professor-info { margin-bottom: 1rem; }
-    @media (min-width: 600px) { .professor-info { margin-bottom: 0; } }
-    .professor-info .name { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
-    .professor-info .subject { font-size: 0.9rem; color: var(--text-secondary); }
-    .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
-    .star-rating input[type="radio"] { display: none; }
-    .star-rating label { font-size: 1.8rem; color: var(--border-color-dark); cursor: pointer; transition: color 0.2s ease-in-out; }
-    .star-rating.disabled label { cursor: not-allowed; opacity: 0.6; }
-    .star-rating:not(.disabled):not(:hover) input[type="radio"]:checked ~ label,
-    .star-rating:not(.disabled):hover input[type="radio"]:hover ~ label { color: #FFD700; }
-    .star-rating input[type="radio"]:checked ~ label { color: #FFD700; }
-    .submit-btn { width: 100%; padding: 14px; margin-top: 30px; background: var(--primary-gradient); color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3); }
-    .submit-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4); }
-    .submit-btn:active { transform: translateY(-1px); }
-    .submit-btn:disabled { background: var(--text-secondary); cursor: not-allowed; box-shadow: none; transform: none; }
-  </style>
-</head>
-<body>
-  <div id="toast-container"></div>
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-profile-card">
-      <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="sidebarProfilePic" class="sidebar-profile-img" alt="Profile" loading="lazy"/>
-      <div class="sidebar-user-info">
-        <div id="sidebar-username">Loading...</div>
-        <div id="sidebar-user-id">Student ID: ...</div>
-      </div>
-    </div>
-    <nav>
-      <a href="index.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Home</span></a>
-      </nav>
-    <div class="sidebar-footer">
-      <div class="theme-switch-wrapper">
-        <span class="theme-switch-label">Theme</span>
-        <label class="theme-switch"><input type="checkbox" id="theme-checkbox" /><span class="slider"></span></label>
-      </div>
-      <button class="logout-button" onclick="logout()">Logout</button>
-    </div>
-  </aside>
-
-  <header class="top-bar">
-    <button class="menu-toggle" onclick="toggleSidebar()"><span class="menu-icon">☰</span></button>
-    <h1>BirlaOne</h1>
-    <a href="myprofile.html" class="profile-link"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/></a>
-  </header>
-
-  <main class="container">
-    <div class="survey-header">
-        <h2>Professor Feedback Survey</h2>
-        <p>Your feedback helps us improve. Please rate your professors for this semester.</p>
-    </div>
-
-    <form id="feedback-form">
-        <div id="survey-list">
-            <p style="text-align: center; color: var(--text-secondary); padding: 20px;">Loading survey...</p>
-        </div>
-        <button type="submit" class="submit-btn" id="submitButton" disabled>Submit Feedback</button>
-    </form>
-  </main>
-  
-<script>
-    const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let currentUser = null;
-
-    // List of professors for the survey
-    const professors = [
-        { name: 'Prof. Vaibhav Narule', subject: 'Financial Accounting – III' },
-        { name: 'Prof. Kirshna Velar', subject: 'Cost Accounting – I' },
-        { name: 'Prof. Jatin Chouhan', subject: 'Basics of Service Sector' },
-        { name: 'Prof. Narayan Lad', subject: 'Mutual Fund Distributor – I' },
-        { name: 'Dr. Rupesh Patil', subject: 'Big Data Analysis' },
-        { name: 'Prof. Balkrishna Shingale', subject: 'Marathi' },
-        { name: 'Prof. Akshay Tembe', subject: 'Sports' }
-    ];
-
-    // --- UI & UTILITY FUNCTIONS (from your index.html) ---
-    function showToast(message) {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('active');
-      document.getElementById('sidebarOverlay').classList.toggle('active');
-    }
-    async function logout() {
-      showToast("Logging out...");
-      await client.auth.signOut();
-    }
-    function toggleTheme() {
-        const root = document.documentElement;
-        const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        root.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    }
-    function applySavedTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        const themeCheckbox = document.getElementById('theme-checkbox');
-        if (themeCheckbox) themeCheckbox.checked = savedTheme === 'dark';
-    }
-
-    // --- FORM-SPECIFIC FUNCTIONS ---
-
-    // 1. Fetch feedback user has already submitted
-    async function fetchSubmittedFeedback() {
-        if (!currentUser) return [];
-        const { data, error } = await client
-            .from('professor_feedback')
-            .select('professor_name, subject_name, rating')
-            .eq('user_id', currentUser.id);
-        
-        if (error) {
-            console.error("Error fetching submitted feedback:", error);
-            return [];
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BirlaOne Dashboard</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Feather Icons Script -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Pacifico font for the logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config with NEW GREEN THEME -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        logo: ['Pacifico', 'cursive'],
+                    },
+                    colors: {
+                        'primary': {
+                            '50': '#f7fbf4',
+                            '100': '#eef8e9',
+                            '200': '#dcf1d3',
+                            '300': '#c3e7b3',
+                            '400': '#a6d98e',
+                            '500': '#87c964',
+                            '600': '#56ab2f', /* Base Green */
+                            '700': '#458a26',
+                            '800': '#396f21',
+                            '900': '#305b1c',
+                            '950': '#1a320f',
+                        },
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
         }
-        return data;
-    }
-
-    // 2. Render the survey form on the page
-    function renderSurvey(submittedFeedback) {
-        const surveyList = document.getElementById('survey-list');
-        const submittedMap = new Map(submittedFeedback.map(item => [`${item.professor_name}-${item.subject_name}`, item.rating]));
         
-        surveyList.innerHTML = professors.map((prof, index) => {
-            const profId = `prof-${index}`;
-            const submittedRating = submittedMap.get(`${prof.name}-${prof.subject}`);
-            const isDisabled = !!submittedRating;
+        /* Page load fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        
+        /* Custom shadows for nav bars */
+        .top-nav-shadow {
+            box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03);
+        }
+        .bottom-nav-shadow {
+            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
+        }
 
-            let starsHtml = '';
-            for (let i = 5; i >= 1; i--) {
-                const isChecked = i === submittedRating ? 'checked' : '';
-                starsHtml += `<input type="radio" id="${profId}-star${i}" name="rating-${profId}" value="${i}" ${isChecked} ${isDisabled ? 'disabled' : ''}><label for="${profId}-star${i}">★</label>`;
-            }
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Feather Icon Styling */
+        i[data-feather] {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Bottom nav icon sizing */
+        .bottom-nav-icon i[data-feather] {
+            width: 28px;
+            height: 28px;
+        }
+        
+        /* Removed .create-icon-wrapper style */
 
-            return `
-                <div class="professor-card" data-prof-name="${prof.name}" data-prof-subject="${prof.subject}">
-                    <div class="professor-info">
-                        <div class="name">${prof.name}</div>
-                        <div class="subject">${prof.subject}</div>
-                    </div>
-                    <div class="star-rating ${isDisabled ? 'disabled' : ''}">
-                        ${starsHtml}
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- App Container -->
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+
+        <!-- ===== Skeleton Loader ===== -->
+        <div id="skeleton-loader" class="absolute inset-0 z-50 bg-white pt-20 pb-24 px-4 overflow-hidden">
+            <div class="animate-pulse space-y-6">
+                <!-- Top 2x2 Grid Skeleton -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                </div>
+                
+                <!-- Badges Skeleton -->
+                <div>
+                    <div class="h-5 w-1D bg-gray-200 rounded-full mb-3"></div>
+                    <div class="flex space-x-3">
+                        <div class="w-32 h-16 bg-gray-200 rounded-2xl"></div>
+                        <div class="w-32 h-16 bg-gray-200 rounded-2xl"></div>
+                        <div class="w-32 h-16 bg-gray-200 rounded-2xl"></div>
                     </div>
                 </div>
-            `;
-        }).join('');
-    }
-
-    // 3. Handle form submission
-    async function handleSubmit(event) {
-        event.preventDefault();
-        const submitButton = document.getElementById('submitButton');
-        submitButton.disabled = true;
-        submitButton.textContent = 'Submitting...';
-
-        if (!currentUser) {
-            showToast("Error: User not found. Please log in again.");
-            submitButton.textContent = 'Submit Feedback';
-            return;
-        }
-
-        const ratingsToSubmit = [];
-        const form = document.getElementById('feedback-form');
+                
+                <!-- Scan Card Skeleton -->
+                <div class="h-32 bg-gray-200 rounded-2xl"></div>
+                
+                <!-- List Skeleton (Lectures/Activities) -->
+                <div class="space-y-3">
+                    <div class="h-5 w-1/2 bg-gray-200 rounded-full"></div>
+                    <div class="h-20 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-20 bg-gray-200 rounded-2xl"></div>
+                </div>
+            </div>
+            <!-- Skeleton Navs -->
+            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white flex justify-between items-center p-4">
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-24 h-6 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+            </div>
+            <!-- Updated Skeleton Nav -->
+            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white flex justify-around items-center p-3">
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div> <!-- No more raised button -->
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+            </div>
+        </div>
         
-        form.querySelectorAll('.professor-card').forEach((card, index) => {
-            const ratingInput = card.querySelector('input[type="radio"]:checked');
-            // Only submit if a rating is selected AND it's not disabled (i.e., not already submitted)
-            if (ratingInput && !ratingInput.disabled) {
-                ratingsToSubmit.push({
-                    user_id: currentUser.id,
-                    professor_name: card.dataset.profName,
-                    subject_name: card.dataset.profSubject,
-                    rating: parseInt(ratingInput.value)
-                });
-            }
+        <!-- ===== App Content (Hidden by default) ===== -->
+        <div id="app-content" class="hidden">
+            <!-- Top Navigation -->
+            <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
+                <!-- Profile -->
+                <button class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
+                    <i data-feather="user" class="text-gray-700"></i>
+                </button>
+                
+                <!-- App Title -->
+                <h1 class="text-3xl font-logo text-primary-600">
+                    BirlaOne
+                </h1>
+                
+                <!-- Notifications -->
+                <button class="relative p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
+                    <i data-feather="bell" class="text-gray-700"></i>
+                    <!-- Notification dot -->
+                    <span class="absolute top-2 right-2 block w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+            </header>
+
+            <!-- Main Content - Dashboard -->
+            <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
+                
+                <!-- Dashboard 2x2 Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Academic Score -->
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Academic Score</h2>
+                            <i data-feather="award" class="text-primary-600 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-4xl font-bold text-gray-900">88</span>
+                            <span class="text-sm font-medium text-gray-500">/ 100</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Plastic Recycled -->
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Plastic Recycled</h2>
+                            <!-- NEW ICON -->
+                            <i data-feather="refresh-ccw" class="text-green-600 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-4xl font-bold text-gray-900">12.5</span>
+                            <span class="text-sm font-medium text-gray-500">kg</span>
+                        </div>
+                    </div>
+
+                    <!-- Campus Friends -->
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Campus Friends</h2>
+                            <i data-feather="users" class="text-purple-500 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-4xl font-bold text-gray-900">5</span>
+                            <span class="text-sm font-medium text-gray-500">Total</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Net Worth -->
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Net Worth</h2>
+                            <i data-feather="credit-card" class="text-indigo-500 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-4xl font-bold text-gray-900">₹1,500</span>
+                            <p class="text-xs text-gray-500">Personal Wealth</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roles & Badges -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                        <i data-feather="star" class="text-yellow-500"></i>
+                        <span>Roles & Badges</span>
+                    </h2>
+                    <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
+                        <!-- Badge 1 -->
+                        <div class="flex-shrink-0 w-40 p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center space-x-3">
+                            <i data-feather="user-check" class="text-blue-500 h-8 w-8"></i>
+                            <div>
+                                <p class="font-semibold text-gray-800">CR</p>
+                                <p class="text-xs text-gray-500">CS 2nd Year</p>
+                            </div>
+                        </div>
+                        <!-- Badge 2 -->
+                        <div class="flex-shrink-0 w-40 p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center space-x-3">
+                            <i data-feather="users" class="text-green-600 h-8 w-8"></i>
+                            <div>
+                                <p class="font-semibold text-gray-800">Club Head</p>
+                                <p class="text-xs text-gray-500">ACM Club</p>
+                            </div>
+                        </div>
+                        <!-- Badge 3 -->
+                        <div class="flex-shrink-0 w-40 p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center space-x-3">
+                            <i data-feather="trophy" class="text-yellow-500 h-8 w-8"></i>
+                            <div>
+                                <p class="font-semibold text-gray-800">Winner</d>
+                                <p class="text-xs text-gray-500">Oasis Hackathon</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scan Product Card -->
+                <a href="#" class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-6 rounded-2xl flex justify-between items-center shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95">
+                    <div>
+                        <h3 class="text-xl font-bold">BeAware</h3>
+                        <p class="text-sm text-primary-100">Smart Ingredient-Based Product Rating</p>
+                    </div>
+                    <!-- NEW ICON (looks like a barcode) -->
+                    <i data-feather="camera" class="h-12 w-12 opacity-70"></i>
+                </a>
+
+
+                <!-- Scheduled Lectures -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                        <i data-feather="book-open" class="text-primary-600"></i>
+                        <span>Today's Lectures</span>
+                    </h2>
+                    <div class="space-y-3">
+                        <!-- Lecture 1 -->
+                        <div class="flex space-x-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                            <div class="flex flex-col items-center text-center">
+                                <span class="font-bold text-lg text-primary-600">Oct</span>
+                                <span class="text-2xl font-bold text-primary-600 -mt-1">22</span>
+                            </div>
+                            <div class="border-l border-gray-300 pl-4 flex-1">
+                                <p class="font-semibold text-gray-800">Data Structures</p>
+                                <p class="text-sm text-gray-500">Prof. R. Sharma</p>
+                                <p class="text-sm text-gray-500">10:00 - 11:00 AM</p>
+                            </div>
+                        </div>
+                        <!-- Lecture 2 -->
+                        <div class="flex space-x-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                            <div class="flex flex-col items-center text-center">
+                                <span class="font-bold text-lg text-primary-600">Oct</span>
+                                <span class="text-2xl font-bold text-primary-600 -mt-1">22</span>
+                            </div>
+                            <div class="border-l border-gray-300 pl-4 flex-1">
+                                <p class="font-semibold text-gray-800">M-IV (Maths)</p>
+                                <p class="text-sm text-gray-500">Prof. S. Gupta</p>
+                                <p class="text-sm text-gray-500">11:00 - 12:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scheduled Activities -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                        <i data-feather="calendar" class="text-green-600"></i>
+                        <span>Upcoming Activities</span>
+                    </h2>
+                    <div class="space-y-3">
+                        <!-- Activity 1 -->
+                        <div class="flex space-x-4 p-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                            <div class="flex flex-col items-center text-center">
+                                <span class="font-bold text-lg text-green-600">Oct</span>
+                                <span class="text-2xl font-bold text-green-600 -mt-1">25</span>
+                            </div>
+                            <div class="border-l border-gray-300 pl-4 flex-1">
+                                <p class="font-semibold text-gray-800">Oasis Hackathon</p>
+                                <p class="text-sm text-gray-500">Organized by: ACM Club</p>
+                                <p class="text-sm text-gray-500">Oct 25 | 9:00 AM - Oct 26 | 5:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- Bottom Navigation -->
+            <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+                
+                <!-- Dashboard (Active) -->
+                <a href="test.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Dashboard">
+                    <i data-feather="layout" class="stroke-[2.5px]"></i>
+                </a>
+                
+                <!-- Feed -->
+                <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
+                    <i data-feather="file-text"></i>
+                </a>
+                
+                <!-- Create (Centered & Aligned) -->
+                <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
+                    <i data-feather="plus-circle"></i>
+                </a>
+                
+                <!-- Search -->
+                <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
+                    <i data-feather="search"></i>
+                </a>
+                
+                <!-- Mini Apps -->
+                <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+                    <i data-feather="grid"></i>
+                </a>
+            </nav>
+
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        window.addEventListener('load', () => {
+            // Simulate a network request
+            setTimeout(() => {
+                const skeleton = document.getElementById('skeleton-loader');
+                const app = document.getElementById('app-content');
+
+                if (skeleton && app) {
+                    
+                    // --- Fade out skeleton and fade in app ---
+                    skeleton.style.transition = 'opacity 0.4s ease-out';
+                    skeleton.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        skeleton.style.display = 'none';
+                        app.classList.remove('hidden');
+                        app.classList.add('fade-in');
+                        
+                        // --- IMPORTANT: Render Feather Icons *after* content is visible ---
+                        feather.replace();
+                        
+                    }, 400); // Match transition duration
+                }
+
+            }, 1500); // 1.5 second delay
         });
+    </script>
 
-        if (ratingsToSubmit.length === 0) {
-            showToast("No new ratings to submit.");
-            submitButton.disabled = false;
-            submitButton.textContent = 'Submit Feedback';
-            return;
-        }
-
-        const { error } = await client.from('professor_feedback').insert(ratingsToSubmit);
-
-        if (error) {
-            console.error("Error submitting feedback:", error);
-            showToast("An error occurred. Some feedback may not have saved.");
-            // The unique constraint error code is '23505'
-            if (error.code === '23505') {
-                 showToast("You have already submitted feedback for one of these professors.");
-            }
-        } else {
-            showToast("Feedback submitted successfully!");
-        }
-
-        // Re-render the form to show the newly submitted ratings as disabled
-        const updatedFeedback = await fetchSubmittedFeedback();
-        renderSurvey(updatedFeedback);
-        submitButton.disabled = false;
-        submitButton.textContent = 'Submit Feedback';
-    }
-
-    // --- INITIALIZATION ---
-    async function fetchAndSetCurrentUser(session) {
-      const { data, error } = await client.from('users').select('id, img, name, course').eq('auth_id', session.user.id).single();
-      if (error) { console.error("Could not fetch user profile", error); return false; }
-      
-      currentUser = data;
-      const picUrl = data.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-      document.getElementById('profilePic').src = picUrl;
-      document.getElementById('sidebarProfilePic').src = picUrl;
-      document.getElementById('sidebar-username').innerText = data.name || 'Student';
-      document.getElementById('sidebar-user-id').innerText = `Student ID: ${data.id || 'N/A'}`;
-      return true;
-    }
-
-    async function initializePage(session) {
-        if (!session || !session.user) { 
-            window.location.href = "login.html"; 
-            return; 
-        }
-        
-        const profileLoaded = await fetchAndSetCurrentUser(session);
-        if (!profileLoaded) {
-            showToast("Could not load your profile. Please try again.");
-            return;
-        }
-        
-        const submittedFeedback = await fetchSubmittedFeedback();
-        renderSurvey(submittedFeedback);
-
-        // Enable the submit button once the page is ready
-        document.getElementById('submitButton').disabled = false;
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        applySavedTheme();
-        document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
-        document.getElementById('feedback-form').addEventListener('submit', handleSubmit);
-        
-        client.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-                initializePage(session);
-            } else if (event === 'SIGNED_OUT') {
-                currentUser = null;
-                window.location.href = "login.html";
-            }
-        });
-    });
-</script>
 </body>
 </html>
+
