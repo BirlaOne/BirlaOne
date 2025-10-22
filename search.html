@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BirlaOne Search</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Feather Icons Script -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Pacifico font for the logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config with NEW GREEN THEME -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        logo: ['Pacifico', 'cursive'],
+                    },
+                    colors: {
+                        'primary': {
+                            '50': '#f7fbf4',
+                            '100': '#eef8e9',
+                            '200': '#dcf1d3',
+                            '300': '#c3e7b3',
+                            '400': '#a6d98e',
+                            '500': '#87c964',
+                            '600': '#56ab2f', /* Base Green */
+                            '700': '#458a26',
+                            '800': '#396f21',
+                            '900': '#305b1c',
+                            '950': '#1a320f',
+                        },
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+        }
+        
+        /* Custom shadows for nav bars */
+        .top-nav-shadow {
+            box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03);
+        }
+        .bottom-nav-shadow {
+            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Feather Icon Styling */
+        i[data-feather] {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Bottom nav icon sizing */
+        .bottom-nav-icon i[data-feather] {
+            width: 28px;
+            height: 28px;
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- App Container -->
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+
+        <!-- Main Content - Search -->
+        <main class="pb-28 overflow-y-auto h-screen no-scrollbar">
+            
+            <!-- Sticky Search Header -->
+            <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 space-y-4">
+                <h1 class="text-3xl font-bold text-gray-900">Search</h1>
+                <div class="relative flex items-center">
+                    <i data-feather="search" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                    <input type="text" placeholder="Search for students, clubs..." class="w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pr-4 pl-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="p-4 space-y-3">
+                <h2 class="text-lg font-semibold text-gray-700">Popular</h2>
+
+                <!-- User Result 1 -->
+                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
+                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=PS" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-900">Priya Sharma</p>
+                        <p class="text-sm text-gray-500">B.E. (CS) - 3rd Year</p>
+                    </div>
+                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
+                        <i data-feather="user-plus" class="w-5 h-5"></i>
+                    </button>
+                </a>
+
+                <!-- User Result 2 -->
+                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
+                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=RK" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-900">Rohan Kumar</p>
+                        <p class="text-sm text-gray-500">B.Pharm - 2nd Year</p>
+                    </div>
+                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
+                        <i data-feather="user-plus" class="w-5 h-5"></i>
+                    </button>
+                </a>
+
+                <!-- User Result 3 -->
+                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
+                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=AS" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-900">Ananya Singh</p>
+                        <p class="text-sm text-gray-500">M.Sc. (Eco) - 1st Year</p>
+                    </div>
+                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
+                        <i data-feather="user-plus" class="w-5 h-5"></i>
+                    </button>
+                </a>
+
+                <!-- User Result 4 -->
+                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
+                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=VM" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-900">Vikram Mehra</p>
+                        <p class="text-sm text-gray-500">B.E. (Mech) - 4th Year</p>
+                    </div>
+                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
+                        <i data-feather="user-plus" class="w-5 h-5"></i>
+                    </button>
+                </a>
+
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+            
+            <!-- Dashboard -->
+            <!-- Note: Swapped 'text-primary-600' with 'text-gray-400' -->
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
+                <i data-feather="layout"></i>
+            </a>
+            
+            <!-- Feed -->
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
+                <i data-feather="file-text"></i>
+            </a>
+            
+            <!-- Create (Centered & Aligned) -->
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
+                <i data-feather="plus-circle"></i>
+            </a>
+            
+            <!-- Search (Active) -->
+            <!-- Note: Swapped 'text-gray-400' with 'text-primary-600' and added stroke -->
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Search">
+                <i data-feather="search" class="stroke-[2.5px]"></i>
+            </a>
+            
+            <!-- Mini Apps -->
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+                <i data-feather="grid"></i>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Render Feather Icons
+        feather.replace();
+    </script>
+
+</body>
+</html>
