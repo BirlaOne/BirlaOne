@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BirlaOne - Create Post</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Feather Icons Script -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Pacifico font for the logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config with NEW GREEN THEME -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        logo: ['Pacifico', 'cursive'],
+                    },
+                    colors: {
+                        'primary': {
+                            '50': '#f7fbf4',
+                            '100': '#eef8e9',
+                            '200': '#dcf1d3',
+                            '300': '#c3e7b3',
+                            '400': '#a6d98e',
+                            '500': '#87c964',
+                            '600': '#56ab2f', /* Base Green */
+                            '700': '#458a26',
+                            '800': '#396f21',
+                            '900': '#305b1c',
+                            '950': '#1a320f',
+                        },
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+        }
+        
+        /* Custom shadows for nav bars */
+        .bottom-nav-shadow {
+            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Feather Icon Styling */
+        i[data-feather] {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Bottom nav icon sizing */
+        .bottom-nav-icon i[data-feather] {
+            width: 28px;
+            height: 28px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- App Container -->
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+
+        <!-- Main Content - Create Post -->
+        <main class="pt-6 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
+            
+            <!-- Page Header -->
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-900">Create Post</h1>
+                <a href="feed.html" class="p-2 rounded-full text-gray-500 hover:bg-gray-100">
+                    <i data-feather="x" class="w-7 h-7"></i>
+                </a>
+            </div>
+
+            <!-- Post Type Tabs -->
+            <div class="flex border-b border-gray-200">
+                <button id="tab-text" onclick="switchTab('text')" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all">
+                    Text
+                </button>
+                <button id="tab-photo" onclick="switchTab('photo')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
+                    Photo/Video
+                </button>
+                <button id="tab-poll" onclick="switchTab('poll')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
+                    Poll
+                </button>
+                <button id="tab-anonymous" onclick="switchTab('anonymous')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
+                    Anonymous
+                </button>
+            </div>
+
+            <!-- Tab Panels -->
+            <div>
+                <!-- Text Panel -->
+                <div id="panel-text" class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-semibold text-gray-900">Your Name</p>
+                            <p class="text-sm text-gray-500">Posting publicly</p>
+                        </div>
+                    </div>
+                    <textarea class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="What's on your mind?"></textarea>
+                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                        Post
+                    </button>
+                </div>
+
+                <!-- Photo/Video Panel -->
+                <div id="panel-photo" class="space-y-4 hidden">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-semibold text-gray-900">Your Name</p>
+                            <p class="text-sm text-gray-500">Posting publicly</p>
+                        </div>
+                    </div>
+                    <textarea class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Write a caption..."></textarea>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-500 cursor-pointer hover:border-primary-600 hover:text-primary-600 transition-all">
+                        <i data-feather="upload-cloud" class="w-12 h-12"></i>
+                        <p class="font-semibold mt-2">Click to upload</p>
+                        <p class="text-sm">PNG, JPG, MP4 or GIF</p>
+                    </div>
+                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                        Post
+                    </button>
+                </div>
+
+                <!-- Poll Panel -->
+                <div id="panel-poll" class="space-y-4 hidden">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-semibold text-gray-900">Your Name</p>
+                            <p class="text-sm text-gray-500">Posting publicly</p>
+                        </div>
+                    </div>
+                    <textarea class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Ask a question..."></textarea>
+                    
+                    <div class="space-y-3">
+                        <h3 class="font-semibold text-gray-700">Options</h3>
+                        <input type="text" placeholder="Option 1" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        <input type="text" placeholder="Option 2" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        <button class="w-full flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-200 transition-colors">
+                            <i data-feather="plus" class="w-5 h-5"></i>
+                            <span>Add Option</span>
+                        </button>
+                    </div>
+
+                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                        Post Poll
+                    </button>
+                </div>
+
+                <!-- Anonymous Panel -->
+                <div id="panel-anonymous" class="space-y-4 hidden">
+                    <div class="flex items-center space-x-3 p-4 bg-gray-800 rounded-xl">
+                        <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+                            <i data-feather="eye-off" class="text-white"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white">Posting Anonymously</p>
+                            <p class="text-xs text-gray-400">This post will not be linked to your profile.</p>
+                        </div>
+                    </div>
+                    <textarea class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Share your confession..."></textarea>
+                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                        Post Anonymously
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+            
+            <!-- Dashboard -->
+            <a href="test.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
+                <i data-feather="layout"></i>
+            </a>
+            
+            <!-- Feed -->
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
+                <i data-feather="file-text"></i>
+            </a>
+            
+            <!-- Create (Active) -->
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Create">
+                <i data-feather="plus-circle" class="stroke-[2.5px]"></i>
+            </a>
+            
+            <!-- Search -->
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
+                <i data-feather="search"></i>
+            </a>
+            
+            <!-- Mini Apps -->
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+                <i data-feather="grid"></i>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const tabs = ['text', 'photo', 'poll', 'anonymous'];
+        const panels = ['panel-text', 'panel-photo', 'panel-poll', 'panel-anonymous'];
+        const tabButtons = ['tab-text', 'tab-photo', 'tab-poll', 'tab-anonymous'];
+
+        function switchTab(activeTab) {
+            panels.forEach(panelId => {
+                const panel = document.getElementById(panelId);
+                if (panel) {
+                    panel.classList.add('hidden');
+                }
+            });
+
+            tabButtons.forEach(tabId => {
+                const tab = document.getElementById(tabId);
+                if (tab) {
+                    tab.classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
+                    tab.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+                }
+            });
+
+            const activePanel = document.getElementById(`panel-${activeTab}`);
+            if (activePanel) {
+                activePanel.classList.remove('hidden');
+            }
+
+            const activeTabButton = document.getElementById(`tab-${activeTab}`);
+            if (activeTabButton) {
+                activeTabButton.classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
+                activeTabButton.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+            }
+        }
+
+        // Render Feather Icons
+        feather.replace();
+    </script>
+
+</body>
+</html>
