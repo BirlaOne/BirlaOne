@@ -51,10 +51,12 @@
         .modal { display: none; /* Hidden by default */ }
         .modal.active { display: flex; /* Show when active */ }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
+        /* Style for liked heart */
         .liked svg.feather-heart, .liked i[data-feather="heart"] { fill: #ef4444; color: #ef4444; stroke: #ef4444; }
         .engagement-icon { width: 20px; height: 20px; }
         .poll-option-button { min-height: 44px; }
         .poll-bar-fg { height: 100%; transition: width 0.3s ease-in-out; }
+        /* Smaller icons in action buttons */
         .action-button-icon { width: 20px; height: 20px; /* h-5 w-5 */ }
     </style>
 </head>
@@ -79,9 +81,9 @@
         <main id="main-content" class="px-6 space-y-6 pb-12 overflow-y-auto h-screen no-scrollbar pt-16"> 
             
              <div id="profile-loading" class="text-center py-10 text-gray-500">
-                 <div class="spinner mx-auto mb-2"></div>
-                 <p>Loading profile...</p>
-            </div>
+                  <div class="spinner mx-auto mb-2"></div>
+                  <p>Loading profile...</p>
+             </div>
 
             <div id="profile-content" class="hidden space-y-6">
 
@@ -114,11 +116,14 @@
                     
                     <div id="friendship-action-area" class="w-1/2">
                         <button id="add-friend-button" class="hidden w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-plus" class="action-button-icon"></i> <span class="font-semibold text-lg">Add Friend</span> </button>
+                        
                         <button id="request-sent-button" class="hidden w-full bg-gray-200 text-gray-600 p-4 rounded-xl flex justify-center items-center space-x-2 cursor-not-allowed"> <i data-feather="check" class="action-button-icon"></i> <span class="font-semibold text-lg">Requested</span> </button> 
-                        <div id="accept-decline-buttons" class="hidden w-full flex items-center space-x-2">
-                            <button id="accept-request-button" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span> </button> 
-                            <button id="decline-request-button" class="flex-shrink-0 bg-white border border-danger-500 text-danger-500 p-4 rounded-xl flex justify-center items-center shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <i data-feather="x" class="action-button-icon"></i> </button> 
+                        
+                         <div id="accept-decline-buttons" class="hidden w-full flex items-center space-x-2">
+                             <button id="accept-request-button" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span> </button> {/* Adjusted size */}
+                             <button id="decline-request-button" class="flex-shrink-0 bg-white border border-danger-500 text-danger-500 p-4 rounded-xl flex justify-center items-center shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <i data-feather="x" class="action-button-icon"></i> </button> 
                         </div>
+
                         <button id="remove-friend-button" class="hidden w-full bg-white border border-danger-500 text-danger-600 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <i data-feather="user-minus" class="action-button-icon"></i> <span class="font-semibold text-lg">Remove Friend</span> </button>
                     </div>
                 </div>
@@ -127,11 +132,9 @@
 
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4"> <h2 class="text-xl font-bold text-gray-900">Social Links</h2> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="instagram" class="h-5 w-5"></i> <span class="font-medium">Instagram</span> </div> <span id="profile-instagram" class="font-medium text-gray-900 italic"></span> </div> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="linkedin" class="h-5 w-5"></i> <span class="font-medium">LinkedIn</span> </div> <span id="profile-linkedin" class="font-medium text-gray-900 italic"></span> </div> </div>
 
-                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> </div> </div>
+                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> {/* Posts injected here */} </div> </div>
 
-             </div>
-
-        </main>
+             </div></main>
 
     </div>
 
@@ -162,6 +165,7 @@
         const acceptDeclineButtons = document.getElementById('accept-decline-buttons'); 
         const acceptRequestButton = document.getElementById('accept-request-button'); 
         const declineRequestButton = document.getElementById('decline-request-button'); 
+        const friendsButton = document.getElementById('friends-button'); 
         const removeFriendButton = document.getElementById('remove-friend-button');
         const loginPrompt = document.getElementById('login-prompt'); 
 
@@ -237,10 +241,10 @@
         async function loadUserPosts(userAuthId) { 
              postsLoading.style.display = 'block'; userPostsContainer.innerHTML = ''; 
              try { 
-                let query = _supabase.from('posts').select(`id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, users:user_id (name, img, tick) `) 
-                          .eq('user_id', userAuthId); 
+                 let query = _supabase.from('posts').select(`id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, users:user_id (name, img, tick) `) 
+                           .eq('user_id', userAuthId); 
                  if(currentAuthUser) {
-                     query = query.select(`*, users:user_id (name, img, tick), likes!left(user_id), poll_votes!left(user_id, selected_option_index) `) 
+                      query = query.select(`*, users:user_id (name, img, tick), likes!left(user_id), poll_votes!left(user_id, selected_option_index) `) 
                                .eq('likes.user_id', currentAuthUser.id)
                                .eq('poll_votes.user_id', currentAuthUser.id);
                  }
@@ -250,16 +254,16 @@
                  if (posts.length === 0) { userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">This user hasn't posted yet.</p>`; } 
                  else { 
                       const processedPosts = posts.map(post => ({
-                         ...post,
-                         currentUserLiked: currentAuthUser ? (post.likes?.length > 0) : false,
-                         currentUserPollVote: currentAuthUser ? (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null) : null
-                     }));
+                          ...post,
+                          currentUserLiked: currentAuthUser ? (post.likes?.length > 0) : false,
+                          currentUserPollVote: currentAuthUser ? (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null) : null
+                      }));
                      const postsHtml = processedPosts.map(post => createFullPostHTML(post)).join(''); 
                      userPostsContainer.innerHTML = postsHtml; 
                      feather.replace(); 
                  } 
-            } catch (error) { console.error("Error fetching user posts:", error); postsLoading.innerHTML = `<p class="text-center text-red-500">Could not load posts.</p>`; }
-        }
+             } catch (error) { console.error("Error fetching user posts:", error); postsLoading.innerHTML = `<p class="text-center text-red-500">Could not load posts.</p>`; }
+         }
 
         // --- 6. CREATE FULL POST HTML (Added Tick Mark) ---
         function createFullPostHTML(post) { 
@@ -277,17 +281,16 @@
              const commentButtonHtml = `<a href="post.html?id=${post.id}#comments-section-wrapper" class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors"> <i data-feather="message-square" class="engagement-icon"></i> <span class="comment-count text-sm font-medium">${post.comment_count}</span> </a>`;
              const shareButtonHtml = `<button class="share-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> <i data-feather="share-2" class="engagement-icon"></i> <span class="text-sm font-medium">Share</span> </button>`;
              return ` <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" id="post-${post.id}"> <div class="flex items-center space-x-3 p-4 ${headerClass}"> ${authorAvatar} <div class="flex-1"> <p class="font-semibold ${headerText} inline">${authorName}</p> ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> </div> </div> ${postBody} <div class="flex justify-around border-t border-gray-100"> ${likeButtonHtml} ${commentButtonHtml} ${shareButtonHtml} </div> </div> `;
-        }
-
+         }
 
         // --- 7. EVENT LISTENERS ---
         function setupEventListeners() {
-            const moreOptionsBtn = document.getElementById('more-options-btn'); const moreOptionsMenu = document.getElementById('more-options-menu'); moreOptionsBtn.addEventListener('click', (event) => { event.stopPropagation(); moreOptionsMenu.classList.toggle('hidden'); if (!moreOptionsMenu.classList.contains('hidden')) feather.replace(); }); window.addEventListener('click', (event) => { if (!moreOptionsMenu.classList.contains('hidden') && !moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) { moreOptionsMenu.classList.add('hidden'); } }); document.getElementById('share-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Sharing profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); document.getElementById('report-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Reporting profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); const friendsListButton = document.getElementById('friends-list-button'); const friendsCountButton = document.getElementById('friends-count-button'); const closeFriendsModalButton = document.getElementById('close-friends-modal'); friendsListButton.addEventListener('click', openFriendsModal); friendsCountButton.addEventListener('click', openFriendsModal); closeFriendsModalButton.addEventListener('click', closeFriendsModal); friendsModal.addEventListener('click', (event) => { if (event.target === friendsModal) closeFriendsModal(); }); 
-            addFriendButton.addEventListener('click', sendFriendRequest); 
-            acceptRequestButton.addEventListener('click', acceptFriendRequest); 
-            declineRequestButton.addEventListener('click', declineFriendRequest); 
-            removeFriendButton.addEventListener('click', removeFriend); 
-             userPostsContainer.addEventListener('click', (event) => { const likeButton = event.target.closest('.like-button'); if (likeButton) { if (!currentAuthUser) { alert("Please log in to like posts."); return; } toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; } const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { if (!currentAuthUser) { alert("Please log in to vote."); return; } handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; } const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } });
+             const moreOptionsBtn = document.getElementById('more-options-btn'); const moreOptionsMenu = document.getElementById('more-options-menu'); moreOptionsBtn.addEventListener('click', (event) => { event.stopPropagation(); moreOptionsMenu.classList.toggle('hidden'); if (!moreOptionsMenu.classList.contains('hidden')) feather.replace(); }); window.addEventListener('click', (event) => { if (!moreOptionsMenu.classList.contains('hidden') && !moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) { moreOptionsMenu.classList.add('hidden'); } }); document.getElementById('share-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Sharing profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); document.getElementById('report-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Reporting profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); const friendsListButton = document.getElementById('friends-list-button'); const friendsCountButton = document.getElementById('friends-count-button'); const closeFriendsModalButton = document.getElementById('close-friends-modal'); friendsListButton.addEventListener('click', openFriendsModal); friendsCountButton.addEventListener('click', openFriendsModal); closeFriendsModalButton.addEventListener('click', closeFriendsModal); friendsModal.addEventListener('click', (event) => { if (event.target === friendsModal) closeFriendsModal(); }); 
+             addFriendButton.addEventListener('click', sendFriendRequest); 
+             acceptRequestButton.addEventListener('click', acceptFriendRequest); 
+             declineRequestButton.addEventListener('click', declineFriendRequest); 
+             removeFriendButton.addEventListener('click', removeFriend); 
+              userPostsContainer.addEventListener('click', (event) => { const likeButton = event.target.closest('.like-button'); if (likeButton) { if (!currentAuthUser) { alert("Please log in to like posts."); return; } toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; } const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { if (!currentAuthUser) { alert("Please log in to vote."); return; } handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; } const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } });
         }
 
          // --- 8. FRIENDS LIST MODAL ---
@@ -296,7 +299,7 @@
 
          // --- 9. SEND FRIEND REQUEST ---
          async function sendFriendRequest() { if (!currentAuthUser || !currentUserOwnProfile) { alert("Please log in."); return; } if (!viewedUserProfile || !viewedUserProfile.auth_id) { alert("Cannot send request."); return; } if (currentAuthUser.id === viewedUserProfile.auth_id) { return; } addFriendButton.disabled = true; addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error: insertError } = await _supabase.from('friend_requests').insert({ sender_id: currentAuthUser.id, receiver_id: viewedUserProfile.auth_id, status: 'pending' }); if (insertError) { if (insertError.code === '23505') { alert("Request already pending."); updateFriendButtonState('pending_sent'); } else { throw insertError; } } else { console.log("Request sent."); alert("Friend request sent!"); updateFriendButtonState('pending_sent'); } } catch (error) { console.error("Error sending request:", error); alert("Could not send request. " + (error.message.includes('duplicate key') ? 'Maybe exists.' : 'Try again.')); updateFriendButtonState('none'); } }
-        
+         
          // --- 10. CHECK FRIENDSHIP STATUS ---
          async function checkFriendshipStatus() { if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { updateFriendButtonState('hidden'); return; } currentFriendRequest = null; try { const { data: request, error: reqError } = await _supabase.from('friend_requests').select('id, status, sender_id, receiver_id').or(`and(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),and(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`).in('status', ['pending', 'accepted']).maybeSingle(); if (reqError) throw reqError; if (request) { currentFriendRequest = request; if(request.status === 'pending') { if (request.sender_id === currentAuthUser.id) { updateFriendButtonState('pending_sent'); } else { updateFriendButtonState('pending_received'); } } else if (request.status === 'accepted') { await checkActualFriendship(); } return; } await checkActualFriendship(); } catch (error) { console.error("Error checking status:", error); updateFriendButtonState('none'); } }
          async function checkActualFriendship() { try { const user1_uuid = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const user2_uuid = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const { data: friendship, error: friendError } = await _supabase.from('friendships').select('id').eq('user1_id', user1_uuid).eq('user2_id', user2_uuid).maybeSingle(); if (friendError) throw friendError; if (friendship) { updateFriendButtonState('friends'); } else { updateFriendButtonState('none'); } } catch(error) { console.error("Error checking friendship:", error); updateFriendButtonState('none'); } }
@@ -312,7 +315,7 @@
          }
 
         // --- 12. ACCEPT/DECLINE FRIEND REQUEST ---
-        async function acceptFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept."); return; } acceptRequestButton.disabled = true; declineRequestButton.disabled = true; acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request accepted."); updateFriendButtonState('friends'); const friendCountEl = document.getElementById('profile-friend-count'); if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; } catch(error) { console.error("Error accepting request:", error); alert("Could not accept."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; acceptRequestButton.innerHTML = `<i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span>`; feather.replace(); } }
+        async function acceptFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept."); return; } acceptRequestButton.disabled = true; declineRequestButton.disabled = true; acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request accepted."); updateFriendButtonState('friends'); const friendCountEl = document.getElementById('profile-friend-count'); if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; } catch(error) { console.error("Error accepting request:", error); alert("Could not accept."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; acceptRequestButton.innerHTML = `<i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold">Accept</span>`; feather.replace(); } }
         async function declineFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot decline."); return; } if (!confirm("Decline friend request?")) return; acceptRequestButton.disabled = true; declineRequestButton.disabled = true; declineRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-red-500 border-l-transparent"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'rejected', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request rejected."); updateFriendButtonState('none'); } catch(error) { console.error("Error declining request:", error); alert("Could not decline."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; declineRequestButton.innerHTML = `<i data-feather="x" class="action-button-icon"></i>`; feather.replace(); } }
 
         // --- 13. REMOVE FRIEND ---
@@ -342,7 +345,8 @@
         function formatTimeAgo(dateString) { 
              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
-        function scrollToLoginPrompt() 
+        function scrollToLoginPrompt() { /* Placeholder */ }
+
     </script>
 
 </body>
