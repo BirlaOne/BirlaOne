@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BirlaOne - Create Story</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Feather Icons Script -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Supabase Client v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': { // Green Theme
+                            '50': '#f7fbf4', '100': '#eef8e9', '200': '#dcf1d3',
+                            '300': '#c3e7b3', '400': '#a6d98e', '500': '#87c964',
+                            '600': '#56ab2f', '700': '#458a26', '800': '#396f21',
+                            '900': '#305b1c', '950': '#1a320f',
+                        },
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; /* bg-slate-50 */ }
+        i[data-feather] { width: 24px; height: 24px; stroke: currentColor; }
+        svg.feather { stroke: currentColor; }
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3); /* Lighter border for contrast */
+            border-left-color: #ffffff; /* White spinner */
+            border-radius: 50%; width: 16px; height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Style for file input trigger area */
+        .file-upload-area { min-height: 200px; }
+        /* Ensure video preview fits */
+        #media-preview video, #media-preview img { max-height: 400px; max-width: 100%; object-fit: contain; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- App Container -->
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white flex flex-col">
+
+        <!-- Header -->
+        <header class="p-4 flex justify-between items-center border-b border-gray-200 flex-shrink-0">
+            <h1 class="text-xl font-bold text-gray-900">Create Story</h1>
+            <a href="feed.html" id="cancel-button" class="p-2 rounded-full text-gray-500 hover:bg-gray-100">
+                <i data-feather="x" class="w-7 h-7"></i>
+            </a>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 space-y-4 overflow-y-auto">
+            
+            <!-- File Input Trigger & Preview Area -->
+            <div id="upload-section">
+                <label for="story-file-input" 
+                       class="file-upload-area border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-500 cursor-pointer hover:border-primary-600 hover:text-primary-600 transition-all">
+                    <i data-feather="camera" class="w-12 h-12"></i>
+                    <p class="font-semibold mt-2">Tap to upload Photo or Video</p>
+                    <p class="text-sm">Select media for your story</p>
+                </label>
+                <input type="file" id="story-file-input" class="hidden" accept="image/*,video/*">
+            </div>
+
+            <!-- Media Preview -->
+            <div id="media-preview" class="hidden flex justify-center items-center bg-gray-100 rounded-xl p-2">
+                <!-- Image or Video tag will be added here by JS -->
+            </div>
+
+        </main>
+
+         <!-- Footer Button -->
+        <footer class="p-4 border-t border-gray-200 flex-shrink-0">
+             <button id="post-story-button" disabled 
+                     class="w-full bg-primary-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-primary-500/30 flex items-center justify-center space-x-2
+                            opacity-50 cursor-not-allowed 
+                            transition-all duration-300 ease-in-out"> 
+                 <span>Post Story</span>
+                 <div id="loading-spinner" class="spinner hidden"></div> 
+             </button>
+        </footer>
+
+    </div>
+
+    <!-- ===== Supabase & App Logic ===== -->
+    <script>
+        // --- 1. SUPABASE CLIENT SETUP ---
+        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // Replace if needed
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c'; // Replace if needed
+        
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- Global variables ---
+        let currentAuthUser = null;
+        let selectedFile = null; 
+
+        const fileInput = document.getElementById('story-file-input');
+        const uploadSection = document.getElementById('upload-section');
+        const previewArea = document.getElementById('media-preview');
+        const postButton = document.getElementById('post-story-button');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const cancelButton = document.getElementById('cancel-button');
+
+
+        // --- 2. AUTH CHECK ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            
+            if (error || !session) {
+                console.error("Session error or no session:", error?.message);
+                window.location.href = 'login.html'; // Redirect if not logged in
+                return;
+            }
+            currentAuthUser = session.user;
+
+            setupEventListeners();
+            feather.replace(); // Initial icon render
+        });
+
+        // --- 3. EVENT LISTENERS ---
+        function setupEventListeners() {
+            // File Input Change
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Post Button Click
+            postButton.addEventListener('click', handlePostStory);
+        }
+
+        // --- 4. FILE SELECTION & PREVIEW ---
+        function handleFileSelect(event) {
+            selectedFile = event.target.files[0];
+            previewArea.innerHTML = ''; // Clear previous preview
+
+            if (selectedFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let previewElement;
+                    if (selectedFile.type.startsWith('image/')) {
+                        previewElement = document.createElement('img');
+                        previewElement.alt = "Story preview";
+                    } else if (selectedFile.type.startsWith('video/')) {
+                        previewElement = document.createElement('video');
+                        previewElement.controls = true; 
+                    } else {
+                         alert("Unsupported file type selected.");
+                         selectedFile = null; // Reset selection
+                         postButton.disabled = true;
+                         postButton.classList.add('opacity-50', 'cursor-not-allowed');
+                         uploadSection.classList.remove('hidden'); // Show upload section again
+                         previewArea.classList.add('hidden');
+                         return;
+                    }
+                    previewElement.src = e.target.result;
+                    previewElement.classList.add('rounded-lg');
+                    previewArea.appendChild(previewElement);
+                    previewArea.classList.remove('hidden');
+                    uploadSection.classList.add('hidden'); // Hide the upload box
+                    postButton.disabled = false; // Enable post button
+                    postButton.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                }
+                reader.readAsDataURL(selectedFile);
+            } else {
+                 // No file selected or selection cleared
+                 previewArea.classList.add('hidden');
+                 uploadSection.classList.remove('hidden');
+                 postButton.disabled = true;
+                 postButton.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // --- 5. HANDLE POST STORY ---
+        async function handlePostStory() {
+            if (!selectedFile || !currentAuthUser) {
+                alert("No file selected or user not logged in.");
+                return;
+            }
+
+            // --- Show Loading State ---
+            postButton.disabled = true;
+            cancelButton.style.pointerEvents = 'none'; // Disable cancel during upload
+            loadingSpinner.classList.remove('hidden');
+            postButton.querySelector('span').textContent = 'Posting...';
+
+            try {
+                // --- Upload to Storage ---
+                const fileExt = selectedFile.name.split('.').pop();
+                const fileName = `${currentAuthUser.id}-${Date.now()}.${fileExt}`;
+                const filePath = `${fileName}`; // Store directly in the bucket root for simplicity
+
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('stories_media') // Your bucket name
+                    .upload(filePath, selectedFile);
+
+                if (uploadError) {
+                    console.error('Upload Error:', uploadError);
+                    throw new Error(`Failed to upload file: ${uploadError.message}`);
+                }
+
+                console.log('Upload successful:', uploadData);
+
+                // --- Get Public URL ---
+                const { data: urlData } = _supabase.storage
+                    .from('stories_media')
+                    .getPublicUrl(uploadData.path); 
+
+                if (!urlData || !urlData.publicUrl) {
+                     console.error('Error getting public URL', urlData);
+                     throw new Error('Could not get media URL after upload.');
+                }
+                const mediaUrl = urlData.publicUrl;
+                 console.log('Public URL:', mediaUrl);
+
+
+                // --- Insert into Database ---
+                const { error: insertError } = await _supabase
+                    .from('stories')
+                    .insert({ 
+                        user_id: currentAuthUser.id, 
+                        media_url: mediaUrl 
+                    });
+
+                if (insertError) {
+                     console.error('Insert Error:', insertError);
+                    throw new Error(`Failed to save story data: ${insertError.message}`);
+                }
+
+                // --- Success ---
+                alert("Story posted successfully!");
+                window.location.href = 'feed.html'; // Redirect back to feed
+
+            } catch (error) {
+                console.error("Error posting story:", error);
+                alert(`Error: ${error.message}`);
+                // --- Reset Button State on Error ---
+                postButton.disabled = false;
+                 cancelButton.style.pointerEvents = 'auto';
+                loadingSpinner.classList.add('hidden');
+                postButton.querySelector('span').textContent = 'Post Story';
+            }
+        }
+
+    </script>
+
+</body>
+</html>
