@@ -1,483 +1,687 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BirlaOne Feed</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Feather Icons Script -->
-    <script src="https://unpkg.com/feather-icons"></script>
-    
-    <!-- Supabase Client v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Pacifico font for the logo -->
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind Config with NEW GREEN THEME -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        logo: ['Pacifico', 'cursive'],
-                    },
-                    colors: {
-                        'primary': {
-                            '50': '#f7fbf4',
-                            '100': '#eef8e9',
-                            '200': '#dcf1d3',
-                            '300': '#c3e7b3',
-                            '400': '#a6d98e',
-                            '500': '#87c964',
-                            '600': '#56ab2f', /* Base Green */
-                            '700': '#458a26',
-                            '800': '#396f21',
-                            '900': '#305b1c',
-                            '950': '#1a320f',
-                        },
-                    }
-                },
-            },
-        };
-    </script>
-    
-    <!-- Custom Styles -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* bg-slate-50 */
-        }
-        
-        /* Custom shadows for nav bars */
-        .top-nav-shadow {
-            box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03);
-        }
-        .bottom-nav-shadow {
-            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>BirlaOne</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
 
-        /* Hide scrollbar */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        /* Feather Icon Styling */
-        i[data-feather] {
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Bottom nav icon sizing */
-        .bottom-nav-icon i[data-feather] {
-            width: 28px;
-            height: 28px;
-        }
+  <style>
+    :root {
+      --primary-accent: #56ab2f;
+      --primary-gradient: linear-gradient(90deg, #a8e063, #56ab2f);
+      --danger-color: #e53935;
+      --font-family: 'Inter', sans-serif;
+      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
+      --card-bg-light: rgba(255, 255, 255, 0.9);
+      --card-bg-rgb-light: 255, 255, 255;
+      --text-primary-light: #121212;
+      --text-secondary-light: #5f5f5f;
+      --border-color-light: #e0e0e0;
+      --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+      --header-bg-light: rgba(255, 255, 255, 0.7);
+      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
+      --card-bg-dark: rgba(42, 42, 61, 0.9);
+      --card-bg-rgb-dark: 42, 42, 61;
+      --text-primary-dark: #f0f0f0;
+      --text-secondary-dark: #a0a0b0;
+      --border-color-dark: #4a4a6a;
+      --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
+      --header-bg-dark: rgba(30, 30, 46, 0.7);
+    }
+    [data-theme="light"] {
+      --bg-gradient: var(--bg-gradient-light);
+      --card-bg: var(--card-bg-light);
+      --card-bg-rgb: var(--card-bg-rgb-light);
+      --text-primary: var(--text-primary-light);
+      --text-secondary: var(--text-secondary-light);
+      --border-color: var(--border-color-light);
+      --shadow: var(--shadow-light);
+      --header-bg: var(--header-bg-light);
+    }
+    [data-theme="dark"] {
+      --bg-gradient: var(--bg-gradient-dark);
+      --card-bg: var(--card-bg-dark);
+      --card-bg-rgb: var(--card-bg-rgb-dark);
+      --text-primary: var(--text-primary-dark);
+      --text-secondary: var(--text-secondary-dark);
+      --border-color: var(--border-color-dark);
+      --shadow: var(--shadow-dark);
+      --header-bg: var(--header-bg-dark);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body { font-family: var(--font-family); background: var(--bg-gradient); color: var(--text-primary); transition: background 0.4s ease, color 0.4s ease; overflow-x: hidden; }
+    header.top-bar { margin: 0; padding: 12px 16px; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    
+    .top-bar h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text-primary);
+    }
 
-        /* Style for liked heart */
-        .liked i[data-feather="heart"] {
-            fill: #ef4444; /* red-500 */
-            color: #ef4444;
-        }
-    </style>
+    .menu-toggle, .profile-link { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+    .profile-img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; }
+    .menu-icon { color: var(--text-primary); font-size: 24px; }
+    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 199; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+    .sidebar-overlay.active { opacity: 1; visibility: visible; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--card-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 2px 0 20px rgba(0,0,0,0.2); transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 200; display: flex; flex-direction: column; }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar-profile-card { display: flex; align-items: center; gap: 15px; padding: 20px; border-bottom: 1px solid var(--border-color); }
+    .sidebar-profile-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; flex-shrink: 0; }
+    .sidebar-user-info { overflow: hidden; }
+    #sidebar-username { font-weight: 600; font-size: 18px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #sidebar-user-id { font-size: 14px; color: var(--text-secondary); }
+    .sidebar nav { flex-grow: 1; padding: 10px 0; }
+    .sidebar nav a { display: flex; align-items: center; gap: 15px; color: var(--text-primary); text-decoration: none; padding: 15px 20px; font-weight: 500; font-size: 16px; transition: background-color 0.2s, color 0.2s; border-radius: 0 30px 30px 0; margin-right: 10px; }
+    .sidebar nav a:hover { background-color: rgba(86, 171, 47, 0.1); color: var(--primary-accent); }
+    .nav-icon { width: 24px; height: 24px; stroke-width: 2; }
+    .sidebar-footer { padding: 20px; margin-top: auto; border-top: 1px solid var(--border-color); }
+    .theme-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 10px; background-color: rgba(128, 128, 128, 0.1); margin-bottom: 15px; }
+    .theme-switch-label { font-weight: 500; }
+    .theme-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .theme-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4a4a6a; transition: 0.4s; border-radius: 26px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%; z-index: 2; }
+    input:checked + .slider { background: var(--primary-gradient); }
+    input:checked + .slider:before { transform: translateX(24px); }
+    .logout-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--danger-color); color: white; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+    .logout-button:hover { background: #c62828; }
+    .container { padding: 16px; max-width: 800px; margin: 0 auto; }
+    .section-title { text-align: center; font-weight: 600; font-size: 20px; margin: 20px 0; color: var(--text-secondary); }
+    .button-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .name-button { background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.3s ease; box-shadow: var(--shadow); }
+    .name-button.selected-name-button { background: var(--primary-gradient); color: white; border-color: transparent; transform: scale(1.05); }
+    .input-bar { display: flex; align-items: center; background-color: var(--card-bg); border-radius: 12px; padding: 8px; margin-bottom: 20px; box-shadow: var(--shadow); }
+    .input-bar input { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 16px; outline: none; padding: 8px; }
+    .input-bar button { background: var(--primary-gradient); border: none; width: 40px; height: 40px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+    .input-bar button:active { transform: scale(0.9); }
+    
+    .search-bar-container {
+      display: flex;
+      align-items: center;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 8px 15px;
+      margin: 30px 0 10px 0;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+    .search-bar-container svg {
+      color: var(--text-secondary);
+      margin-right: 10px;
+    }
+    .search-bar-container input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 16px;
+      outline: none;
+    }
+
+    .remove_div { text-align: center; margin-bottom: 20px; }
+    .remove-my-confession { background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+    .encrypted { text-align: center; font-size: 12px; color: var(--text-secondary); margin: 30px 0 10px 0; }
+    #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
+    .toast { background: var(--card-bg); color: var(--text-primary); padding: 12px 20px; margin-top: 10px; border-left: 5px solid var(--primary-accent); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); font-weight: 500; font-size: 14px; animation: slideInUp 0.4s ease, fadeOut 0.4s ease 2.6s; }
+    @keyframes slideInUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    .confession-card, .channel-card { background: var(--card-bg); margin: 16px auto; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease; position: relative; border-left: 4px solid var(--primary-accent); animation: fadeUp 0.4s ease; }
+    .confession-card:hover, .channel-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+    @keyframes fadeUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card-pic { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; }
+    .card-name { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 16px; }
+    .confession-message { font-size: 15px; color: var(--text-primary); line-height: 1.7; position: relative; padding-left: 24px; margin: 0; word-wrap: break-word; }
+    .confession-message::before { content: "“"; font-size: 24px; position: absolute; left: 0; top: -4px; color: var(--primary-accent); font-weight: bold; }
+    .confession-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; }
+    .confession-footer button { background: none; border: none; color: var(--primary-accent); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 4px; font-size: 14px; transition: color 0.2s; }
+    .confession-footer button:hover { color: #2e7d32; }
+    .reply-count { font-size: 14px; color: var(--text-secondary); margin-right: 12px; }
+    .replies-wrapper { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, margin-top 0.5s ease-in-out, opacity 0.4s ease; border-top: 1px solid transparent; margin-top: 0; opacity: 0; }
+    .replies-wrapper.active { max-height: 1000px; border-top: 1px solid var(--border-color); margin-top: 16px; opacity: 1; }
+    .reply-card { border-radius: 10px; padding: 12px; background: rgba(128, 128, 128, 0.05); margin-bottom: 12px; border-left: 3px solid var(--primary-accent); animation: fadeUp 0.3s ease; }
+    .reply-card .card-header { margin-bottom: 8px; }
+    .reply-card .confession-message { font-style: normal; font-size: 14px; word-wrap: break-word; padding-left: 0; }
+    .reply-card .confession-message::before { content: none; }
+    .reply-card-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; }
+    .reply-delete-btn { background: none; border: none; color: var(--danger-color); font-size: 12px; font-weight: 600; cursor: pointer; }
+    .reply-input-bar-inline { display: flex; align-items: center; background-color: rgba(128, 128, 128, 0.1); border-radius: 12px; padding: 8px; margin-top: 12px; }
+    .reply-input-bar-inline input { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 14px; outline: none; padding: 8px; }
+    .reply-input-bar-inline button { background: var(--primary-gradient); border: none; width: 36px; height: 36px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+    .reply-input-bar-inline button:active { transform: scale(0.9); }
+    .channel-card { display: flex; align-items: center; gap: 15px; }
+    .channel-link { text-decoration: none; color: inherit; }
+    .channel-info { flex: 1; }
+    .channel-title { font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 6px; }
+    .channel-description { font-size: 14px; color: var(--text-secondary); }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); justify-content: center; align-items: center; }
+    #confirm-modal { display: none; }
+    .confirm-content { background: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: var(--shadow); width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--border-color); animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .confirm-content h3 { font-size: 18px; margin-bottom: 16px; font-weight: 600; }
+    .confirm-content .button-group { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
+    .confirm-content button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; flex-grow: 1;}
+    #confirm-yes { background: var(--danger-color); color: white; }
+    #confirm-no { background-color: rgba(128, 128, 128, 0.2); color: var(--text-primary); }
+
+    /* --- ✅ NEW STYLES FOR CHANNEL LOCK --- */
+    #channels-container.locked > *:not(.lock-overlay) {
+        filter: blur(5px);
+        -webkit-filter: blur(5px);
+        pointer-events: none;
+        user-select: none;
+    }
+    .lock-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2;
+    }
+    .lock-overlay-content {
+        background: rgba(var(--card-bg-rgb), 0.7);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        padding: 20px 30px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 16px;
+        border: 1px solid var(--border-color);
+    }
+  </style>
 </head>
-<body class="antialiased">
+<body>
+  <div id="toast-container"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- App Container -->
-    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-slate-50">
-
-        <!-- Top Navigation (from index.html) -->
-        <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
-            <!-- Profile -->
-            <a href="profile.html" class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
-                <i data-feather="user" class="text-gray-700"></i>
-            </a>
-            
-            <!-- App Title -->
-            <h1 class="text-3xl font-logo text-primary-600">
-                BirlaOne
-            </h1>
-            
-            <!-- Notifications -->
-            <button class="relative p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
-                <i data-feather="bell" class="text-gray-700"></i>
-                <!-- Notification dot -->
-                <span class="absolute top-2 right-2 block w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-        </header>
-
-        <!-- Main Content - Feed -->
-        <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
-            
-            <!-- Campus Moments (Stories) - Prototype -->
-            <div class="space-y-3">
-                <h2 class="text-xl font-bold text-gray-900">Campus Moments</h2>
-                <div class="flex space-x-4 overflow-x-auto no-scrollbar pb-2">
-                    <!-- Your Story -->
-                    <div class="flex-shrink-0 w-20 flex flex-col items-center space-y-1 text-center">
-                        <button class="w-16 h-16 rounded-full bg-gray-100 border-2 border-dashed border-gray-400 flex items-center justify-center text-gray-500 hover:bg-gray-200 hover:border-primary-600 hover:text-primary-600 transition-all">
-                            <i data-feather="plus" class="w-7 h-7"></i>
-                        </button>
-                        <span class="text-xs font-medium text-gray-700 w-full truncate">Your Story</span>
-                    </div>
-                    
-                    <!-- Friend Story 1 -->
-                    <div class="flex-shrink-0 w-20 flex flex-col items-center space-y-1 text-center">
-                        <img src="https://placehold.co/64x64/DCEFD3/305B1C?text=PS" alt="Priya's Story" class="w-16 h-16 rounded-full border-2 border-primary-600 p-0.5">
-                        <span class="text-xs font-medium text-gray-700 w-full truncate">Priya S.</span>
-                    </div>
-
-                    <!-- Friend Story 2 -->
-                    <div class="flex-shrink-0 w-20 flex flex-col items-center space-y-1 text-center">
-                        <img src="https://placehold.co/64x64/DCEFD3/305B1C?text=RK" alt="Rohan's Story" class="w-16 h-16 rounded-full border-2 border-primary-600 p-0.5">
-                        <span class="text-xs font-medium text-gray-700 w-full truncate">Rohan K.</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post Creator Bar -->
-            <div id="create-post-bar" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-200 flex items-center space-x-3 cursor-pointer hover:bg-gray-50 transition-colors">
-                <img id="user-avatar-post-bar" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
-                <div class="flex-1 bg-gray-100 rounded-full p-3 text-gray-500">
-                    What's on your mind?
-                </div>
-                <div class="p-2 text-gray-500">
-                    <i data-feather="image"></i>
-                </div>
-            </div>
-
-
-            <!-- Feed Posts Container -->
-            <div id="feed-posts-container" class="space-y-6">
-                <!-- Loading Message -->
-                <div id="feed-loading" class="text-center py-10 text-gray-500">
-                    <p>Loading feed...</p>
-                </div>
-                <!-- Posts will be injected here by JavaScript -->
-            </div>
-
-        </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-            
-            <!-- Dashboard -->
-            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
-                <i data-feather="layout"></i>
-            </a>
-            
-            <!-- Feed (Active) -->
-            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Feed">
-                <i data-feather="file-text" class="stroke-[2.5px]"></i>
-            </a>
-            
-            <!-- Create -->
-            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
-                <i data-feather="plus-circle"></i>
-            </a>
-            
-            <!-- Search -->
-            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
-                <i data-feather="search"></i>
-            </a>
-            
-            <!-- Mini Apps -->
-            <a href="miniapps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
-                <i data-feather="grid"></i>
-            </a>
-        </nav>
-
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-profile-card">
+      <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="sidebarProfilePic" class="sidebar-profile-img" alt="Profile" loading="lazy"/>
+      <div class="sidebar-user-info">
+        <div id="sidebar-username">Loading...</div>
+        <div id="sidebar-user-id">Student ID: ...</div>
+      </div>
     </div>
+    <nav>
+      <a href="#" onclick="location.reload()"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Home</span></a>
+      <a href="about-us.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><span>About Us</span></a>
+      <a href="contact-us.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>Contact Us</span></a>
+      <a href="change-password.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>Change Password</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="theme-switch-wrapper">
+        <span class="theme-switch-label">Theme</span>
+        <label class="theme-switch"><input type="checkbox" id="theme-checkbox" /><span class="slider"></span></label>
+      </div>
+      <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+  </aside>
 
-    <!-- ===== Supabase & App Logic ===== -->
-    <script>
-        // --- 1. SUPABASE CLIENT SETUP ---
-        // !!! IMPORTANT: REPLACE with your Supabase project details
-        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+  <header class="top-bar">
+    <button class="menu-toggle" onclick="toggleSidebar()"><span class="menu-icon">☰</span></button>
+    <h1>BirlaOne</h1>
+    <a href="myprofile.html" class="profile-link"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/></a>
+  </header>
+
+  <main class="container">
+    <div class="button-group">
+      <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
+      <button class="name-button" id="nameButton" onclick="selectName(this)">Loading...</button>
+    </div>
+    <div class="input-bar">
+      <input type="text" id="messageInput" placeholder="🌟 What's on your mind?"/>
+      <button onclick="addConfession()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+    </div>
+    <div class="remove_div" id="removeDiv" style="display:none;">
+      <button class="remove-my-confession" onclick="confirmRemove()">Remove my confession</button>
+    </div>
+    <h3 class="section-title">College Confessions</h3>
+    <div id="confession-list"></div>
+    <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
+    
+    <div id="channels-container" style="position: relative;">
+        <div class="search-bar-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="search" id="channelSearch" placeholder="Search for channels...">
+        </div>
+        <h3 class="section-title">Channels</h3>
+        <div id="channel-list"></div>
+    </div>
+    
+    <div class="encrypted">Made with ♥️ by Developer Mohit Mali.</div>
+  </main>
+  
+  <div id="confirm-modal" class="modal">
+    <div class="confirm-content">
+      <h3>Are you sure you want to delete this?</h3>
+      <div class="button-group">
+        <button id="confirm-yes" onclick="removeMyConfession()">Yes, Delete</button>
+        <button id="confirm-no" onclick="hideConfirmModal()">No, Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+<script>
+    const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let selectedName = "Anonymous";
+    let currentUser = null;
+    let realtimeChannel = null;
+    let allChannels = [];
+    
+    const ticks = {
+        blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
+        silver: { src: "https://i.ibb.co/gLJLF9Z2/silver.png", title: "Special User" },
+        gold: { src: "https://i.ibb.co/Q2C7MrM/gold.png", title: "Admin User" },
+        green: { src: "https://i.ibb.co/SXGL4Nq0/green.png", title: "Official Channel" },
+        black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous" }
+    };
+
+    // --- UI & UTILITY FUNCTIONS ---
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+    
+    async function logout() {
+      showToast("Logging out...");
+      if (realtimeChannel) await client.removeChannel(realtimeChannel);
+      await client.auth.signOut();
+    }
+    function toggleTheme() {
+        const root = document.documentElement;
+        const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateChannelLinks();
+    }
+    function applySavedTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const themeCheckbox = document.getElementById('theme-checkbox');
+        if (themeCheckbox) themeCheckbox.checked = savedTheme === 'dark';
+    }
+    function selectName(button) {
+      document.querySelectorAll('.name-button').forEach(btn => btn.classList.remove('selected-name-button'));
+      button.classList.add('selected-name-button');
+      selectedName = button.innerText.trim();
+    }
+    function confirmRemove() { document.getElementById('confirm-modal').style.display = 'flex'; }
+    function hideConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
+    
+    // --- ✅ NEW: FUNCTION TO LOCK CHANNEL SECTION ---
+    function lockChannelsSection() {
+        const channelsContainer = document.getElementById('channels-container');
+        const channelList = document.getElementById('channel-list');
+
+        // Add placeholder content for the blur effect
+        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding: 20px 0;">Content Locked</p>';
+
+        // Apply blur and add overlay
+        channelsContainer.classList.add('locked');
+        const overlay = document.createElement('div');
+        overlay.className = 'lock-overlay';
+        overlay.innerHTML = `<div class="lock-overlay-content">🔒 You don't have access to Channels</div>`;
+        channelsContainer.appendChild(overlay);
+    }
+
+    // --- DATA FETCHING & RENDERING ---
+
+    function updateChannelLinks() {
+      if (!currentUser) return;
+      const theme = localStorage.getItem('theme') || 'light';
+      document.querySelectorAll('.channel-link').forEach(link => {
+        try {
+          const url = new URL(link.href);
+          url.searchParams.set('id', currentUser.id);
+          url.searchParams.set('course', currentUser.course);
+          url.searchParams.set('theme', theme);
+          link.href = url.toString();
+        } catch (e) { console.error("Failed to update channel link href:", e); }
+      });
+    }
+
+    function renderChannels(channelsToRender) {
+        const channelList = document.getElementById('channel-list');
+        if (channelsToRender.length === 0) {
+            channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No channels found.</p>';
+            return;
+        }
+        channelList.innerHTML = channelsToRender.map(channel => `
+            <a href="${channel.href}" class="channel-link" target="_blank">
+                <div class="channel-card">
+                    <img src="${channel.img}" alt="Channel Icon" class="card-pic" loading="lazy">
+                    <div class="channel-info">
+                        <div class="channel-title">
+                            ${channel.name}
+                            <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
+                        </div>
+                        <div class="channel-description">${channel.tagline}</div>
+                    </div>
+                </div>
+            </a>
+        `).join('');
+        updateChannelLinks();
+    }
+
+    async function fetchChannels() {
+        if (!currentUser || !currentUser.course) {
+            document.getElementById('channel-list').innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading user data...</p>';
+            return;
+        }
+
+        const channelList = document.getElementById('channel-list');
+        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
         
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await client
+            .from('Channels')
+            .select('*')
+            .or(`allowed_courses.cs.{"all"},allowed_courses.cs.{"${currentUser.course}"}`);
 
-        // --- Global variables ---
-        let currentAuthUser = null;
-        let currentUserProfile = null;
-        const feedContainer = document.getElementById('feed-posts-container');
-        const feedLoading = document.getElementById('feed-loading');
-        const userAvatarPostBar = document.getElementById('user-avatar-post-bar');
+        if (error) {
+            console.error("Error fetching channels:", error);
+            channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
+        } else {
+            allChannels = data;
+            renderChannels(allChannels);
+        }
+    }
+    
+    function createConfessionHTML(conf) {
+        const tickData = ticks[conf.tick];
+        const tick = tickData ? `<img src="${tickData.src}" width="16" title="${tickData.title}" loading="lazy">` : '';
+        const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
+        const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
+        return `
+            <div class="confession-card" data-id="${conf.user_id}">
+                <div class="card-header"><img src="${conf.pic}" class="card-pic" alt="User picture" loading="lazy"><div class="card-name"><span>${conf.c_name}</span>${tick}</div></div>
+                <p class="confession-message">${formattedMessage}</p>
+                <div class="confession-footer">${replyCount}<button onclick="toggleReplies(this, '${conf.user_id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Reply</button></div>
+                <div class="replies-wrapper"></div>
+            </div>`;
+    }
 
-        // --- 2. AUTH & INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session }, error } = await _supabase.auth.getSession();
-            
-            if (error) {
-                console.error("Error getting session:", error.message);
-                feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading session.</p>`;
-                return;
+    async function fetchConfessions() {
+        const { data, error } = await client.from('confessions').select('*').order('created_at', { ascending: false });
+        if (error) return;
+        document.getElementById('confession-list').innerHTML = data.map(createConfessionHTML).join('');
+        if (currentUser) {
+          const userHasConfession = data.some(conf => conf.user_id == currentUser.id);
+          document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
+        }
+    }
+
+    async function addConfession() {
+        if (!currentUser) return showToast("You must be logged in.");
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+        if (!message) return showToast("Please write something!");
+
+        const oldCard = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
+        if (oldCard) oldCard.remove();
+
+        let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
+        if (selectedName.toLowerCase() === 'anonymous') {
+            c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
+        }
+        const newConfessionData = { user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0 };
+        
+        document.getElementById('confession-list').insertAdjacentHTML('afterbegin', createConfessionHTML(newConfessionData));
+        document.getElementById('removeDiv').style.display = 'block';
+        messageInput.value = '';
+
+        await client.from('confessions').delete().eq('user_id', currentUser.id);
+        const { error: insertError } = await client.from('confessions').insert([newConfessionData]);
+
+        if (insertError) {
+            showToast("Failed to post confession.");
+            console.error("Confession insert error:", insertError);
+            await fetchConfessions(); 
+        } else {
+            showToast("Confessed Successfully!");
+        }
+    }
+
+    async function removeMyConfession() {
+        hideConfirmModal();
+        if (!currentUser) return;
+        
+        document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove();
+        document.getElementById('removeDiv').style.display = 'none';
+
+        const { error } = await client.from('confessions').delete().eq('user_id', currentUser.id);
+        if (error) {
+            showToast("Delete failed. Please refresh.");
+        } else {
+            showToast("Confession Removed.");
+        }
+    }
+
+    async function logUserVisit() {
+        if (currentUser) {
+            await client.from('logs').insert([{ 
+                time: new Date().toISOString(), 
+                user_id: currentUser.id, 
+                Name: currentUser.name,
+                course: currentUser.course
+            }]);
+        }
+    }
+
+    // --- REPLY FUNCTIONS ---
+    async function toggleReplies(button, confessionUserId) {
+        const wrapper = button.closest('.confession-card').querySelector('.replies-wrapper');
+        if (wrapper.classList.contains('active')) {
+            wrapper.classList.remove('active');
+            setTimeout(() => { wrapper.innerHTML = ''; }, 300);
+            return;
+        }
+        wrapper.classList.add('active');
+        wrapper.innerHTML = '<p style="text-align:center; padding:10px; color:var(--text-secondary);">Loading...</p>';
+        const { data } = await client.from('replies').select('*').eq('confession_user_id', confessionUserId).order('created_at', { ascending: true });
+        renderRepliesAndInput(wrapper, data || [], confessionUserId);
+    }
+
+    function createReplyHTML(reply) {
+        const tickData = ticks[reply.tick];
+        const tick = tickData ? `<img src="${tickData.src}" width="16" title="${tickData.title}" loading="lazy">` : '';
+        const deleteBtn = currentUser && reply.user_id == currentUser.id ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id})">Delete</button>` : '';
+        return `
+            <div class="reply-card" data-reply-id="${reply.id}">
+                <div class="card-header"><img src="${reply.pic}" class="card-pic" alt="pic" style="width:30px;height:30px;" loading="lazy"><div class="card-name" style="font-size:14px;"><span>${reply.c_name}</span>${tick}</div></div>
+                <p class="confession-message">${reply.message}</p>
+                <div class="reply-card-footer">${deleteBtn}</div>
+            </div>`;
+    }
+
+    function renderRepliesAndInput(container, replies, confessionUserId) {
+        let repliesHtml = replies.length > 0
+            ? replies.map(createReplyHTML).join('')
+            : '<p class="no-replies" style="text-align:center;color:var(--text-secondary); padding:10px 0;">Be the first to reply!</p>';
+        container.innerHTML = repliesHtml + `
+            <div class="reply-input-bar-inline">
+                <input type="text" placeholder="Replying as ${selectedName}..."/>
+                <button onclick="addReply(this, '${confessionUserId}')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
+            </div>`;
+    }
+
+    async function addReply(button, confessionUserId) {
+        const input = button.closest('.reply-input-bar-inline').querySelector('input');
+        const message = input.value.trim();
+        if (!message || !currentUser) {
+            return showToast("You must be logged in to reply.");
+        }
+        
+        let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
+        if (selectedName.toLowerCase() === 'anonymous') {
+            c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
+        }
+
+        const newReplyData = { 
+            confession_user_id: confessionUserId, 
+            message, 
+            user_id: currentUser.id,
+            c_name, pic, tick, 
+            id: Date.now() // Temporary ID for immediate render
+        };
+        
+        const wrapper = button.closest('.replies-wrapper');
+        wrapper.querySelector('.no-replies')?.remove();
+        const replyInputBar = wrapper.querySelector('.reply-input-bar-inline');
+        replyInputBar.insertAdjacentHTML('beforebegin', createReplyHTML(newReplyData));
+        input.value = '';
+
+        const { id, ...dbReplyData } = newReplyData; // Exclude temp ID for DB insert
+        const { error } = await client.from('replies').insert([dbReplyData]);
+
+        if (error) {
+            showToast("Couldn't post reply.");
+            console.error("Reply Insert Error:", error); 
+            wrapper.querySelector(`[data-reply-id="${newReplyData.id}"]`)?.remove();
+        }
+    }
+    
+    async function deleteReply(button, replyId) {
+        const card = button.closest('.reply-card');
+        const wrapper = button.closest('.replies-wrapper');
+        const confessionCard = button.closest('.confession-card');
+        const confessionUserId = confessionCard.dataset.id;
+        card.remove();
+        const { error } = await client.from('replies').delete().eq('id', replyId);
+        if (error) {
+            showToast("Failed to delete reply.");
+            console.error("Delete Reply Error:", error);
+            const { data } = await client.from('replies').select('*').eq('confession_user_id', confessionUserId).order('created_at', { ascending: true });
+            renderRepliesAndInput(wrapper, data || [], confessionUserId);
+        }
+    }
+    
+    // --- REALTIME & INITIALIZATION ---
+    function handleRealtimeUpdate(payload) {
+        const { eventType, table, new: newRecord, old: oldRecord } = payload;
+        const record = eventType === 'DELETE' ? oldRecord : newRecord;
+
+        if (table === 'confessions') {
+            const list = document.getElementById('confession-list');
+            const card = list.querySelector(`.confession-card[data-id="${record.user_id}"]`);
+            if (eventType === 'INSERT' && !card) {
+                list.insertAdjacentHTML('afterbegin', createConfessionHTML(record));
+            } else if (eventType === 'DELETE' && card) {
+                card.remove();
+            } else if (eventType === 'UPDATE' && card) {
+                card.outerHTML = createConfessionHTML(record);
             }
+        } else if (table === 'replies') {
+            const confessionCard = document.querySelector(`.confession-card[data-id="${record.confession_user_id}"]`);
+            if (!confessionCard) return;
+            const wrapper = confessionCard.querySelector('.replies-wrapper');
+            if (!wrapper.classList.contains('active')) return;
             
-            if (!session) {
-                window.location.href = 'login.html'; // Redirect if not logged in
-                return;
+            const replyCard = wrapper.querySelector(`[data-reply-id="${record.id}"]`);
+            if (eventType === 'INSERT' && !replyCard) {
+                wrapper.querySelector('.no-replies')?.remove();
+                wrapper.querySelector('.reply-input-bar-inline').insertAdjacentHTML('beforebegin', createReplyHTML(record));
+            } else if (eventType === 'DELETE' && replyCard) {
+                replyCard.remove();
             }
+        }
+    }
 
-            currentAuthUser = session.user;
-            
-            // Fetch profile and posts concurrently
-            await Promise.all([
-                fetchUserProfile(currentAuthUser.id),
-                fetchPosts()
-            ]);
-            
-            // Render icons and set up listeners
-            feather.replace();
-            setupEventListeners();
+    async function subscribeToChanges() {
+        if (realtimeChannel) await client.removeChannel(realtimeChannel);
+        realtimeChannel = client.channel('public-db-changes')
+            .on('postgres_changes', { event: '*', schema: 'public' }, handleRealtimeUpdate)
+            .subscribe();
+    }
+
+    async function fetchAndSetCurrentUser(session) {
+      // --- ✅ MODIFIED: Fetch c_permission ---
+      const { data, error } = await client.from('users').select('id, img, name, course, tick, c_permission').eq('auth_id', session.user.id).single();
+      if (error) return false;
+      currentUser = data;
+      const picUrl = data.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      document.getElementById('profilePic').src = picUrl;
+      document.getElementById('sidebarProfilePic').src = picUrl;
+      document.getElementById('nameButton').innerText = data.name || 'Student';
+      document.getElementById('sidebar-username').innerText = data.name || 'Student';
+      document.getElementById('sidebar-user-id').innerText = `Student ID: ${data.id || 'N/A'}`;
+      return true;
+    }
+
+    async function initializeApp(session) {
+        if (!session || !session.user) { window.location.href = "login.html"; return; }
+        
+        const profileLoaded = await fetchAndSetCurrentUser(session);
+        if (!profileLoaded) {
+            showToast("Could not load profile. Logging out.");
+            setTimeout(logout, 1500); return;
+        }
+        
+        await fetchConfessions();
+
+        // --- ✅ MODIFIED: Check permissions before fetching channels ---
+        if (currentUser && currentUser.c_permission === 'no') {
+            lockChannelsSection();
+        } else {
+            await fetchChannels();
+        }
+
+        await logUserVisit();
+        subscribeToChanges();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        applySavedTheme();
+        document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
+        
+        document.getElementById('channelSearch').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredChannels = allChannels.filter(channel => 
+                channel.name.toLowerCase().includes(searchTerm) || 
+                (channel.tagline && channel.tagline.toLowerCase().includes(searchTerm))
+            );
+            renderChannels(filteredChannels);
         });
 
-        // --- 3. FETCH USER PROFILE ---
-        async function fetchUserProfile(authId) {
-            if (!authId) return;
-
-            const { data, error } = await _supabase
-                .from('users')
-                .select('name, img')
-                .eq('auth_id', authId)
-                .single();
-
-            if (error) {
-                console.error("Error fetching user profile:", error.message);
-            } else if (data) {
-                currentUserProfile = data;
-                const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : 'U'}`;
-                userAvatarPostBar.src = userAvatar;
+        client.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') initializeApp(session);
+            else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                window.location.href = "login.html";
             }
-        }
-
-        // --- 4. SETUP EVENT LISTENERS ---
-        function setupEventListeners() {
-            // "Create Post" bar listener
-            document.getElementById('create-post-bar').addEventListener('click', () => {
-                window.location.href = 'create.html';
-            });
-
-            // Delegated event listener for likes
-            feedContainer.addEventListener('click', (event) => {
-                const likeButton = event.target.closest('.like-button');
-                if (likeButton) {
-                    const postId = likeButton.dataset.postId;
-                    const isLiked = likeButton.dataset.liked === 'true';
-                    toggleLike(postId, isLiked, likeButton);
-                }
-            });
-        }
-
-        // --- 5. FETCH POSTS ---
-        async function fetchPosts() {
-            if (!currentAuthUser) return;
-
-            try {
-                const { data: posts, error } = await _supabase
-                    .from('posts')
-                    .select(`
-                        id, content, post_type, media_url, poll_options, is_anonymous, created_at, 
-                        like_count, comment_count,
-                        users:user_id!inner (name, img),
-                        likes (user_id)
-                    `)
-                    .eq('likes.user_id', currentAuthUser.id) // Check if the current user has liked this post
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    throw error;
-                }
-
-                renderPosts(posts);
-
-            } catch (error) {
-                console.error("Error fetching posts:", error.message);
-                feedLoading.style.display = 'none';
-                feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading posts. Please try again.</p>`;
-            }
-        }
-
-        // --- 6. RENDER POSTS ---
-        function renderPosts(posts) {
-            feedLoading.style.display = 'none'; // Hide loading message
-            
-            if (!posts || posts.length === 0) {
-                feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet. Be the first to share!</p>`;
-                return;
-            }
-
-            const postsHtml = posts.map(createPostHTML).join('');
-            feedContainer.innerHTML = postsHtml;
-            
-            // Re-render icons for the new content
-            feather.replace();
-        }
-
-        // --- 7. CREATE POST HTML (Helper Function) ---
-        function createPostHTML(post) {
-            const authorName = post.is_anonymous ? 'Campus Confession' : post.users.name;
-            const authorAvatar = post.is_anonymous 
-                ? `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>`
-                : `<img src="${post.users.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200">`;
-            
-            const postTimestamp = formatTimeAgo(post.created_at);
-            
-            const isLiked = post.likes && post.likes.length > 0;
-            const likeClass = isLiked ? 'liked text-red-500' : 'text-gray-600';
-
-            let postBody = '';
-            
-            // Handle different post types
-            switch(post.post_type) {
-                case 'photo':
-                    postBody = `
-                        <p class="px-4 pb-3 text-gray-800">${post.content || ''}</p>
-                        <img src="${post.media_url}" alt="Post media" class="w-full object-cover">
-                    `;
-                    break;
-                case 'poll':
-                    const pollOptions = (post.poll_options || [])
-                        .map(option => `
-                            <div class="border border-gray-300 rounded-xl p-3 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer relative">
-                                <span class="relative z-10">${option.option}</span>
-                            </div>
-                        `).join('');
-                    postBody = `
-                        <p class="px-4 pb-3 font-semibold text-lg text-gray-900">${post.content}</p>
-                        <div class="px-4 pb-4 space-y-3">${pollOptions}</div>
-                    `;
-                    break;
-                case 'text':
-                case 'anonymous':
-                default:
-                    postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${post.content}</p>`;
-            }
-
-            const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white';
-            const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900';
-            const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500';
-
-            return `
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <!-- Post Header -->
-                    <div class="flex items-center space-x-3 p-4 ${headerClass}">
-                        ${authorAvatar}
-                        <div>
-                            <p class="font-semibold ${headerText}">${authorName}</p>
-                            <p class="text-xs ${subText}">${postTimestamp}</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Post Content -->
-                    ${postBody}
-                    
-                    <!-- Engagement Bar -->
-                    <div class="flex justify-around border-t border-gray-100">
-                        <button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-gray-50 hover:text-red-500 transition-colors ${likeClass}"
-                                data-post-id="${post.id}" 
-                                data-liked="${isLiked}">
-                            <i data-feather="heart" class="w-5 h-5 ${isLiked ? 'fill-current' : ''}"></i>
-                            <span class="like-count text-sm font-medium">${post.like_count}</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="message-square" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">${post.comment_count}</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="share-2" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">Share</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- 8. LIKE/UNLIKE LOGIC ---
-        async function toggleLike(postId, isLiked, buttonElement) {
-            if (!currentAuthUser) return;
-            
-            buttonElement.disabled = true;
-            const likeIcon = buttonElement.querySelector('i[data-feather="heart"]');
-            const countSpan = buttonElement.querySelector('.like-count');
-            let currentCount = parseInt(countSpan.textContent);
-
-            try {
-                if (isLiked) {
-                    // --- Unlike the post ---
-                    const { error } = await _supabase
-                        .from('likes')
-                        .delete()
-                        .match({ user_id: currentAuthUser.id, post_id: postId });
-                    
-                    if (error) throw error;
-
-                    // Update UI
-                    buttonElement.dataset.liked = 'false';
-                    buttonElement.classList.remove('liked', 'text-red-500');
-                    buttonElement.classList.add('text-gray-600');
-                    likeIcon.classList.remove('fill-current');
-                    countSpan.textContent = currentCount - 1;
-
-                } else {
-                    // --- Like the post ---
-                    const { error } = await _supabase
-                        .from('likes')
-                        .insert({ user_id: currentAuthUser.id, post_id: postId });
-                    
-                    if (error) throw error;
-
-                    // Update UI
-                    buttonElement.dataset.liked = 'true';
-                    buttonElement.classList.add('liked', 'text-red-500');
-                    buttonElement.classList.remove('text-gray-600');
-                    likeIcon.classList.add('fill-current');
-                    countSpan.textContent = currentCount + 1;
-                }
-            } catch (error) {
-                console.error("Error toggling like:", error.message);
-                // Revert UI changes if error
-                // (For simplicity, we just log it here)
-            } finally {
-                buttonElement.disabled = false;
-            }
-        }
-
-        // --- 9. HELPER: Time Ago ---
-        function formatTimeAgo(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const seconds = Math.floor((now - date) / 1000);
-            
-            let interval = seconds / 31536000;
-            if (interval > 1) return Math.floor(interval) + "y ago";
-            interval = seconds / 2592000;
-            if (interval > 1) return Math.floor(interval) + "mo ago";
-            interval = seconds / 86400;
-            if (interval > 1) return Math.floor(interval) + "d ago";
-            interval = seconds / 3600;
-            if (interval > 1) return Math.floor(interval) + "h ago";
-            interval = seconds / 60;
-            if (interval > 1) return Math.floor(interval) + "m ago";
-            return Math.floor(seconds) + "s ago";
-        }
-
-    </script>
-
+        });
+    });
+</script>
 </body>
 </html>
-
