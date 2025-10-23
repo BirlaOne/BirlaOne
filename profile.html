@@ -51,12 +51,10 @@
         .modal { display: none; /* Hidden by default */ }
         .modal.active { display: flex; /* Show when active */ }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
-        /* Style for liked heart */
         .liked svg.feather-heart, .liked i[data-feather="heart"] { fill: #ef4444; color: #ef4444; stroke: #ef4444; }
         .engagement-icon { width: 20px; height: 20px; }
         .poll-option-button { min-height: 44px; }
         .poll-bar-fg { height: 100%; transition: width 0.3s ease-in-out; }
-        /* Smaller icons in action buttons */
         .action-button-icon { width: 20px; height: 20px; /* h-5 w-5 */ }
     </style>
 </head>
@@ -87,7 +85,6 @@
 
             <div id="profile-content" class="hidden space-y-6">
 
-                {/* Profile Header */}
                 <div class="flex flex-col items-center"> 
                     <img id="profile-picture" src="https://placehold.co/100x100/A8E063/305B1C?text=?" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-primary-600 bg-gray-200 object-cover">
                     <div class="flex items-center space-x-1.5 mt-4">
@@ -98,7 +95,6 @@
                     <p id="profile-bio" class="text-base text-gray-700 mt-2 text-center max-w-sm"></p>
                 </div>
 
-                {/* Stats */}
                 <div class="flex justify-center items-center divide-x divide-gray-200 w-full bg-gray-50 py-4 rounded-2xl border border-gray-200">
                     <div class="flex flex-col items-center w-1/2 cursor-pointer" id="friends-count-button">
                         <span id="profile-friend-count" class="text-2xl font-bold text-gray-900">0</span>
@@ -110,43 +106,32 @@
                     </div>
                 </div>
 
-                {/* Action Buttons Container */}
                 <div id="action-buttons-container" class="flex items-center space-x-4">
-                    {/* Friends List Button */}
                     <button id="friends-list-button" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-gray-50 active:scale-95"> 
                         <i data-feather="users" class="action-button-icon"></i> 
                         <span class="font-semibold text-lg">Friends</span> 
                     </button>
                     
-                    {/* Dynamic Action Button Area */}
                     <div id="friendship-action-area" class="w-1/2">
-                        {/* Add Friend Button */}
                         <button id="add-friend-button" class="hidden w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-plus" class="action-button-icon"></i> <span class="font-semibold text-lg">Add Friend</span> </button>
-                        
-                        {/* Requested Button */}
                         <button id="request-sent-button" class="hidden w-full bg-gray-200 text-gray-600 p-4 rounded-xl flex justify-center items-center space-x-2 cursor-not-allowed"> <i data-feather="check" class="action-button-icon"></i> <span class="font-semibold text-lg">Requested</span> </button> 
-                        
-                         {/* Accept/Decline Buttons */}
                         <div id="accept-decline-buttons" class="hidden w-full flex items-center space-x-2">
-                            <button id="accept-request-button" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span> </button> {/* Adjusted size */}
+                            <button id="accept-request-button" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span> </button> 
                             <button id="decline-request-button" class="flex-shrink-0 bg-white border border-danger-500 text-danger-500 p-4 rounded-xl flex justify-center items-center shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <i data-feather="x" class="action-button-icon"></i> </button> 
                         </div>
-
-                        {/* Remove Friend Button */}
                         <button id="remove-friend-button" class="hidden w-full bg-white border border-danger-500 text-danger-600 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <i data-feather="user-minus" class="action-button-icon"></i> <span class="font-semibold text-lg">Remove Friend</span> </button>
                     </div>
                 </div>
 
-                {/* Roles & Badges */}
                 <div class="space-y-3"> <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2"> <i data-feather="star" class="text-yellow-500"></i> <span>Roles & Badges</span> </h2> <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center"> Not Assigned </div> </div>
 
-                {/* Social Links */}
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4"> <h2 class="text-xl font-bold text-gray-900">Social Links</h2> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="instagram" class="h-5 w-5"></i> <span class="font-medium">Instagram</span> </div> <span id="profile-instagram" class="font-medium text-gray-900 italic"></span> </div> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="linkedin" class="h-5 w-5"></i> <span class="font-medium">LinkedIn</span> </div> <span id="profile-linkedin" class="font-medium text-gray-900 italic"></span> </div> </div>
 
-                 {/* User's Posts Section */}
-                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> {/* Posts injected here */} </div> </div>
+                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> </div> </div>
 
-             </div></main>
+             </div>
+
+        </main>
 
     </div>
 
@@ -177,7 +162,6 @@
         const acceptDeclineButtons = document.getElementById('accept-decline-buttons'); 
         const acceptRequestButton = document.getElementById('accept-request-button'); 
         const declineRequestButton = document.getElementById('decline-request-button'); 
-        const friendsButton = document.getElementById('friends-button'); 
         const removeFriendButton = document.getElementById('remove-friend-button');
         const loginPrompt = document.getElementById('login-prompt'); 
 
@@ -295,6 +279,7 @@
              return ` <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" id="post-${post.id}"> <div class="flex items-center space-x-3 p-4 ${headerClass}"> ${authorAvatar} <div class="flex-1"> <p class="font-semibold ${headerText} inline">${authorName}</p> ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> </div> </div> ${postBody} <div class="flex justify-around border-t border-gray-100"> ${likeButtonHtml} ${commentButtonHtml} ${shareButtonHtml} </div> </div> `;
         }
 
+
         // --- 7. EVENT LISTENERS ---
         function setupEventListeners() {
             const moreOptionsBtn = document.getElementById('more-options-btn'); const moreOptionsMenu = document.getElementById('more-options-menu'); moreOptionsBtn.addEventListener('click', (event) => { event.stopPropagation(); moreOptionsMenu.classList.toggle('hidden'); if (!moreOptionsMenu.classList.contains('hidden')) feather.replace(); }); window.addEventListener('click', (event) => { if (!moreOptionsMenu.classList.contains('hidden') && !moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) { moreOptionsMenu.classList.add('hidden'); } }); document.getElementById('share-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Sharing profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); document.getElementById('report-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Reporting profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); const friendsListButton = document.getElementById('friends-list-button'); const friendsCountButton = document.getElementById('friends-count-button'); const closeFriendsModalButton = document.getElementById('close-friends-modal'); friendsListButton.addEventListener('click', openFriendsModal); friendsCountButton.addEventListener('click', openFriendsModal); closeFriendsModalButton.addEventListener('click', closeFriendsModal); friendsModal.addEventListener('click', (event) => { if (event.target === friendsModal) closeFriendsModal(); }); 
@@ -327,7 +312,7 @@
          }
 
         // --- 12. ACCEPT/DECLINE FRIEND REQUEST ---
-        async function acceptFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept."); return; } acceptRequestButton.disabled = true; declineRequestButton.disabled = true; acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request accepted."); updateFriendButtonState('friends'); const friendCountEl = document.getElementById('profile-friend-count'); if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; } catch(error) { console.error("Error accepting request:", error); alert("Could not accept."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; acceptRequestButton.innerHTML = `<i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold">Accept</span>`; feather.replace(); } }
+        async function acceptFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept."); return; } acceptRequestButton.disabled = true; declineRequestButton.disabled = true; acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request accepted."); updateFriendButtonState('friends'); const friendCountEl = document.getElementById('profile-friend-count'); if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; } catch(error) { console.error("Error accepting request:", error); alert("Could not accept."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; acceptRequestButton.innerHTML = `<i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span>`; feather.replace(); } }
         async function declineFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot decline."); return; } if (!confirm("Decline friend request?")) return; acceptRequestButton.disabled = true; declineRequestButton.disabled = true; declineRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-red-500 border-l-transparent"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'rejected', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request rejected."); updateFriendButtonState('none'); } catch(error) { console.error("Error declining request:", error); alert("Could not decline."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; declineRequestButton.innerHTML = `<i data-feather="x" class="action-button-icon"></i>`; feather.replace(); } }
 
         // --- 13. REMOVE FRIEND ---
@@ -357,8 +342,7 @@
         function formatTimeAgo(dateString) { 
              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
-        function scrollToLoginPrompt() { /* Placeholder */ }
-
+        function scrollToLoginPrompt() 
     </script>
 
 </body>
