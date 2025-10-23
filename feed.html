@@ -11,6 +11,9 @@
     <!-- Feather Icons Script -->
     <script src="https://unpkg.com/feather-icons"></script>
     
+    <!-- Supabase Client v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,12 +86,10 @@
             height: 28px;
         }
 
-        /* Style for poll bar */
-        .poll-bar-bg {
-            background-color: #e5e7eb; /* bg-gray-200 */
-        }
-        .poll-bar-fg {
-            background-color: #a6d98e; /* primary-400 */
+        /* Style for liked heart */
+        .liked i[data-feather="heart"] {
+            fill: #ef4444; /* red-500 */
+            color: #ef4444;
         }
     </style>
 </head>
@@ -120,7 +121,7 @@
         <!-- Main Content - Feed -->
         <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
             
-            <!-- Campus Moments (Stories) -->
+            <!-- Campus Moments (Stories) - Prototype -->
             <div class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900">Campus Moments</h2>
                 <div class="flex space-x-4 overflow-x-auto no-scrollbar pb-2">
@@ -143,187 +144,28 @@
                         <img src="https://placehold.co/64x64/DCEFD3/305B1C?text=RK" alt="Rohan's Story" class="w-16 h-16 rounded-full border-2 border-primary-600 p-0.5">
                         <span class="text-xs font-medium text-gray-700 w-full truncate">Rohan K.</span>
                     </div>
-
-                    <!-- Club Story -->
-                    <div class="flex-shrink-0 w-20 flex flex-col items-center space-y-1 text-center">
-                        <img src="https://placehold.co/64x64/DCEFD3/305B1C?text=ACM" alt="ACM Club Story" class="w-16 h-16 rounded-full border-2 border-primary-600 p-0.5">
-                        <span class="text-xs font-medium text-gray-700 w-full truncate">ACM Club</span>
-                    </div>
-
-                    <!-- Friend Story 3 -->
-                    <div class="flex-shrink-0 w-20 flex flex-col items-center space-y-1 text-center">
-                        <img src="https://placehold.co/64x64/DCEFD3/305B1C?text=AS" alt="Ananya's Story" class="w-16 h-16 rounded-full border-2 border-primary-600 p-0.5">
-                        <span class="text-xs font-medium text-gray-700 w-full truncate">Ananya S.</span>
-                    </div>
                 </div>
             </div>
 
             <!-- Post Creator Bar -->
-            <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-200 flex items-center space-x-3">
-                <img src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full">
-                <div class="flex-1 bg-gray-100 rounded-full p-3 text-gray-500 cursor-pointer hover:bg-gray-200 transition-colors">
+            <div id="create-post-bar" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-200 flex items-center space-x-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                <img id="user-avatar-post-bar" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
+                <div class="flex-1 bg-gray-100 rounded-full p-3 text-gray-500">
                     What's on your mind?
                 </div>
-                <button class="p-2 text-gray-500 hover:text-primary-600">
+                <div class="p-2 text-gray-500">
                     <i data-feather="image"></i>
-                </button>
+                </div>
             </div>
 
 
-            <!-- Feed Posts -->
-            <div class="space-y-6">
-
-                <!-- Post 1: Photo Post (Event) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <!-- Post Header -->
-                    <div class="flex items-center space-x-3 p-4">
-                        <img src="https://placehold.co/40x40/DCEFD3/305B1C?text=ACM" alt="Club Profile" class="w-10 h-10 rounded-full">
-                        <div>
-                            <p class="font-semibold text-gray-900">ACM Club</p>
-                            <p class="text-xs text-gray-500">2 hours ago</p>
-                        </div>
-                    </div>
-                    <!-- Post Content -->
-                    <p class="px-4 pb-3 text-gray-800">
-                        The Oasis Hackathon was a huge success! 🚀 Thank you to all participants and sponsors. Here are some of our winners!
-                    </p>
-                    <!-- Post Image -->
-                    <img src="https://placehold.co/600x400/A8E063/305B1C?text=Hackathon+Winners" alt="Hackathon" class="w-full object-cover">
-                    <!-- Tags -->
-                    <div class="px-4 pt-3">
-                        <span class="text-sm font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded-full">#OasisHackathon</span>
-                    </div>
-                    <!-- Engagement Bar -->
-                    <div class="flex justify-around border-t border-gray-100 mt-3">
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="heart" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">102</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="message-square" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">15</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="share-2" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">Share</span>
-                        </button>
-                    </div>
+            <!-- Feed Posts Container -->
+            <div id="feed-posts-container" class="space-y-6">
+                <!-- Loading Message -->
+                <div id="feed-loading" class="text-center py-10 text-gray-500">
+                    <p>Loading feed...</p>
                 </div>
-
-                <!-- Post 2: Text Post (Question) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <!-- Post Header -->
-                    <div class="flex items-center space-x-3 p-4">
-                        <img src="https://placehold.co/40x40/DCEFD3/305B1C?text=AS" alt="User Profile" class="w-10 h-10 rounded-full">
-                        <div>
-                            <p class="font-semibold text-gray-900">Ananya Singh</p>
-                            <p class="text-xs text-gray-500">5 hours ago</p>
-                        </div>
-                    </div>
-                    <!-- Post Content -->
-                    <p class="px-4 pb-4 text-gray-800 text-base">
-                        Anyone know if the M-IV quiz tomorrow is open book? 😅
-                        <a href="#" class="text-sm font-medium text-primary-600 hover:underline">#CS101</a>
-                    </p>
-                    <!-- Engagement Bar -->
-                    <div class="flex justify-around border-t border-gray-100">
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="heart" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">28</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="message-square" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">7</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="share-2" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">Share</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Post 3: Poll Post -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <!-- Post Header -->
-                    <div class="flex items-center space-x-3 p-4">
-                        <img src="https://placehold.co/40x40/DCEFD3/305B1C?text=RK" alt="User Profile" class="w-10 h-10 rounded-full">
-                        <div>
-                            <p class="font-semibold text-gray-900">Rohan Kumar</p>
-                            <p class="text-xs text-gray-500">8 hours ago</p>
-                        </div>
-                    </div>
-                    <!-- Post Content -->
-                    <p class="px-4 pb-3 font-semibold text-lg text-gray-900">
-                        Best place to get coffee near campus?
-                    </p>
-                    <!-- Poll Options -->
-                    <div class="px-4 pb-4 space-y-3">
-                        <!-- Option 1: Selected -->
-                        <div class="border-2 border-primary-600 bg-primary-50 rounded-xl p-3 font-medium text-gray-900 relative">
-                            <div class="absolute inset-0 bg-primary-300/50 rounded-lg" style="width: 72%;"></div>
-                            <span class="relative z-10">C-Block Cafe (72%)</span>
-                        </div>
-                        <!-- Option 2: Not Selected -->
-                        <div class="border border-gray-300 rounded-xl p-3 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer relative">
-                            <div class="absolute inset-0 bg-gray-200/50 rounded-lg" style="width: 18%;"></div>
-                            <span class="relative z-10">Library (18%)</span>
-                        </div>
-                         <!-- Option 3: Not Selected -->
-                        <div class="border border-gray-300 rounded-xl p-3 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer relative">
-                            <div class="absolute inset-0 bg-gray-200/50 rounded-lg" style="width: 10%;"></div>
-                            <span class="relative z-10">Main Gate (10%)</span>
-                        </div>
-                    </div>
-                    <!-- Engagement Bar -->
-                    <div class="flex justify-around border-t border-gray-100">
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="heart" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">41</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="message-square" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">9</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="share-2" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">Share</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Post 4: Anonymous Post -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <!-- Post Header -->
-                    <div class="flex items-center space-x-3 p-4 bg-gray-800">
-                        <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
-                            <i data-feather="eye-off" class="text-white"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-white">Campus Confession</p>
-                            <p class="text-xs text-gray-400">1 day ago</p>
-                        </div>
-                    </div>
-                    <!-- Post Content -->
-                    <p class="px-4 py-4 text-gray-800 text-base">
-                        I accidentally took the wrong black umbrella from the library... if it's yours, I left it at the lost & found! So sorry!
-                    </p>
-                    <!-- Engagement Bar -->
-                    <div class="flex justify-around border-t border-gray-100">
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="heart" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">120</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="message-square" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">5</span>
-                        </button>
-                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
-                            <i data-feather="share-2" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">Share</span>
-                        </button>
-                    </div>
-                </div>
-
+                <!-- Posts will be injected here by JavaScript -->
             </div>
 
         </main>
@@ -332,7 +174,7 @@
         <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
             
             <!-- Dashboard -->
-            <a href="test.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
                 <i data-feather="layout"></i>
             </a>
             
@@ -341,7 +183,7 @@
                 <i data-feather="file-text" class="stroke-[2.5px]"></i>
             </a>
             
-            <!-- Create (Centered & Aligned) -->
+            <!-- Create -->
             <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
                 <i data-feather="plus-circle"></i>
             </a>
@@ -352,18 +194,290 @@
             </a>
             
             <!-- Mini Apps -->
-            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+            <a href="miniapps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
                 <i data-feather="grid"></i>
             </a>
         </nav>
 
     </div>
 
-    <!-- JavaScript -->
+    <!-- ===== Supabase & App Logic ===== -->
     <script>
-        // Render Feather Icons
-        feather.replace();
+        // --- 1. SUPABASE CLIENT SETUP ---
+        // !!! IMPORTANT: REPLACE with your Supabase project details
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- Global variables ---
+        let currentAuthUser = null;
+        let currentUserProfile = null;
+        const feedContainer = document.getElementById('feed-posts-container');
+        const feedLoading = document.getElementById('feed-loading');
+        const userAvatarPostBar = document.getElementById('user-avatar-post-bar');
+
+        // --- 2. AUTH & INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            
+            if (error) {
+                console.error("Error getting session:", error.message);
+                feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading session.</p>`;
+                return;
+            }
+            
+            if (!session) {
+                window.location.href = 'login.html'; // Redirect if not logged in
+                return;
+            }
+
+            currentAuthUser = session.user;
+            
+            // Fetch profile and posts concurrently
+            await Promise.all([
+                fetchUserProfile(currentAuthUser.id),
+                fetchPosts()
+            ]);
+            
+            // Render icons and set up listeners
+            feather.replace();
+            setupEventListeners();
+        });
+
+        // --- 3. FETCH USER PROFILE ---
+        async function fetchUserProfile(authId) {
+            if (!authId) return;
+
+            const { data, error } = await _supabase
+                .from('users')
+                .select('name, img')
+                .eq('auth_id', authId)
+                .single();
+
+            if (error) {
+                console.error("Error fetching user profile:", error.message);
+            } else if (data) {
+                currentUserProfile = data;
+                const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : 'U'}`;
+                userAvatarPostBar.src = userAvatar;
+            }
+        }
+
+        // --- 4. SETUP EVENT LISTENERS ---
+        function setupEventListeners() {
+            // "Create Post" bar listener
+            document.getElementById('create-post-bar').addEventListener('click', () => {
+                window.location.href = 'create.html';
+            });
+
+            // Delegated event listener for likes
+            feedContainer.addEventListener('click', (event) => {
+                const likeButton = event.target.closest('.like-button');
+                if (likeButton) {
+                    const postId = likeButton.dataset.postId;
+                    const isLiked = likeButton.dataset.liked === 'true';
+                    toggleLike(postId, isLiked, likeButton);
+                }
+            });
+        }
+
+        // --- 5. FETCH POSTS ---
+        async function fetchPosts() {
+            if (!currentAuthUser) return;
+
+            try {
+                const { data: posts, error } = await _supabase
+                    .from('posts')
+                    .select(`
+                        id, content, post_type, media_url, poll_options, is_anonymous, created_at, 
+                        like_count, comment_count,
+                        users:user_id!inner (name, img),
+                        likes (user_id)
+                    `)
+                    .eq('likes.user_id', currentAuthUser.id) // Check if the current user has liked this post
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                renderPosts(posts);
+
+            } catch (error) {
+                console.error("Error fetching posts:", error.message);
+                feedLoading.style.display = 'none';
+                feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading posts. Please try again.</p>`;
+            }
+        }
+
+        // --- 6. RENDER POSTS ---
+        function renderPosts(posts) {
+            feedLoading.style.display = 'none'; // Hide loading message
+            
+            if (!posts || posts.length === 0) {
+                feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet. Be the first to share!</p>`;
+                return;
+            }
+
+            const postsHtml = posts.map(createPostHTML).join('');
+            feedContainer.innerHTML = postsHtml;
+            
+            // Re-render icons for the new content
+            feather.replace();
+        }
+
+        // --- 7. CREATE POST HTML (Helper Function) ---
+        function createPostHTML(post) {
+            const authorName = post.is_anonymous ? 'Campus Confession' : post.users.name;
+            const authorAvatar = post.is_anonymous 
+                ? `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>`
+                : `<img src="${post.users.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200">`;
+            
+            const postTimestamp = formatTimeAgo(post.created_at);
+            
+            const isLiked = post.likes && post.likes.length > 0;
+            const likeClass = isLiked ? 'liked text-red-500' : 'text-gray-600';
+
+            let postBody = '';
+            
+            // Handle different post types
+            switch(post.post_type) {
+                case 'photo':
+                    postBody = `
+                        <p class="px-4 pb-3 text-gray-800">${post.content || ''}</p>
+                        <img src="${post.media_url}" alt="Post media" class="w-full object-cover">
+                    `;
+                    break;
+                case 'poll':
+                    const pollOptions = (post.poll_options || [])
+                        .map(option => `
+                            <div class="border border-gray-300 rounded-xl p-3 font-medium text-gray-700 hover:bg-gray-100 cursor-pointer relative">
+                                <span class="relative z-10">${option.option}</span>
+                            </div>
+                        `).join('');
+                    postBody = `
+                        <p class="px-4 pb-3 font-semibold text-lg text-gray-900">${post.content}</p>
+                        <div class="px-4 pb-4 space-y-3">${pollOptions}</div>
+                    `;
+                    break;
+                case 'text':
+                case 'anonymous':
+                default:
+                    postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${post.content}</p>`;
+            }
+
+            const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white';
+            const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900';
+            const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500';
+
+            return `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- Post Header -->
+                    <div class="flex items-center space-x-3 p-4 ${headerClass}">
+                        ${authorAvatar}
+                        <div>
+                            <p class="font-semibold ${headerText}">${authorName}</p>
+                            <p class="text-xs ${subText}">${postTimestamp}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Post Content -->
+                    ${postBody}
+                    
+                    <!-- Engagement Bar -->
+                    <div class="flex justify-around border-t border-gray-100">
+                        <button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-gray-50 hover:text-red-500 transition-colors ${likeClass}"
+                                data-post-id="${post.id}" 
+                                data-liked="${isLiked}">
+                            <i data-feather="heart" class="w-5 h-5 ${isLiked ? 'fill-current' : ''}"></i>
+                            <span class="like-count text-sm font-medium">${post.like_count}</span>
+                        </button>
+                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                            <i data-feather="message-square" class="w-5 h-5"></i>
+                            <span class="text-sm font-medium">${post.comment_count}</span>
+                        </button>
+                        <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                            <i data-feather="share-2" class="w-5 h-5"></i>
+                            <span class="text-sm font-medium">Share</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 8. LIKE/UNLIKE LOGIC ---
+        async function toggleLike(postId, isLiked, buttonElement) {
+            if (!currentAuthUser) return;
+            
+            buttonElement.disabled = true;
+            const likeIcon = buttonElement.querySelector('i[data-feather="heart"]');
+            const countSpan = buttonElement.querySelector('.like-count');
+            let currentCount = parseInt(countSpan.textContent);
+
+            try {
+                if (isLiked) {
+                    // --- Unlike the post ---
+                    const { error } = await _supabase
+                        .from('likes')
+                        .delete()
+                        .match({ user_id: currentAuthUser.id, post_id: postId });
+                    
+                    if (error) throw error;
+
+                    // Update UI
+                    buttonElement.dataset.liked = 'false';
+                    buttonElement.classList.remove('liked', 'text-red-500');
+                    buttonElement.classList.add('text-gray-600');
+                    likeIcon.classList.remove('fill-current');
+                    countSpan.textContent = currentCount - 1;
+
+                } else {
+                    // --- Like the post ---
+                    const { error } = await _supabase
+                        .from('likes')
+                        .insert({ user_id: currentAuthUser.id, post_id: postId });
+                    
+                    if (error) throw error;
+
+                    // Update UI
+                    buttonElement.dataset.liked = 'true';
+                    buttonElement.classList.add('liked', 'text-red-500');
+                    buttonElement.classList.remove('text-gray-600');
+                    likeIcon.classList.add('fill-current');
+                    countSpan.textContent = currentCount + 1;
+                }
+            } catch (error) {
+                console.error("Error toggling like:", error.message);
+                // Revert UI changes if error
+                // (For simplicity, we just log it here)
+            } finally {
+                buttonElement.disabled = false;
+            }
+        }
+
+        // --- 9. HELPER: Time Ago ---
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m ago";
+            return Math.floor(seconds) + "s ago";
+        }
+
     </script>
 
 </body>
 </html>
+
