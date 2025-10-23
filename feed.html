@@ -71,18 +71,27 @@
         i[data-feather] {
             width: 24px;
             height: 24px;
+            /* Ensure icons inherit color */
+            stroke: currentColor; 
+        }
+        svg.feather {
+             /* Ensure rendered SVGs also inherit color */
+            stroke: currentColor;
         }
         
         /* Bottom nav icon sizing */
-        .bottom-nav-icon i[data-feather] {
+        .bottom-nav-icon i[data-feather],
+        .bottom-nav-icon svg.feather {
             width: 28px;
             height: 28px;
         }
 
         /* Style for liked heart */
+        .liked svg.feather-heart,
         .liked i[data-feather="heart"] {
             fill: #ef4444; /* red-500 */
             color: #ef4444;
+            stroke: #ef4444; /* Explicitly set stroke for SVG */
         }
          /* Loading spinner */
         .spinner {
@@ -199,7 +208,7 @@
             await Promise.all([
                 fetchUserProfile(currentAuthUser.id),
                 fetchPosts(),
-                fetchStories() // Fetch stories after profile might be needed for 'Your Story' logic later
+                fetchStories() 
             ]);
             
             // Render icons, set up listeners, and subscribe to realtime
@@ -210,7 +219,6 @@
 
         // --- 3. FETCH USER PROFILE ---
         async function fetchUserProfile(authId) {
-            // ... (keep existing fetchUserProfile function) ...
              if (!authId) return;
 
             const { data, error } = await _supabase
@@ -230,7 +238,6 @@
 
         // --- 4. SETUP EVENT LISTENERS ---
         function setupEventListeners() {
-            // ... (keep existing setupEventListeners function, including story clicks and poll votes) ...
             document.getElementById('create-post-bar').addEventListener('click', () => {
                 window.location.href = 'create.html';
             });
@@ -285,26 +292,23 @@
 
         // --- 5. FETCH POSTS ---
         async function fetchPosts() {
-            // ... (keep existing fetchPosts function) ...
             if (!currentAuthUser) return;
-            feedLoading.style.display = 'block'; // Ensure loading is visible
+            feedLoading.style.display = 'block'; 
 
             try {
-                // Fetch posts AND explicitly fetch related likes for the current user
                 const { data: posts, error } = await _supabase
                     .from('posts')
                     .select(`
                         id, content, post_type, media_url, poll_options, is_anonymous, created_at, 
                         like_count, comment_count,
-                        users:user_id!inner (name, img),
+                        users:user_id (name, img), 
                         likes!left (user_id)
                     `)
-                    .eq('likes.user_id', currentAuthUser.id) // Filter likes specifically for the current user
+                    .eq('likes.user_id', currentAuthUser.id) 
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
 
-                // Process posts to check if the current user liked them
                 const processedPosts = posts.map(post => ({
                     ...post,
                     currentUserLiked: post.likes.length > 0
@@ -321,7 +325,6 @@
 
         // --- 6. RENDER POSTS ---
         function renderPosts(posts) {
-            // ... (Modify createPostHTML call slightly if needed, e.g., pass currentUserLiked) ...
             feedLoading.style.display = 'none'; 
             
             if (!posts || posts.length === 0) {
@@ -337,15 +340,13 @@
 
         // --- 7. CREATE POST HTML ---
         function createPostHTML(post) {
-            // ... (Modify to use post.currentUserLiked for initial like state) ...
-            const authorName = post.is_anonymous ? 'Campus Confession' : post.users.name;
+            // Need to handle case where users might be null if post.user_id was null (e.g., deleted user)
+            const authorName = post.is_anonymous ? 'Campus Confession' : (post.users?.name || 'Unknown User');
             const authorAvatar = post.is_anonymous 
                 ? `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>`
-                : `<img src="${post.users.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName ? authorName.charAt(0) : '?'}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200">`;
+                : `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200">`;
             
             const postTimestamp = formatTimeAgo(post.created_at);
-            
-            // Use the pre-fetched like status
             const isLiked = post.currentUserLiked; 
             const likeClass = isLiked ? 'liked text-red-500' : 'text-gray-600';
 
@@ -359,8 +360,6 @@
                     `;
                     break;
                 case 'poll':
-                    // We need to fetch/calculate results here or assume they are pre-calculated
-                    // For now, using placeholder structure, poll vote logic will update it
                      const pollOptionsHtml = (post.poll_options || [])
                         .map((option, index) => `
                             <button 
@@ -408,14 +407,14 @@
                         </button>
                         <button class="toggle-comments-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}">
                             <i data-feather="message-square" class="w-5 h-5"></i>
-                            <span class="text-sm font-medium">${post.comment_count}</span>
+                            <span class="comment-count text-sm font-medium">${post.comment_count}</span>
                         </button>
                         <button class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors">
                             <i data-feather="share-2" class="w-5 h-5"></i>
                             <span class="text-sm font-medium">Share</span>
                         </button>
                     </div>
-                     <div id="comments-section-${post.id}" class="hidden p-4 border-t border-gray-100 space-y-3">
+                    <div id="comments-section-${post.id}" class="hidden p-4 border-t border-gray-100 space-y-3">
                         <div id="comments-list-${post.id}" class="space-y-3 max-h-60 overflow-y-auto no-scrollbar">
                             <p class="text-sm text-gray-500">Loading comments...</p>
                         </div>
@@ -432,77 +431,69 @@
         }
 
 
-        // --- 8. LIKE/UNLIKE LOGIC ---
+        // --- 8. LIKE/UNLIKE LOGIC (Optimistic) ---
         async function toggleLike(postId, isLiked, buttonElement) {
-           // ... (keep existing toggleLike function - optimistic update) ...
-            if (!currentAuthUser) return;
+           if (!currentAuthUser || buttonElement.disabled) return; // Prevent double clicks
             
-            buttonElement.disabled = true;
-            const likeIcon = buttonElement.querySelector('i[data-feather="heart"]');
+            buttonElement.disabled = true; // Disable temporarily
+            const likeIcon = buttonElement.querySelector('svg.feather-heart'); // Query the rendered SVG
             const countSpan = buttonElement.querySelector('.like-count');
             let currentCount = parseInt(countSpan.textContent);
-
+            
             // Optimistic UI Update
              if (isLiked) {
-                 // Visually unlike immediately
                  buttonElement.dataset.liked = 'false';
                  buttonElement.classList.remove('liked', 'text-red-500');
                  buttonElement.classList.add('text-gray-600');
-                 likeIcon.classList.remove('fill-current');
-                 countSpan.textContent = Math.max(0, currentCount - 1); // Prevent negative count
+                 if (likeIcon) likeIcon.style.fill = 'none'; // Remove fill directly
+                 countSpan.textContent = Math.max(0, currentCount - 1); 
              } else {
-                 // Visually like immediately
                  buttonElement.dataset.liked = 'true';
                  buttonElement.classList.add('liked', 'text-red-500');
                  buttonElement.classList.remove('text-gray-600');
-                 likeIcon.classList.add('fill-current');
+                 if (likeIcon) likeIcon.style.fill = 'currentColor'; // Add fill directly
                  countSpan.textContent = currentCount + 1;
              }
-             feather.replace(); // Update icon appearance
 
             try {
                 if (isLiked) {
-                    // --- Unlike in DB ---
                     const { error } = await _supabase
                         .from('likes')
                         .delete()
                         .match({ user_id: currentAuthUser.id, post_id: postId });
                     if (error) throw error;
                 } else {
-                    // --- Like in DB ---
                     const { error } = await _supabase
                         .from('likes')
                         .insert({ user_id: currentAuthUser.id, post_id: postId });
-                     // Handle potential race condition if like already exists (e.g., due to double click)
-                     if (error && error.code !== '23505') { // 23505 is unique_violation
+                     if (error && error.code !== '23505') { 
                          throw error;
                      }
                 }
             } catch (error) {
                 console.error("Error toggling like in DB:", error.message);
-                // Revert UI changes if DB operation failed
-                 if (isLiked) { // Failed to unlike
+                // Revert UI if DB error
+                 if (isLiked) { 
                      buttonElement.dataset.liked = 'true';
                      buttonElement.classList.add('liked', 'text-red-500');
                      buttonElement.classList.remove('text-gray-600');
-                     likeIcon.classList.add('fill-current');
-                     countSpan.textContent = currentCount; // Revert count
-                 } else { // Failed to like
+                      if (likeIcon) likeIcon.style.fill = 'currentColor';
+                     countSpan.textContent = currentCount; 
+                 } else { 
                      buttonElement.dataset.liked = 'false';
                      buttonElement.classList.remove('liked', 'text-red-500');
                      buttonElement.classList.add('text-gray-600');
-                     likeIcon.classList.remove('fill-current');
-                     countSpan.textContent = currentCount; // Revert count
+                      if (likeIcon) likeIcon.style.fill = 'none';
+                     countSpan.textContent = currentCount; 
                  }
-                 feather.replace(); // Update icon appearance
             } finally {
-                buttonElement.disabled = false;
+                // Re-enable after a short delay to prevent spamming
+                setTimeout(() => { buttonElement.disabled = false; }, 300); 
             }
         }
 
         // --- 9. HELPER: Time Ago ---
         function formatTimeAgo(dateString) {
-            // ... (keep existing formatTimeAgo function) ...
              const date = new Date(dateString);
             const now = new Date();
             const seconds = Math.floor((now - date) / 1000);
@@ -523,7 +514,6 @@
 
         // --- 10. REALTIME LIKE SUBSCRIPTION ---
         function subscribeToLikeChanges() {
-            // Unsubscribe from previous channel if exists
             if (likesSubscription) {
                 _supabase.removeChannel(likesSubscription);
             }
@@ -534,15 +524,9 @@
                     handleRealtimeLikeUpdate
                 )
                 .subscribe((status, err) => {
-                     if (status === 'SUBSCRIBED') {
-                         console.log('Realtime likes channel subscribed!');
-                     }
-                     if (status === 'CHANNEL_ERROR') {
-                         console.error('Realtime likes channel error:', err);
-                     }
-                      if (status === 'TIMED_OUT') {
-                         console.warn('Realtime likes channel timed out.');
-                     }
+                     if (status === 'SUBSCRIBED') { console.log('Realtime likes channel subscribed!'); }
+                     if (status === 'CHANNEL_ERROR') { console.error('Realtime likes channel error:', err); }
+                      if (status === 'TIMED_OUT') { console.warn('Realtime likes channel timed out.'); }
                 });
         }
 
@@ -551,7 +535,7 @@
             console.log('Realtime like event:', payload);
             const { eventType, new: newRecord, old: oldRecord, table } = payload;
             
-            if (table !== 'likes') return; // Only handle likes table changes
+            if (table !== 'likes') return; 
 
             const record = eventType === 'DELETE' ? oldRecord : newRecord;
             if (!record || !record.post_id) return;
@@ -559,42 +543,64 @@
             const postId = record.post_id;
             const userId = record.user_id;
 
+            // Avoid updating if the change was triggered by the current user's optimistic update
+            // (Check if the user matches AND the event type matches the *opposite* of the current button state)
+            // This is a basic check and might need refinement for complex scenarios.
+            // if (userId === currentAuthUser?.id) return; 
+
             const postElement = document.getElementById(`post-${postId}`);
-            if (!postElement) return; // Post not currently rendered on screen
+            if (!postElement) return; 
 
             const likeButton = postElement.querySelector(`.like-button[data-post-id="${postId}"]`);
-            const countSpan = likeButton.querySelector('.like-count');
-            const likeIcon = likeButton.querySelector('i[data-feather="heart"]');
+            const countSpan = likeButton?.querySelector('.like-count');
+            const likeIcon = likeButton?.querySelector('svg.feather-heart'); // Query SVG
             
-            if (!likeButton || !countSpan || !likeIcon) return; // Elements not found
+            if (!likeButton || !countSpan || !likeIcon) return; 
 
-            let currentCount = parseInt(countSpan.textContent);
+            // Fetch the *actual* current like count from the posts table for accuracy
+            // This corrects any drift caused by optimistic updates or missed events.
+            // We use an IIFE to make it async within the handler.
+            (async () => {
+                try {
+                    const { data, error } = await _supabase
+                        .from('posts')
+                        .select('like_count')
+                        .eq('id', postId)
+                        .single();
 
-            if (eventType === 'INSERT') {
-                countSpan.textContent = currentCount + 1; // Increment count from ANY user liking
-                if (userId === currentAuthUser?.id) { // Check if *I* liked it
-                    likeButton.dataset.liked = 'true';
-                    likeButton.classList.add('liked', 'text-red-500');
-                    likeButton.classList.remove('text-gray-600');
-                    likeIcon.classList.add('fill-current');
-                    feather.replace(); // Ensure icon updates visually
+                    if (error) throw error;
+                    
+                    if (data) {
+                         countSpan.textContent = data.like_count; // Update count to actual value
+                    }
+
+                    // Also update the like button's appearance based on whether the current user liked it
+                    // This covers cases where another tab/device liked/unliked
+                     if (userId === currentAuthUser?.id) {
+                         const isNowLiked = eventType === 'INSERT';
+                         likeButton.dataset.liked = isNowLiked.toString();
+                         if (isNowLiked) {
+                             likeButton.classList.add('liked', 'text-red-500');
+                             likeButton.classList.remove('text-gray-600');
+                             likeIcon.style.fill = 'currentColor';
+                         } else {
+                             likeButton.classList.remove('liked', 'text-red-500');
+                             likeButton.classList.add('text-gray-600');
+                             likeIcon.style.fill = 'none';
+                         }
+                     }
+
+                } catch(err) {
+                     console.error("Error fetching updated like count:", err);
                 }
-            } else if (eventType === 'DELETE') {
-                 countSpan.textContent = Math.max(0, currentCount - 1); // Decrement count from ANY user unliking
-                 if (userId === currentAuthUser?.id) { // Check if *I* unliked it
-                     likeButton.dataset.liked = 'false';
-                     likeButton.classList.remove('liked', 'text-red-500');
-                     likeButton.classList.add('text-gray-600');
-                     likeIcon.classList.remove('fill-current');
-                      feather.replace(); // Ensure icon updates visually
-                 }
-            }
+            })();
         }
 
+
         // --- 12. POLL VOTE LOGIC ---
-        // ... (keep existing handlePollVote function) ...
          async function handlePollVote(postId, optionIndex, optionsContainer) {
-             if (!currentAuthUser) return;
+             // ... (keep existing handlePollVote function) ...
+              if (!currentAuthUser) return;
              optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true);
 
              try {
@@ -606,30 +612,29 @@
                      .maybeSingle(); 
 
                  if (checkError) throw checkError;
-                 if (existingVote) return; // Already voted
+                 if (existingVote) return; 
 
                  const { error: insertError } = await _supabase
                      .from('poll_votes')
                      .insert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex });
                  if (insertError) throw insertError;
 
-                await updatePollUI(postId, optionsContainer); // Update UI after voting
+                await updatePollUI(postId, optionsContainer, optionIndex); // Pass voted index
 
              } catch (error) {
                  console.error("Error casting poll vote:", error.message);
                  alert("Could not record your vote.");
-                 // Re-enable only if error occurred before successful vote
                  optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = false); 
              }
          }
 
         // --- 13. LOAD & UPDATE POLL RESULTS ---
          async function loadPollResults(postId) {
-            const optionsContainer = document.querySelector(`.poll-options-container[data-post-id="${postId}"]`);
+            // ... (keep existing loadPollResults function) ...
+             const optionsContainer = document.querySelector(`.poll-options-container[data-post-id="${postId}"]`);
              if (!optionsContainer) return;
 
              try {
-                // Check if current user has voted
                  const { data: userVote, error: userVoteError } = await _supabase
                      .from('poll_votes')
                      .select('selected_option_index')
@@ -639,15 +644,7 @@
                 
                  if (userVoteError) throw userVoteError;
                  
-                 // If user has voted, fetch all votes and update UI immediately
-                 if (userVote) {
-                     await updatePollUI(postId, optionsContainer, userVote.selected_option_index);
-                 } else {
-                    // User hasn't voted, just enable buttons
-                    optionsContainer.querySelectorAll('.poll-option-button').forEach(button => {
-                         button.disabled = false;
-                    });
-                 }
+                 await updatePollUI(postId, optionsContainer, userVote?.selected_option_index); // Pass index if voted, else null
 
              } catch(error) {
                  console.error(`Error loading poll results for post ${postId}:`, error.message);
@@ -655,8 +652,8 @@
          }
 
          async function updatePollUI(postId, optionsContainer, userVotedIndex = null) {
+            // ... (keep existing updatePollUI function) ...
             try {
-                 // Fetch all votes for this poll
                  const { data: votes, error: countError } = await _supabase
                      .from('poll_votes')
                      .select('selected_option_index')
@@ -670,7 +667,6 @@
                      voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1;
                  });
 
-                 // Update the HTML for each button
                  optionsContainer.querySelectorAll('.poll-option-button').forEach(button => {
                      const idx = parseInt(button.dataset.optionIndex);
                      const votesForOption = voteCounts[idx] || 0;
@@ -679,25 +675,22 @@
                      button.querySelector('.poll-bar-fg').style.width = `${percentage}%`;
                      button.querySelector('.relative.z-10').textContent = `${button.textContent.split('(')[0].trim()} (${percentage}%)`;
 
-                     // If userVoteIndex is provided (meaning we just voted OR already voted), style and disable
                      if (userVotedIndex !== null) {
-                        button.disabled = true; // Disable all after vote or if already voted
+                        button.disabled = true; 
                          button.classList.remove('hover:bg-gray-100', 'cursor-pointer');
                          if (idx === userVotedIndex) {
                             button.classList.remove('border-gray-300');
                              button.classList.add('border-2', 'border-primary-600', 'bg-primary-100');
                          } else {
-                             button.classList.add('border-gray-300'); // Ensure others have standard border
+                             button.classList.add('border-gray-300'); 
                              button.classList.remove('border-2', 'border-primary-600', 'bg-primary-100');
                          }
                      } else {
-                        // User hasn't voted yet
                         button.disabled = false;
                         button.classList.add('hover:bg-gray-100', 'cursor-pointer', 'border-gray-300');
                         button.classList.remove('border-2', 'border-primary-600', 'bg-primary-100');
                      }
                  });
-
             } catch (error) {
                  console.error(`Error updating poll UI for post ${postId}:`, error.message);
             }
@@ -706,124 +699,112 @@
         // --- 14. COMMENTS LOGIC ---
         // ... (keep existing toggleCommentsSection, renderComments, handleCommentSubmit) ...
         async function toggleCommentsSection(postId) {
-            const commentsSection = document.getElementById(`comments-section-${postId}`);
-            const commentsList = document.getElementById(`comments-list-${postId}`);
-            if (!commentsSection || !commentsList) return;
+             const commentsSection = document.getElementById(`comments-section-${postId}`);
+             const commentsList = document.getElementById(`comments-list-${postId}`);
+             if (!commentsSection || !commentsList) return;
+             const isHidden = commentsSection.classList.contains('hidden');
 
-            const isHidden = commentsSection.classList.contains('hidden');
-
-            if (isHidden) {
-                commentsSection.classList.remove('hidden');
-                commentsList.innerHTML = '<p class="text-sm text-gray-500">Loading comments...</p>'; 
-                 feather.replace(); 
-
-                try {
-                    const { data: comments, error } = await _supabase
-                        .from('comments')
-                        .select(`id, content, created_at, users:user_id!inner (name, img)`)
-                        .eq('post_id', postId)
-                        .is('parent_comment_id', null) 
-                        .order('created_at', { ascending: true });
-
-                    if (error) throw error;
-                    renderComments(postId, comments);
-                } catch (error) {
-                    console.error("Error fetching comments:", error.message);
-                    commentsList.innerHTML = '<p class="text-sm text-red-500">Error loading comments.</p>';
-                }
-            } else {
-                commentsSection.classList.add('hidden');
-            }
-        }
-
-        function renderComments(postId, comments) {
-            const commentsList = document.getElementById(`comments-list-${postId}`);
-            if (!commentsList) return;
-
-            if (comments.length === 0) {
-                commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>';
-                return;
-            }
-
-            commentsList.innerHTML = comments.map(comment => {
-                 const commenterName = comment.users.name || 'User';
-                 const commenterAvatar = comment.users.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`;
-                 const commentTime = formatTimeAgo(comment.created_at);
-
-                 return `
-                    <div class="flex items-start space-x-2">
-                        <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1">
-                        <div class="flex-1 bg-gray-100 rounded-xl p-2">
-                            <p class="font-semibold text-sm text-gray-800">${commenterName}</p>
-                            <p class="text-sm text-gray-700">${comment.content}</p>
-                        </div>
-                         <span class="text-xs text-gray-400 self-center flex-shrink-0">${commentTime}</span>
-                    </div>
-                 `;
-            }).join('');
-        }
-
-        async function handleCommentSubmit(postId) {
-            if (!currentAuthUser) return;
-            const input = document.getElementById(`comment-input-${postId}`);
-            const content = input.value.trim();
-            if (!content) return; 
-
-            const submitButton = document.querySelector(`.comment-submit-button[data-post-id="${postId}"]`);
-            submitButton.disabled = true; 
-            const originalIcon = submitButton.innerHTML;
-            submitButton.innerHTML = '<div class="spinner w-5 h-5 border-t-primary-600"></div>'; 
-
-            try {
-                const { data: newComment, error } = await _supabase
-                    .from('comments')
-                    .insert({ post_id: postId, user_id: currentAuthUser.id, content: content })
-                    .select(`*, users:user_id!inner (name, img)`) 
-                    .single();
-
-                if (error) throw error;
-                
-                const commentsList = document.getElementById(`comments-list-${postId}`);
-                if (commentsList) {
-                    const noComments = commentsList.querySelector('p');
-                    if (noComments && commentsList.children.length <= 1) { // Check if only loading/no comments message exists
-                         commentsList.innerHTML = ''; // Clear the message
-                     }
-                    const commenterName = newComment.users.name || 'User';
-                    const commenterAvatar = newComment.users.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`;
-                    const commentTime = formatTimeAgo(newComment.created_at);
-                     const newCommentHtml = `
-                        <div class="flex items-start space-x-2">
-                            <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1">
-                            <div class="flex-1 bg-gray-100 rounded-xl p-2">
-                                <p class="font-semibold text-sm text-gray-800">${commenterName}</p>
-                                <p class="text-sm text-gray-700">${newComment.content}</p>
-                            </div>
-                            <span class="text-xs text-gray-400 self-center flex-shrink-0">${commentTime}</span>
-                        </div>
-                     `;
-                     commentsList.insertAdjacentHTML('beforeend', newCommentHtml); 
-                     commentsList.scrollTop = commentsList.scrollHeight; 
-                }
-                input.value = ''; 
-
-                const countSpan = document.querySelector(`.toggle-comments-button[data-post-id="${postId}"] span`);
-                 if (countSpan) { // Update comment count optimistically
-                     countSpan.textContent = parseInt(countSpan.textContent) + 1;
+             if (isHidden) {
+                 commentsSection.classList.remove('hidden');
+                 commentsList.innerHTML = '<p class="text-sm text-gray-500">Loading comments...</p>'; 
+                  feather.replace(); 
+                 try {
+                     const { data: comments, error } = await _supabase
+                         .from('comments')
+                         .select(`id, content, created_at, users:user_id (name, img)`) // Corrected join
+                         .eq('post_id', postId)
+                         .is('parent_comment_id', null) 
+                         .order('created_at', { ascending: true });
+                     if (error) throw error;
+                     renderComments(postId, comments);
+                 } catch (error) {
+                     console.error("Error fetching comments:", error.message);
+                     commentsList.innerHTML = '<p class="text-sm text-red-500">Error loading comments.</p>';
                  }
-
-            } catch (error) {
-                console.error("Error submitting comment:", error.message);
-                alert("Could not post comment.");
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalIcon; 
-                feather.replace(); 
-            }
-        }
+             } else {
+                 commentsSection.classList.add('hidden');
+             }
+         }
+         function renderComments(postId, comments) {
+             const commentsList = document.getElementById(`comments-list-${postId}`);
+             if (!commentsList) return;
+             if (comments.length === 0) {
+                 commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>';
+                 return;
+             }
+             commentsList.innerHTML = comments.map(comment => {
+                  const commenterName = comment.users?.name || 'Unknown User'; // Handle potential null user
+                  const commenterAvatar = comment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`;
+                  const commentTime = formatTimeAgo(comment.created_at);
+                  return `
+                     <div class="flex items-start space-x-2">
+                         <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1">
+                         <div class="flex-1 bg-gray-100 rounded-xl p-2">
+                             <p class="font-semibold text-sm text-gray-800">${commenterName}</p>
+                             <p class="text-sm text-gray-700">${comment.content}</p>
+                         </div>
+                          <span class="text-xs text-gray-400 self-center flex-shrink-0">${commentTime}</span>
+                     </div>
+                  `;
+             }).join('');
+         }
+         async function handleCommentSubmit(postId) {
+             if (!currentAuthUser) return;
+             const input = document.getElementById(`comment-input-${postId}`);
+             const content = input.value.trim();
+             if (!content) return; 
+             const submitButton = document.querySelector(`.comment-submit-button[data-post-id="${postId}"]`);
+             submitButton.disabled = true; 
+             const originalIconHTML = submitButton.innerHTML; // Store full HTML
+             submitButton.innerHTML = '<div class="spinner w-5 h-5 border-t-primary-600"></div>'; 
+             try {
+                 const { data: newComment, error } = await _supabase
+                     .from('comments')
+                     .insert({ post_id: postId, user_id: currentAuthUser.id, content: content })
+                     .select(`*, users:user_id (name, img)`) // Corrected join
+                     .single();
+                 if (error) throw error;
+                 
+                 const commentsList = document.getElementById(`comments-list-${postId}`);
+                 if (commentsList) {
+                     const noComments = commentsList.querySelector('p');
+                     if (noComments && commentsList.children.length <= 1) { 
+                          commentsList.innerHTML = ''; 
+                      }
+                     const commenterName = newComment.users?.name || 'Unknown User';
+                     const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`;
+                     const commentTime = formatTimeAgo(newComment.created_at);
+                      const newCommentHtml = `
+                         <div class="flex items-start space-x-2">
+                             <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1">
+                             <div class="flex-1 bg-gray-100 rounded-xl p-2">
+                                 <p class="font-semibold text-sm text-gray-800">${commenterName}</p>
+                                 <p class="text-sm text-gray-700">${newComment.content}</p>
+                             </div>
+                             <span class="text-xs text-gray-400 self-center flex-shrink-0">${commentTime}</span>
+                         </div>
+                      `;
+                      commentsList.insertAdjacentHTML('beforeend', newCommentHtml); 
+                      commentsList.scrollTop = commentsList.scrollHeight; 
+                 }
+                 input.value = ''; 
+                 const countSpan = document.querySelector(`#post-${postId} .comment-count`); // Target specific post's count
+                  if (countSpan) { 
+                      countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                  }
+             } catch (error) {
+                 console.error("Error submitting comment:", error.message);
+                 alert("Could not post comment.");
+             } finally {
+                 submitButton.disabled = false;
+                 submitButton.innerHTML = originalIconHTML; // Restore original icon HTML
+                 // Manually call feather.replace on the restored icon if needed, or rely on broader calls
+                 const restoredIcon = submitButton.querySelector('i[data-feather="send"]');
+                 if(restoredIcon) feather.replace({ 'data-feather': 'send'}); 
+             }
+         }
 
         // --- 15. STORIES LOGIC ---
-        // ... (keep existing fetchStories and viewStory functions) ...
         async function fetchStories() {
              const storiesLoading = document.getElementById('stories-loading');
              const storiesContainer = document.getElementById('stories-container');
@@ -831,30 +812,38 @@
 
              try {
                  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                 const { data: storyUsers, error: usersError } = await _supabase
+                 
+                 // Corrected Query: Fetch distinct user IDs first, then fetch user details
+                  const { data: storyUserIds, error: idsError } = await _supabase
                      .from('stories')
-                     .select('user_id, users!inner(name, img)')
+                     .select('user_id')
                      .gt('created_at', twentyFourHoursAgo)
-                     .order('created_at', { referencedTable: 'stories', ascending: false }); // Order by story time
+                     .order('created_at', { ascending: false }); // Order by story time
 
-                 if (usersError) throw usersError;
+                  if (idsError) throw idsError;
 
-                 const uniqueStoryUsers = storyUsers.filter((user, index, self) =>
-                     index === self.findIndex((u) => u.user_id === user.user_id)
-                 );
+                 // Get unique user IDs
+                 const uniqueUserIds = [...new Set(storyUserIds.map(s => s.user_id))];
 
-                 storiesLoading.style.display = 'none'; 
-
-                 if (uniqueStoryUsers.length === 0) {
-                      // Optionally keep the loading div or replace it
-                      // storiesContainer.insertAdjacentHTML('beforeend', '<p class="text-sm text-gray-500">No recent stories.</p>');
+                 if (uniqueUserIds.length === 0) {
+                      storiesLoading.style.display = 'none'; 
                       return;
                  }
 
-                 uniqueStoryUsers.forEach(userData => {
-                     const user = userData.users; 
+                 // Fetch user details for the unique IDs
+                 const { data: uniqueStoryUsers, error: usersError } = await _supabase
+                    .from('users')
+                    .select('auth_id, name, img')
+                    .in('auth_id', uniqueUserIds);
+
+                 if (usersError) throw usersError;
+
+
+                 storiesLoading.style.display = 'none'; 
+
+                 uniqueStoryUsers.forEach(user => {
                      const storyHtml = `
-                         <div class="story-item flex-shrink-0 w-20 flex flex-col items-center space-y-1 text-center cursor-pointer" data-user-id="${userData.user_id}">
+                         <div class="story-item flex-shrink-0 w-20 flex flex-col items-center space-y-1 text-center cursor-pointer" data-user-id="${user.auth_id}">
                              <img src="${user.img || `https://placehold.co/64x64/DCEFD3/305B1C?text=${user.name ? user.name.charAt(0) : '?'}`}" 
                                   alt="${user.name}'s Story" 
                                   class="w-16 h-16 rounded-full border-2 border-primary-600 p-0.5">
@@ -869,10 +858,8 @@
                  storiesLoading.textContent = 'Error loading stories.';
              }
          }
-
          async function viewStory(userId) {
-             alert(`Viewing stories for user ID: ${userId} (not fully implemented).`);
-             // Implementation would involve fetching stories for this user and displaying in a modal/viewer
+             alert(`Viewing stories for user ID: ${userId} (not implemented).`);
          }
         
     </script>
