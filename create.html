@@ -11,6 +11,9 @@
     <!-- Feather Icons Script -->
     <script src="https://unpkg.com/feather-icons"></script>
     
+    <!-- Supabase Client v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,12 +82,40 @@
             width: 28px;
             height: 28px;
         }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #56ab2f;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom file input appearance */
+        #file-upload-input {
+            display: none;
+        }
+        #file-upload-label {
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body class="antialiased">
 
     <!-- App Container -->
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+
+        <!-- Loading Overlay (hidden by default) -->
+        <div id="loading-overlay" class="hidden fixed inset-0 z-50 bg-white/70 backdrop-blur-sm flex items-center justify-center">
+            <div class="spinner"></div>
+        </div>
 
         <!-- Main Content - Create Post -->
         <main class="pt-6 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
@@ -118,14 +149,14 @@
                 <!-- Text Panel -->
                 <div id="panel-text" class="space-y-4">
                     <div class="flex items-center space-x-3">
-                        <img src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full">
+                        <img id="user-avatar-text" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
                         <div>
-                            <p class="font-semibold text-gray-900">Your Name</p>
+                            <p id="user-name-text" class="font-semibold text-gray-900">Loading...</p>
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="What's on your mind?"></textarea>
-                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                    <textarea id="text-post-content" class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="What's on your mind?"></textarea>
+                    <button id="submit-text-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
                         Post
                     </button>
                 </div>
@@ -133,19 +164,22 @@
                 <!-- Photo/Video Panel -->
                 <div id="panel-photo" class="space-y-4 hidden">
                     <div class="flex items-center space-x-3">
-                        <img src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full">
+                        <img id="user-avatar-photo" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
                         <div>
-                            <p class="font-semibold text-gray-900">Your Name</p>
+                            <p id="user-name-photo" class="font-semibold text-gray-900">Loading...</p>
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Write a caption..."></textarea>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-500 cursor-pointer hover:border-primary-600 hover:text-primary-600 transition-all">
+                    <textarea id="photo-post-caption" class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Write a caption..."></textarea>
+                    
+                    <input type="file" id="file-upload-input" accept="image/*,video/*">
+                    <label id="file-upload-label" for="file-upload-input" class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-500 transition-all hover:border-primary-600 hover:text-primary-600">
                         <i data-feather="upload-cloud" class="w-12 h-12"></i>
-                        <p class="font-semibold mt-2">Click to upload</p>
+                        <p id="file-upload-text" class="font-semibold mt-2">Click to upload</p>
                         <p class="text-sm">PNG, JPG, MP4 or GIF</p>
-                    </div>
-                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                    </label>
+                    
+                    <button id="submit-photo-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
                         Post
                     </button>
                 </div>
@@ -153,25 +187,25 @@
                 <!-- Poll Panel -->
                 <div id="panel-poll" class="space-y-4 hidden">
                     <div class="flex items-center space-x-3">
-                        <img src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full">
+                        <img id="user-avatar-poll" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
                         <div>
-                            <p class="font-semibold text-gray-900">Your Name</p>
+                            <p id="user-name-poll" class="font-semibold text-gray-900">Loading...</p>
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Ask a question..."></textarea>
+                    <textarea id="poll-question" class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Ask a question..."></textarea>
                     
-                    <div class="space-y-3">
+                    <div id="poll-options-container" class="space-y-3">
                         <h3 class="font-semibold text-gray-700">Options</h3>
-                        <input type="text" placeholder="Option 1" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
-                        <input type="text" placeholder="Option 2" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
-                        <button class="w-full flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-200 transition-colors">
-                            <i data-feather="plus" class="w-5 h-5"></i>
-                            <span>Add Option</span>
-                        </button>
+                        <input type="text" placeholder="Option 1" class="poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        <input type="text" placeholder="Option 2" class="poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
                     </div>
+                    <button id="add-poll-option" class="w-full flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-200 transition-colors">
+                        <i data-feather="plus" class="w-5 h-5"></i>
+                        <span>Add Option</span>
+                    </button>
 
-                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                    <button id="submit-poll-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
                         Post Poll
                     </button>
                 </div>
@@ -187,8 +221,8 @@
                             <p class="text-xs text-gray-400">This post will not be linked to your profile.</p>
                         </div>
                     </div>
-                    <textarea class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Share your confession..."></textarea>
-                    <button class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95">
+                    <textarea id="anonymous-post-content" class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Share your confession..."></textarea>
+                    <button id="submit-anonymous-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
                         Post Anonymously
                     </button>
                 </div>
@@ -200,7 +234,7 @@
         <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
             
             <!-- Dashboard -->
-            <a href="test.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
                 <i data-feather="layout"></i>
             </a>
             
@@ -220,50 +254,330 @@
             </a>
             
             <!-- Mini Apps -->
-            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+            <a href="miniapps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
                 <i data-feather="grid"></i>
             </a>
         </nav>
 
     </div>
 
-    <!-- JavaScript -->
+    <!-- ===== Supabase & App Logic ===== -->
     <script>
-        const tabs = ['text', 'photo', 'poll', 'anonymous'];
-        const panels = ['panel-text', 'panel-photo', 'panel-poll', 'panel-anonymous'];
-        const tabButtons = ['tab-text', 'tab-photo', 'tab-poll', 'tab-anonymous'];
+        // --- 1. SUPABASE CLIENT SETUP ---
+        // !!! IMPORTANT: REPLACE with your Supabase project details
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function switchTab(activeTab) {
-            panels.forEach(panelId => {
-                const panel = document.getElementById(panelId);
-                if (panel) {
-                    panel.classList.add('hidden');
-                }
-            });
+        // --- Global variables ---
+        let currentAuthUser = null;
+        let currentUserProfile = null;
+        const loadingOverlay = document.getElementById('loading-overlay');
 
-            tabButtons.forEach(tabId => {
-                const tab = document.getElementById(tabId);
-                if (tab) {
-                    tab.classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
-                    tab.classList.add('border-transparent', 'text-gray-500', 'font-medium');
-                }
-            });
-
-            const activePanel = document.getElementById(`panel-${activeTab}`);
-            if (activePanel) {
-                activePanel.classList.remove('hidden');
+        // --- 2. AUTH & SESSION CHECK ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            
+            if (error) {
+                console.error("Error getting session:", error.message);
+                return;
+            }
+            
+            if (!session) {
+                // No user logged in, redirect to login page
+                window.location.href = 'login.html';
+                return;
             }
 
-            const activeTabButton = document.getElementById(`tab-${activeTab}`);
-            if (activeTabButton) {
-                activeTabButton.classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
-                activeTabButton.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+            // User is logged in
+            currentAuthUser = session.user;
+            await fetchUserProfile(currentAuthUser.id);
+
+            // Render Feather Icons
+            feather.replace();
+            
+            // Setup all event listeners
+            setupEventListeners();
+        });
+
+        // --- 3. FETCH USER PROFILE ---
+        // Fetches the user's data from the 'users' table (name, img)
+        async function fetchUserProfile(authId) {
+            if (!authId) return;
+
+            const { data, error } = await _supabase
+                .from('users')
+                .select('name, img') // Assuming 'img' is the column for profile picture URL
+                .eq('auth_id', authId)
+                .single();
+
+            if (error) {
+                console.error("Error fetching user profile:", error.message);
+                alert("Error: Could not load your user profile.");
+                return;
+            }
+
+            if (data) {
+                currentUserProfile = data;
+                // Update UI with user's name and avatar
+                const userName = data.name || 'Campus User';
+                const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${userName.charAt(0)}`;
+
+                document.getElementById('user-avatar-text').src = userAvatar;
+                document.getElementById('user-name-text').innerText = userName;
+                
+                document.getElementById('user-avatar-photo').src = userAvatar;
+                document.getElementById('user-name-photo').innerText = userName;
+
+                document.getElementById('user-avatar-poll').src = userAvatar;
+                document.getElementById('user-name-poll').innerText = userName;
             }
         }
 
-        // Render Feather Icons
-        feather.replace();
+        // --- 4. TAB SWITCHING LOGIC ---
+        const tabs = ['text', 'photo', 'poll', 'anonymous'];
+        
+        function switchTab(activeTab) {
+            tabs.forEach(tab => {
+                document.getElementById(`panel-${tab}`).classList.add('hidden');
+                document.getElementById(`tab-${tab}`).classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
+                document.getElementById(`tab-${tab}`).classList.add('border-transparent', 'text-gray-500', 'font-medium');
+            });
+            
+            document.getElementById(`panel-${activeTab}`).classList.remove('hidden');
+            document.getElementById(`tab-${activeTab}`).classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
+            document.getElementById(`tab-${activeTab}`).classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+        }
+
+        // --- 5. POSTING LOGIC ---
+        function setupEventListeners() {
+            // Text Post
+            document.getElementById('submit-text-post').addEventListener('click', handleTextPost);
+            
+            // Photo/Video Post
+            document.getElementById('file-upload-input').addEventListener('change', handleFileSelect);
+            document.getElementById('submit-photo-post').addEventListener('click', handlePhotoPost);
+
+            // Poll Post
+            document.getElementById('add-poll-option').addEventListener('click', addPollOption);
+            document.getElementById('submit-poll-post').addEventListener('click', handlePollPost);
+            
+            // Anonymous Post
+            document.getElementById('submit-anonymous-post').addEventListener('click', handleAnonymousPost);
+        }
+
+        // --- Helper functions for loading and feedback ---
+        function showLoading() {
+            const button = document.querySelector(`#panel-${getCurrentTab()} button[id^='submit-']`);
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<div class="spinner"></div>';
+            }
+            loadingOverlay.classList.remove('hidden');
+        }
+
+        function hideLoading(success = true) {
+            const button = document.querySelector(`#panel-${getCurrentTab()} button[id^='submit-']`);
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = button.id.includes('poll') ? 'Post Poll' : (button.id.includes('anonymous') ? 'Post Anonymously' : 'Post');
+            }
+            loadingOverlay.classList.add('hidden');
+            
+            if (success) {
+                alert("Post created successfully!"); // Simple feedback
+                window.location.href = 'feed.html'; // Redirect to feed
+            }
+        }
+
+        function getCurrentTab() {
+            const activeTab = document.querySelector('.border-primary-600[id^="tab-"]');
+            return activeTab.id.replace('tab-', '');
+        }
+
+        // --- POST HANDLERS ---
+
+        // A. TEXT POST
+        async function handleTextPost() {
+            const content = document.getElementById('text-post-content').value;
+            if (!content.trim()) {
+                alert("Please write something!");
+                return;
+            }
+
+            showLoading();
+
+            const { error } = await _supabase.from('posts').insert({
+                user_id: currentAuthUser.id,
+                post_type: 'text',
+                content: content,
+                is_anonymous: false
+            });
+
+            if (error) {
+                console.error("Error posting text:", error.message);
+                alert(`Error: ${error.message}`);
+                hideLoading(false);
+            } else {
+                hideLoading(true);
+            }
+        }
+
+        // B. PHOTO/VIDEO POST
+        let selectedFile = null;
+
+        function handleFileSelect(event) {
+            selectedFile = event.target.files[0];
+            if (selectedFile) {
+                document.getElementById('file-upload-text').textContent = selectedFile.name;
+            } else {
+                document.getElementById('file-upload-text').textContent = 'Click to upload';
+            }
+        }
+
+        async function handlePhotoPost() {
+            const caption = document.getElementById('photo-post-caption').value;
+            if (!selectedFile) {
+                alert("Please select a photo or video to upload.");
+                return;
+            }
+
+            showLoading();
+
+            try {
+                // 1. Upload file to Supabase Storage
+                const fileExt = selectedFile.name.split('.').pop();
+                const fileName = `${currentAuthUser.id}/${Date.now()}.${fileExt}`;
+                
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('posts_media') // IMPORTANT: Bucket must be named 'posts_media'
+                    .upload(fileName, selectedFile);
+                
+                if (uploadError) {
+                    throw new Error(`Storage Error: ${uploadError.message}`);
+                }
+
+                // 2. Get public URL
+                const { data: urlData } = _supabase.storage
+                    .from('posts_media')
+                    .getPublicUrl(fileName);
+
+                if (!urlData.publicUrl) {
+                    throw new Error("Could not get public URL for the media.");
+                }
+
+                // 3. Insert into 'posts' table
+                const { error: dbError } = await _supabase.from('posts').insert({
+                    user_id: currentAuthUser.id,
+                    post_type: 'photo', // You can add logic to detect video
+                    content: caption,
+                    media_url: urlData.publicUrl,
+                    is_anonymous: false
+                });
+
+                if (dbError) {
+                    throw new Error(`Database Error: ${dbError.message}`);
+                }
+
+                // Success
+                hideLoading(true);
+
+            } catch (error) {
+                console.error("Error posting photo:", error);
+                alert(`Error: ${error.message}`);
+                hideLoading(false);
+            } finally {
+                selectedFile = null;
+                document.getElementById('file-upload-input').value = null;
+                document.getElementById('file-upload-text').textContent = 'Click to upload';
+            }
+        }
+
+        // C. POLL POST
+        function addPollOption() {
+            const container = document.getElementById('poll-options-container');
+            const optionCount = container.querySelectorAll('.poll-option').length;
+            
+            if (optionCount >= 5) {
+                alert("You can add a maximum of 5 options.");
+                return;
+            }
+            
+            const newOption = document.createElement('input');
+            newOption.type = 'text';
+            newOption.placeholder = `Option ${optionCount + 1}`;
+            newOption.className = 'poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600';
+            container.appendChild(newOption);
+        }
+
+        async function handlePollPost() {
+            const question = document.getElementById('poll-question').value;
+            if (!question.trim()) {
+                alert("Please ask a question for your poll.");
+                return;
+            }
+
+            const options = [];
+            document.querySelectorAll('.poll-option').forEach(input => {
+                if (input.value.trim()) {
+                    options.push({ option: input.value.trim() });
+                }
+            });
+
+            if (options.length < 2) {
+                alert("Please provide at least two poll options.");
+                return;
+            }
+
+            showLoading();
+
+            const { error } = await _supabase.from('posts').insert({
+                user_id: currentAuthUser.id,
+                post_type: 'poll',
+                content: question,
+                poll_options: options, // Save options as JSON
+                is_anonymous: false
+            });
+
+            if (error) {
+                console.error("Error posting poll:", error.message);
+                alert(`Error: ${error.message}`);
+                hideLoading(false);
+            } else {
+                hideLoading(true);
+            }
+        }
+
+        // D. ANONYMOUS POST
+        async function handleAnonymousPost() {
+            const content = document.getElementById('anonymous-post-content').value;
+            if (!content.trim()) {
+                alert("Please write something!");
+                return;
+            }
+
+            showLoading();
+
+            const { error } = await _supabase.from('posts').insert({
+                user_id: currentAuthUser.id, // We still link the user for moderation/deletion
+                post_type: 'anonymous',
+                content: content,
+                is_anonymous: true
+            });
+
+            if (error) {
+                console.error("Error posting anonymously:", error.message);
+                alert(`Error: ${error.message}`);
+                hideLoading(false);
+            } else {
+                hideLoading(true);
+            }
+        }
+        
     </script>
 
 </body>
 </html>
+
