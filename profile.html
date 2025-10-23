@@ -79,10 +79,10 @@
         </div>
 
         <!-- Main Content - Profile -->
-        <main id="main-content" class="px-6 space-y-6 pb-12 overflow-y-auto h-screen no-scrollbar"> {/* Removed pt */}
+        <main id="main-content" class="px-6 space-y-6 pb-12 overflow-y-auto h-screen no-scrollbar pt-16"> 
             
              <!-- Loading State -->
-            <div id="profile-loading" class="text-center py-10 text-gray-500 pt-16"> {/* Added pt here */}
+            <div id="profile-loading" class="text-center py-10 text-gray-500">
                  <div class="spinner mx-auto mb-2"></div>
                  <p>Loading profile...</p>
             </div>
@@ -90,8 +90,8 @@
             <!-- Profile Content (Hidden until loaded) -->
             <div id="profile-content" class="hidden space-y-6">
 
-                {/* Profile Header - Added pt-16 */}
-                <div class="flex flex-col items-center pt-16"> 
+                {/* Profile Header */}
+                <div class="flex flex-col items-center"> 
                     <img id="profile-picture" src="https://placehold.co/100x100/A8E063/305B1C?text=?" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-primary-600 bg-gray-200 object-cover">
                     <div class="flex items-center space-x-1.5 mt-4">
                         <h2 id="profile-name" class="text-2xl font-bold text-gray-900">User Name</h2>
@@ -115,7 +115,7 @@
 
                 {/* Action Buttons Container */}
                 <div id="action-buttons-container" class="flex items-center space-x-4">
-                    {/* Friends List Button (Always Visible if profile loaded) */}
+                    {/* Friends List Button */}
                     <button id="friends-list-button" class="w-full bg-white border border-primary-600 text-primary-600 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-primary-50 active:scale-95"> <i data-feather="users" class="h-5 w-5"></i> <span class="font-semibold text-lg">Friends List</span> </button>
                     
                     {/* Add Friend Button */}
@@ -124,16 +124,15 @@
                     {/* Requested Button */}
                     <button id="request-sent-button" class="hidden w-full bg-gray-200 text-gray-600 p-4 rounded-xl flex justify-center items-center space-x-2 cursor-not-allowed"> <i data-feather="check" class="h-5 w-5"></i> <span class="font-semibold text-lg">Requested</span> </button> 
                     
-                     {/* Accept/Decline Buttons (NEW) */}
+                     {/* Accept/Decline Buttons */}
                     <div id="accept-decline-buttons" class="hidden w-full flex items-center space-x-4">
                         <button id="accept-request-button" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-check" class="h-5 w-5"></i> <span class="font-semibold text-lg">Accept</span> </button>
                         <button id="decline-request-button" class="flex-1 bg-white border border-red-500 text-red-500 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-red-50 active:scale-95"> <i data-feather="x" class="h-5 w-5"></i> <span class="font-semibold text-lg">Decline</span> </button>
                     </div>
 
-                    {/* Friends Button (Placeholder - NEW) */}
+                    {/* Friends Button */}
                     <button id="friends-button" class="hidden w-full bg-white border border-gray-400 text-gray-700 p-4 rounded-xl flex justify-center items-center space-x-2 cursor-not-allowed"> <i data-feather="check-circle" class="h-5 w-5"></i> <span class="font-semibold text-lg">Friends</span> </button>
                     
-                     <!-- Add 'Remove Friend' button here if needed -->
                 </div>
 
                 {/* Roles & Badges */}
@@ -164,10 +163,10 @@
 
         // --- Global variables ---
         let currentAuthUser = null; 
-        let currentUserOwnProfile = null; // Contains viewer's { id, auth_id }
+        let currentUserOwnProfile = null; 
         let viewedUserProfile = null; 
         let viewedUserId = null; 
-        let currentFriendRequest = null; // Store the pending request if found
+        let currentFriendRequest = null; 
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
         const profileLoading = document.getElementById('profile-loading');
         const profileContent = document.getElementById('profile-content');
@@ -177,10 +176,10 @@
         const friendsModalBody = document.getElementById('friends-modal-body');
         const addFriendButton = document.getElementById('add-friend-button');
         const requestSentButton = document.getElementById('request-sent-button');
-        const acceptDeclineButtons = document.getElementById('accept-decline-buttons'); // New buttons container
-        const acceptRequestButton = document.getElementById('accept-request-button'); // New button
-        const declineRequestButton = document.getElementById('decline-request-button'); // New button
-        const friendsButton = document.getElementById('friends-button'); // New button
+        const acceptDeclineButtons = document.getElementById('accept-decline-buttons'); 
+        const acceptRequestButton = document.getElementById('accept-request-button'); 
+        const declineRequestButton = document.getElementById('decline-request-button'); 
+        const friendsButton = document.getElementById('friends-button'); 
         const loginPrompt = document.getElementById('login-prompt'); 
 
         // --- 2. INITIALIZATION ---
@@ -213,10 +212,71 @@
          }
 
         // --- 4. LOAD PROFILE DATA ---
-        async function loadProfileData(userId) { /* ... (same as before) ... */ }
+        async function loadProfileData(userId) {
+            profileLoading.style.display = 'block'; profileContent.classList.add('hidden');
+            try {
+                const { data, error } = await _supabase.from('users').select('id, auth_id, name, img, course, bio, friend_count, tick, instagram, linkedin, role').eq('id', userId).single();
+                if (error) { if (error.code === 'PGRST116') throw new Error(`User profile not found.`); throw error; }
+                if (!data) throw new Error(`User profile not found.`);
+                viewedUserProfile = data; 
+
+                // Populate UI
+                document.getElementById('profile-picture').src = data.img || `https://placehold.co/100x100/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : '?'}`;
+                document.getElementById('profile-name').textContent = data.name || 'Campus User';
+                document.getElementById('profile-role').textContent = data.role || 'Role Not Set';
+                document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
+                document.getElementById('profile-friend-count').textContent = data.friend_count ?? 0; 
+                document.getElementById('profile-course').textContent = data.course?.toUpperCase() || '-'; 
+
+                const tickElement = document.getElementById('profile-tick');
+                if (data.tick && tickImages[data.tick.toLowerCase()]) { tickElement.src = tickImages[data.tick.toLowerCase()]; tickElement.alt = `${data.tick} Tick`; tickElement.classList.remove('hidden'); } 
+                else { tickElement.classList.add('hidden'); }
+
+                const instaSpan = document.getElementById('profile-instagram');
+                const instaUsername = data.instagram?.replace('@','');
+                if (instaUsername && data.instagram !== 'EMPTY') { instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">@${instaUsername}</a>`; instaSpan.className = 'font-medium text-primary-600'; } 
+                else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
+                
+                const linkedSpan = document.getElementById('profile-linkedin');
+                const linkedHandle = data.linkedin; 
+                if (linkedHandle && data.linkedin !== 'EMPTY') { const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; linkedSpan.className = 'font-medium text-blue-600'; } 
+                else { linkedSpan.textContent = 'Not Set'; linkedSpan.className = 'font-medium text-gray-400 italic'; }
+
+                profileLoading.style.display = 'none';
+                profileContent.classList.remove('hidden');
+
+                 if (currentAuthUser) { await checkFriendshipStatus(); } 
+                 else { updateFriendButtonState('logged_out'); } 
+            } catch (error) { showError(`Error loading profile: ${error.message}`); }
+        }
 
         // --- 5. LOAD USER POSTS (Using Full Post HTML) ---
-        async function loadUserPosts(userAuthId) { /* ... (same as before, uses createFullPostHTML) ... */ }
+        async function loadUserPosts(userAuthId) { 
+             postsLoading.style.display = 'block'; userPostsContainer.innerHTML = ''; 
+             try { 
+                let query = _supabase.from('posts').select(`id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, users:user_id (name, img, tick) `) // Added tick
+                          .eq('user_id', userAuthId); 
+                 if(currentAuthUser) {
+                     query = query.select(`*, users:user_id (name, img, tick), likes!left(user_id), poll_votes!left(user_id, selected_option_index) `) // Added tick
+                               .eq('likes.user_id', currentAuthUser.id)
+                               .eq('poll_votes.user_id', currentAuthUser.id);
+                 }
+                 const { data: posts, error } = await query.order('created_at', { ascending: false });
+                 if (error) throw error; 
+                 postsLoading.style.display = 'none'; 
+                 if (posts.length === 0) { userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">This user hasn't posted yet.</p>`; } 
+                 else { 
+                      const processedPosts = posts.map(post => ({
+                         ...post,
+                         currentUserLiked: currentAuthUser ? (post.likes?.length > 0) : false,
+                         currentUserPollVote: currentAuthUser ? (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null) : null
+                     }));
+                     const postsHtml = processedPosts.map(post => createFullPostHTML(post)).join(''); 
+                     userPostsContainer.innerHTML = postsHtml; 
+                     feather.replace(); 
+                 } 
+            } catch (error) { console.error("Error fetching user posts:", error); postsLoading.innerHTML = `<p class="text-center text-red-500">Could not load posts.</p>`; }
+        }
 
         // --- 6. CREATE FULL POST HTML (Added Tick Mark) ---
         function createFullPostHTML(post) { 
@@ -227,7 +287,7 @@
              let tickHtml = '';
              const tickType = post.users?.tick?.toLowerCase(); 
              if (!post.is_anonymous && tickType && tickImages[tickType]) {
-                 tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; // Use smaller class
+                 tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; 
              }
              // --- End Tick Mark Logic ---
 
@@ -239,7 +299,7 @@
              switch(post.post_type) { case 'photo': postBody = ` ${post.content ? `<p class="px-4 pb-3 text-gray-800">${post.content}</p>` : ''} <img src="${post.media_url}" alt="Post media" class="w-full object-cover bg-gray-100 min-h-[200px]"> `; break; case 'poll': const pollOptionsHtml = (post.poll_options || []).map((option, index) => { const isDisabled = !currentAuthUser; const selectedClasses = 'border border-gray-300 hover:bg-gray-100 cursor-pointer'; return ` <button class="poll-option-button w-full text-left rounded-xl p-3 font-medium text-gray-900 relative transition-colors ${selectedClasses} ${isDisabled ? 'opacity-70 !cursor-not-allowed !hover:bg-transparent' : ''}" data-post-id="${post.id}" data-option-index="${index}" ${isDisabled ? 'disabled' : ''} > <div class="absolute inset-0 bg-primary-300/50 rounded-lg poll-bar-fg" style="width: 0%;"></div> <span class="relative z-10">${option.option} (0%)</span> </button> `; }).join(''); postBody = ` <p class="px-4 pb-3 font-semibold text-lg text-gray-900">${post.content}</p> <div class="px-4 pb-4 space-y-3 poll-options-container" data-post-id="${post.id}">${pollOptionsHtml}</div> `; setTimeout(() => { const container = userPostsContainer.querySelector(`.poll-options-container[data-post-id="${post.id}"]`); if(container) updatePollUI(post.id, container, viewerVotedIndex); }, 0); break; case 'text': case 'anonymous': default: postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${post.content}</p>`; } 
              const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900'; const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500'; 
              const likeButtonHtml = currentAuthUser ? `<button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLikedByViewer}"> <i data-feather="heart" class="engagement-icon ${isLikedByViewer ? 'fill-current' : ''}"></i> <span class="like-count text-sm font-medium">${post.like_count}</span> </button>` : `<div class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-500"> <i data-feather="heart" class="engagement-icon"></i> <span class="like-count text-sm font-medium">${post.like_count}</span> </div>`;
-             const commentButtonHtml = `<a href="post.html?id=${post.id}#comments-section-wrapper" class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors"> <i data-feather="message-square" class="engagement-icon"></i> <span class="comment-count text-sm font-medium">${post.comment_count}</span> </a>`; // Link to comments on post page
+             const commentButtonHtml = `<a href="post.html?id=${post.id}#comments-section-wrapper" class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors"> <i data-feather="message-square" class="engagement-icon"></i> <span class="comment-count text-sm font-medium">${post.comment_count}</span> </a>`;
              const shareButtonHtml = `<button class="share-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> <i data-feather="share-2" class="engagement-icon"></i> <span class="text-sm font-medium">Share</span> </button>`;
              return ` <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" id="post-${post.id}"> <div class="flex items-center space-x-3 p-4 ${headerClass}"> ${authorAvatar} <div class="flex-1"> <p class="font-semibold ${headerText} inline">${authorName}</p> ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> </div> </div> ${postBody} <div class="flex justify-around border-t border-gray-100"> ${likeButtonHtml} ${commentButtonHtml} ${shareButtonHtml} </div> </div> `;
         }
@@ -247,15 +307,11 @@
 
         // --- 7. EVENT LISTENERS ---
         function setupEventListeners() {
-            // ... (Dropdown menu, Share/Report, Friends Modal setup same as before) ...
             const moreOptionsBtn = document.getElementById('more-options-btn'); const moreOptionsMenu = document.getElementById('more-options-menu'); moreOptionsBtn.addEventListener('click', (event) => { event.stopPropagation(); moreOptionsMenu.classList.toggle('hidden'); if (!moreOptionsMenu.classList.contains('hidden')) feather.replace(); }); window.addEventListener('click', (event) => { if (!moreOptionsMenu.classList.contains('hidden') && !moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) { moreOptionsMenu.classList.add('hidden'); } }); document.getElementById('share-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Sharing profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); document.getElementById('report-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Reporting profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); const friendsListButton = document.getElementById('friends-list-button'); const friendsCountButton = document.getElementById('friends-count-button'); const closeFriendsModalButton = document.getElementById('close-friends-modal'); friendsListButton.addEventListener('click', openFriendsModal); friendsCountButton.addEventListener('click', openFriendsModal); closeFriendsModalButton.addEventListener('click', closeFriendsModal); friendsModal.addEventListener('click', (event) => { if (event.target === friendsModal) closeFriendsModal(); }); 
+            addFriendButton.addEventListener('click', sendFriendRequest); 
+            acceptRequestButton.addEventListener('click', acceptFriendRequest); 
+            declineRequestButton.addEventListener('click', declineFriendRequest); 
 
-            // Action Buttons
-             addFriendButton.addEventListener('click', sendFriendRequest); 
-             acceptRequestButton.addEventListener('click', acceptFriendRequest); // New listener
-             declineRequestButton.addEventListener('click', declineFriendRequest); // New listener
-
-             // Event delegation for dynamically loaded posts
              userPostsContainer.addEventListener('click', (event) => {
                  const likeButton = event.target.closest('.like-button'); if (likeButton) { if (!currentAuthUser) { alert("Please log in to like posts."); return; } toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; }
                  const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { if (!currentAuthUser) { alert("Please log in to vote."); return; } handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; }
@@ -264,188 +320,123 @@
         }
 
          // --- 8. FRIENDS LIST MODAL ---
-         async function openFriendsModal() { /* ... (same as before) ... */ }
-         function closeFriendsModal() { /* ... (same as before) ... */ }
+         async function openFriendsModal() { 
+             if (!viewedUserProfile || !viewedUserProfile.auth_id) { alert("Cannot load friends list."); return; }
+             friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading friends...</p>'; friendsModal.classList.add('active'); feather.replace(); 
+             try { 
+                 const { data: friendships, error: friendsError } = await _supabase.from('friendships').select(` u1:user1_id (id, auth_id, name, img), u2:user2_id (id, auth_id, name, img) `).or(`user1_id.eq.${viewedUserProfile.auth_id},user2_id.eq.${viewedUserProfile.auth_id}`); 
+                 if (friendsError) throw friendsError; 
+                 if (friendships.length === 0) { friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No friends yet.</p>'; return; } 
+                 const friends = friendships.map(f => f.u1.auth_id === viewedUserProfile.auth_id ? f.u2 : f.u1); 
+                 friendsModalBody.innerHTML = friends.map(friend => ` <a href="profile.html?id=${friend.id}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg"> <img src="${friend.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${friend.name ? friend.name.charAt(0) : '?'}`}" alt="${friend.name}" class="w-10 h-10 rounded-full bg-gray-200"> <span class="font-medium text-gray-800">${friend.name || 'User'}</span> </a> `).join(''); 
+             } catch (error) { console.error("Error fetching friends:", error); friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading.</p>'; }
+         }
+         function closeFriendsModal() { friendsModal.classList.remove('active'); friendsModalBody.innerHTML = ''; }
 
          // --- 9. SEND FRIEND REQUEST ---
-         async function sendFriendRequest() { /* ... (same as before) ... */ }
+         async function sendFriendRequest() { 
+              if (!currentAuthUser || !currentUserOwnProfile) { alert("Please log in to send friend requests."); return; } 
+              if (!viewedUserProfile || !viewedUserProfile.auth_id) { alert("Cannot send request."); return; }
+              if (currentAuthUser.id === viewedUserProfile.auth_id) { return; } 
+
+              addFriendButton.disabled = true; addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; 
+             try {
+                 const { error: insertError } = await _supabase.from('friend_requests').insert({ sender_id: currentAuthUser.id, receiver_id: viewedUserProfile.auth_id, status: 'pending' });
+                 if (insertError) { if (insertError.code === '23505') { alert("A friend request is already pending."); updateFriendButtonState('pending_sent'); } else { throw insertError; } } 
+                 else { console.log("Friend request sent."); alert("Friend request sent!"); updateFriendButtonState('pending_sent'); }
+             } catch (error) { console.error("Error sending friend request:", error); alert("Could not send friend request. " + (error.message.includes('duplicate key') ? 'A request might already exist.' : 'Please try again.')); updateFriendButtonState('none'); }
+         }
         
-         // --- 10. CHECK FRIENDSHIP STATUS (MODIFIED) ---
+         // --- 10. CHECK FRIENDSHIP STATUS ---
          async function checkFriendshipStatus() { 
               if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { updateFriendButtonState('hidden'); return; }
-             
-             // Reset request store
              currentFriendRequest = null; 
-
              try { 
-                 // Corrected .or() syntax
+                 // Use the corrected OR syntax
                  const { data: request, error: reqError } = await _supabase
                     .from('friend_requests')
-                    .select('id, status, sender_id, receiver_id') // Select IDs to know direction
-                    .or(`and(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),and(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`) // Correct OR syntax
-                    .in('status', ['pending', 'accepted']) // Check pending OR accepted requests first
+                    .select('id, status, sender_id, receiver_id') 
+                    .or(`and(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),and(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`) 
+                    .in('status', ['pending', 'accepted']) 
                     .maybeSingle(); 
 
                  if (reqError) throw reqError; 
-
                  if (request) {
-                     currentFriendRequest = request; // Store the request data
+                     currentFriendRequest = request; 
                      if(request.status === 'pending') {
-                         if (request.sender_id === currentAuthUser.id) {
-                             updateFriendButtonState('pending_sent'); // Viewer sent it
-                         } else {
-                             updateFriendButtonState('pending_received'); // Profile owner sent it
-                         }
-                     } else if (request.status === 'accepted') {
-                          // Double check friendships table too for consistency
-                          await checkActualFriendship();
-                     }
+                         if (request.sender_id === currentAuthUser.id) { updateFriendButtonState('pending_sent'); } 
+                         else { updateFriendButtonState('pending_received'); }
+                     } else if (request.status === 'accepted') { await checkActualFriendship(); }
                      return; 
                  }
-
-                 // If no pending/accepted request found, check friendships table directly
                  await checkActualFriendship();
-
              } catch (error) { console.error("Error checking friendship status:", error); updateFriendButtonState('none'); }
          }
-
-        // Helper to check the friendships table
         async function checkActualFriendship() {
             try {
-                const user1 = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id;
-                const user2 = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id;
-                const { data: friendship, error: friendError } = await _supabase.from('friendships').select('id').eq('user1_id', user1).eq('user2_id', user2).maybeSingle();
+                const user1_uuid = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; // Use UUIDs for friendship check
+                const user2_uuid = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id;
+                const { data: friendship, error: friendError } = await _supabase.from('friendships').select('id').eq('user1_id', user1_uuid).eq('user2_id', user2_uuid).maybeSingle();
                 if (friendError) throw friendError;
-                
                 if (friendship) { updateFriendButtonState('friends'); } 
-                else { updateFriendButtonState('none'); } // No request, no friendship = show Add Friend
-
-            } catch(error) {
-                 console.error("Error checking actual friendship:", error); 
-                 updateFriendButtonState('none'); // Default to Add Friend on error
-            }
+                else { updateFriendButtonState('none'); } 
+            } catch(error) { console.error("Error checking actual friendship:", error); updateFriendButtonState('none'); }
         }
 
 
-         // --- 11. UPDATE FRIEND BUTTON UI (MODIFIED) ---
+         // --- 11. UPDATE FRIEND BUTTON UI ---
          function updateFriendButtonState(status) { 
-             // Hide all action buttons initially
-             addFriendButton.classList.add('hidden'); 
-             requestSentButton.classList.add('hidden'); 
-             acceptDeclineButtons.classList.add('hidden');
-             friendsButton.classList.add('hidden');
-             // Also hide the friends list button initially if it's part of the dynamic section
-             // friendsListButton.classList.add('hidden'); 
-
-             // Show the correct button based on status
-             if (status === 'pending_sent') { // Viewer sent request
-                 requestSentButton.classList.remove('hidden');
-             } else if (status === 'pending_received') { // Profile owner sent request
-                 acceptDeclineButtons.classList.remove('hidden');
-                 feather.replace(); // Render icons in accept/decline
-             } else if (status === 'friends') { 
-                  friendsButton.classList.remove('hidden'); // Show "Friends" button
-                  feather.replace(); 
-             } else if (status === 'none') { // No relation, show Add Friend
-                 addFriendButton.classList.remove('hidden'); 
-                 addFriendButton.disabled = false; 
-                 addFriendButton.innerHTML = `<i data-feather="user-plus" class="h-5 w-5"></i> <span class="font-semibold text-lg">Add Friend</span>`; 
-                 feather.replace(); 
-             } else if (status === 'logged_out' || status === 'hidden') {
-                 // Hide all specific action buttons if logged out or viewing own profile
-                 // Friends List button can remain visible though
-                 // friendsListButton.classList.remove('hidden'); // Ensure this is visible if needed
-             } 
+             addFriendButton.classList.add('hidden'); requestSentButton.classList.add('hidden'); acceptDeclineButtons.classList.add('hidden'); friendsButton.classList.add('hidden');
+             
+             if (status === 'pending_sent') { requestSentButton.classList.remove('hidden'); } 
+             else if (status === 'pending_received') { acceptDeclineButtons.classList.remove('hidden'); feather.replace(); } 
+             else if (status === 'friends') { friendsButton.classList.remove('hidden'); feather.replace(); } 
+             else if (status === 'none') { addFriendButton.classList.remove('hidden'); addFriendButton.disabled = false; addFriendButton.innerHTML = `<i data-feather="user-plus" class="h-5 w-5"></i> <span class="font-semibold text-lg">Add Friend</span>`; feather.replace(); } 
+             else if (status === 'logged_out' || status === 'hidden') { /* All remain hidden */ } 
          }
 
-        // --- 12. ACCEPT/DECLINE FRIEND REQUEST (NEW) ---
+        // --- 12. ACCEPT/DECLINE FRIEND REQUEST ---
         async function acceptFriendRequest() {
-            if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) {
-                 console.error("Cannot accept: Invalid state or not receiver."); return; 
-            }
-            
-            acceptRequestButton.disabled = true;
-            declineRequestButton.disabled = true;
-            acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`;
-
+            if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept: Invalid state."); return; }
+            acceptRequestButton.disabled = true; declineRequestButton.disabled = true; acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`;
             try {
-                const { error } = await _supabase
-                    .from('friend_requests')
-                    .update({ status: 'accepted', updated_at: new Date().toISOString() })
-                    .eq('id', currentFriendRequest.id);
-                
+                const { error } = await _supabase.from('friend_requests').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id);
                 if (error) throw error;
-
                 console.log("Friend request accepted.");
-                // Trigger automatically adds to friendships table and updates counts
-                updateFriendButtonState('friends'); // Update button UI
-
-                // Optionally update local friend count display immediately
+                updateFriendButtonState('friends'); 
                 const friendCountEl = document.getElementById('profile-friend-count');
-                if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1;
-
-
-            } catch(error) {
-                 console.error("Error accepting friend request:", error);
-                 alert("Could not accept request. Please try again.");
-                 // Reset buttons on error
-                 acceptRequestButton.disabled = false;
-                 declineRequestButton.disabled = false;
-                 acceptRequestButton.innerHTML = `<i data-feather="user-check" class="h-5 w-5"></i> <span class="font-semibold text-lg">Accept</span>`;
-                 feather.replace();
-            }
+                if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; // Increment viewer's count display too
+            } catch(error) { console.error("Error accepting friend request:", error); alert("Could not accept request."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; acceptRequestButton.innerHTML = `<i data-feather="user-check" class="h-5 w-5"></i> <span class="font-semibold text-lg">Accept</span>`; feather.replace(); }
         }
-
         async function declineFriendRequest() {
-            if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) {
-                 console.error("Cannot decline: Invalid state or not receiver."); return; 
-            }
-
-            if (!confirm("Decline friend request?")) return; // Ask confirmation
-
-            acceptRequestButton.disabled = true;
-            declineRequestButton.disabled = true;
-            declineRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-red-500 border-l-transparent"></div>`;
-
+            if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot decline: Invalid state."); return; }
+            if (!confirm("Decline friend request?")) return; 
+            acceptRequestButton.disabled = true; declineRequestButton.disabled = true; declineRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-red-500 border-l-transparent"></div>`;
              try {
-                const { error } = await _supabase
-                    .from('friend_requests')
-                    .update({ status: 'rejected', updated_at: new Date().toISOString() })
-                    .eq('id', currentFriendRequest.id);
-                
+                const { error } = await _supabase.from('friend_requests').update({ status: 'rejected', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id);
                 if (error) throw error;
-
                 console.log("Friend request rejected.");
-                updateFriendButtonState('none'); // Update button UI to show 'Add Friend' again
-
-            } catch(error) {
-                 console.error("Error declining friend request:", error);
-                 alert("Could not decline request. Please try again.");
-                 // Reset buttons on error
-                 acceptRequestButton.disabled = false;
-                 declineRequestButton.disabled = false;
-                 declineRequestButton.innerHTML = `<i data-feather="x" class="h-5 w-5"></i> <span class="font-semibold text-lg">Decline</span>`;
-                 feather.replace();
-            }
+                updateFriendButtonState('none'); 
+            } catch(error) { console.error("Error declining friend request:", error); alert("Could not decline request."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; declineRequestButton.innerHTML = `<i data-feather="x" class="h-5 w-5"></i> <span class="font-semibold text-lg">Decline</span>`; feather.replace(); }
         }
 
 
         // --- 13. LIKE/UNLIKE LOGIC ---
-        async function toggleLike(postId, isLiked, buttonElement) { /* ... (same as before) ... */ }
+        async function toggleLike(postId, isLiked, buttonElement) { if (!currentAuthUser || buttonElement.disabled) return; buttonElement.disabled = true; const likeIcon = buttonElement.querySelector('svg.feather-heart'); const countSpan = buttonElement.querySelector('.like-count'); let currentCount = parseInt(countSpan.textContent); if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; } try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; } } catch (error) { console.error("Like Error:", error.message); if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; } } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); } }
 
         // --- 14. POLL VOTE LOGIC ---
-        async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { /* ... (same as before) ... */ }
+        async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { if (!currentAuthUser) return; const isCurrentlySelected = clickedButton.classList.contains('border-primary-600'); let operation = 'upsert'; if (isCurrentlySelected) { operation = 'delete'; } optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true); try { if (operation === 'delete') { const { error: deleteError } = await _supabase.from('poll_votes').delete().match({ post_id: postId, user_id: currentAuthUser.id }); if (deleteError) throw deleteError; await updatePollUI(postId, optionsContainer, null); } else { const { error: upsertError } = await _supabase.from('poll_votes').upsert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex }, { onConflict: 'post_id, user_id' }); if (upsertError) throw upsertError; await updatePollUI(postId, optionsContainer, optionIndex); } } catch (error) { console.error(`Poll Vote Error (${operation}):`, error.message); alert(`Could not ${operation === 'delete' ? 'remove' : 'record'} vote.`); await updatePollUI(postId, optionsContainer, null); } }
 
         // --- 15. LOAD & UPDATE POLL RESULTS ---
-        async function loadPollResults(postId) { /* ... (same as before) ... */ }
-        async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { /* ... (same as before) ... */ }
+        async function loadPollResults(postId) { const optionsContainer = userPostsContainer.querySelector(`.poll-options-container[data-post-id="${postId}"]`); if (!optionsContainer) return; try { const { data: userVote, error: userVoteError } = await _supabase.from('poll_votes').select('selected_option_index').eq('post_id', postId).eq('user_id', currentAuthUser?.id).maybeSingle(); if (userVoteError) throw userVoteError; await updatePollUI(postId, optionsContainer, userVote?.selected_option_index); } catch(error) { console.error(`Poll Load Error (${postId}):`, error.message); } }
+        async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = !currentAuthUser; button.classList.toggle('hover:bg-gray-100', !!currentAuthUser); button.classList.toggle('cursor-pointer', !!currentAuthUser); button.classList.toggle('opacity-70', !currentAuthUser); button.classList.toggle('!cursor-not-allowed', !currentAuthUser); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Poll UI Update Error (${postId}):`, error.message); } }
 
         // --- 16. SHARE LOGIC ---
-        async function handleShare(postId) { /* ... (same as before) ... */ }
+        async function handleShare(postId) { const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); console.log('Post shared successfully'); } catch (err) { if (err.name !== 'AbortError') { console.error('Share Error:', err); alert(`Could not share: ${err.message}`); } else { console.log('Share cancelled.'); } } } else { console.log('Web Share not supported, copying.'); fallbackCopyToClipboard(shareUrl); } }
 
         // --- 17. CLIPBOARD HELPER ---
-        function fallbackCopyToClipboard(text) { /* ... (same as before) ... */ }
-        function copyToClipboard(text) { /* ... (same as before) ... */ }
+        function fallbackCopyToClipboard(text) { copyToClipboard(text).then(() => { alert("Web Share not available.\nLink copied!"); }).catch(err => { console.error('Copy Error:', err); alert("Failed to copy link."); }); }
+        function copyToClipboard(text) { return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); }
         
         // --- 18. HELPERS ---
         function showError(message) { 
@@ -456,20 +447,8 @@
         }
         function scrollToLoginPrompt() { /* Placeholder */ }
 
-        // --- PASTE PREVIOUSLY DEFINED FUNCTIONS ---
-        // (Ensure these are the correct versions from previous steps)
-        async function openFriendsModal() { if (!viewedUserProfile || !viewedUserProfile.auth_id) { alert("Cannot load friends list."); return; } friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading...</p>'; friendsModal.classList.add('active'); feather.replace(); try { const { data: friendships, error: friendsError } = await _supabase.from('friendships').select(` u1:user1_id (id, auth_id, name, img), u2:user2_id (id, auth_id, name, img) `).or(`user1_id.eq.${viewedUserProfile.auth_id},user2_id.eq.${viewedUserProfile.auth_id}`); if (friendsError) throw friendsError; if (friendships.length === 0) { friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No friends yet.</p>'; return; } const friends = friendships.map(f => f.u1.auth_id === viewedUserProfile.auth_id ? f.u2 : f.u1); friendsModalBody.innerHTML = friends.map(friend => ` <a href="profile.html?id=${friend.id}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg"> <img src="${friend.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${friend.name ? friend.name.charAt(0) : '?'}`}" alt="${friend.name}" class="w-10 h-10 rounded-full bg-gray-200"> <span class="font-medium text-gray-800">${friend.name || 'User'}</span> </a> `).join(''); } catch (error) { console.error("Error fetching friends:", error); friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading.</p>'; } }
-        function closeFriendsModal() { friendsModal.classList.remove('active'); friendsModalBody.innerHTML = ''; }
-        async function toggleLike(postId, isLiked, buttonElement) { if (!currentAuthUser || buttonElement.disabled) return; buttonElement.disabled = true; const likeIcon = buttonElement.querySelector('svg.feather-heart'); const countSpan = buttonElement.querySelector('.like-count'); let currentCount = parseInt(countSpan.textContent); if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; } try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; } } catch (error) { console.error("Like Error:", error.message); if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; } } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); } }
-        async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { if (!currentAuthUser) return; const isCurrentlySelected = clickedButton.classList.contains('border-primary-600'); let operation = 'upsert'; if (isCurrentlySelected) { operation = 'delete'; } optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true); try { if (operation === 'delete') { const { error: deleteError } = await _supabase.from('poll_votes').delete().match({ post_id: postId, user_id: currentAuthUser.id }); if (deleteError) throw deleteError; await updatePollUI(postId, optionsContainer, null); } else { const { error: upsertError } = await _supabase.from('poll_votes').upsert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex }, { onConflict: 'post_id, user_id' }); if (upsertError) throw upsertError; await updatePollUI(postId, optionsContainer, optionIndex); } } catch (error) { console.error(`Poll Vote Error (${operation}):`, error.message); alert(`Could not ${operation === 'delete' ? 'remove' : 'record'} vote.`); await updatePollUI(postId, optionsContainer, null); } }
-        async function loadPollResults(postId) { const optionsContainer = userPostsContainer.querySelector(`.poll-options-container[data-post-id="${postId}"]`); if (!optionsContainer) return; try { const { data: userVote, error: userVoteError } = await _supabase.from('poll_votes').select('selected_option_index').eq('post_id', postId).eq('user_id', currentAuthUser?.id).maybeSingle(); if (userVoteError) throw userVoteError; await updatePollUI(postId, optionsContainer, userVote?.selected_option_index); } catch(error) { console.error(`Poll Load Error (${postId}):`, error.message); } }
-        async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = !currentAuthUser; button.classList.toggle('hover:bg-gray-100', !!currentAuthUser); button.classList.toggle('cursor-pointer', !!currentAuthUser); button.classList.toggle('opacity-70', !currentAuthUser); button.classList.toggle('!cursor-not-allowed', !currentAuthUser); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Poll UI Update Error (${postId}):`, error.message); } }
-        async function handleShare(postId) { const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); console.log('Post shared successfully'); } catch (err) { if (err.name !== 'AbortError') { console.error('Share Error:', err); alert(`Could not share: ${err.message}`); } else { console.log('Share cancelled.'); } } } else { console.log('Web Share not supported, copying.'); fallbackCopyToClipboard(shareUrl); } }
-        function fallbackCopyToClipboard(text) { copyToClipboard(text).then(() => { alert("Web Share not available.\nLink copied!"); }).catch(err => { console.error('Copy Error:', err); alert("Failed to copy link."); }); }
-        function copyToClipboard(text) { return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); }
-
-
     </script>
 
 </body>
 </html>
+
