@@ -42,7 +42,7 @@
         };
     </script>
     
-    <!-- Custom Styles (same as before) -->
+    <!-- Custom Styles -->
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
@@ -105,8 +105,8 @@
     <!-- ===== Supabase & App Logic ===== -->
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
-        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // Replace if needed
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c'; // Replace if needed
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -120,7 +120,7 @@
         const userAvatarPostBar = document.getElementById('user-avatar-post-bar');
 
         // --- 2. AUTH & INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', async () => { /* ... (same as before) ... */ 
+        document.addEventListener('DOMContentLoaded', async () => { 
              const { data: { session }, error } = await _supabase.auth.getSession();
             if (error || !session) { window.location.href = 'login.html'; return; }
             currentAuthUser = session.user;
@@ -129,34 +129,34 @@
         });
 
         // --- 3. FETCH USER PROFILE ---
-        async function fetchUserProfile(authId) { /* ... (same as before) ... */ 
+        async function fetchUserProfile(authId) { 
              if (!authId) return; const { data, error } = await _supabase.from('users').select('name, img').eq('auth_id', authId).single(); if (error) { console.error("Error fetching user profile:", error.message); } else if (data) { currentUserProfile = data; const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : 'U'}`; userAvatarPostBar.src = userAvatar; }
         }
 
         // --- 4. SETUP EVENT LISTENERS ---
-        function setupEventListeners() { /* ... (Added shareButton listener) ... */ 
+        function setupEventListeners() { 
              document.getElementById('create-post-bar').addEventListener('click', () => { window.location.href = 'create.html'; });
              feedContainer.addEventListener('click', (event) => {
                  const likeButton = event.target.closest('.like-button'); if (likeButton) { toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; }
                  const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; }
                  const toggleButton = event.target.closest('.toggle-comments-button'); if (toggleButton) { toggleCommentsSection(toggleButton.dataset.postId); return; }
                  const submitButton = event.target.closest('.comment-submit-button'); if (submitButton) { handleCommentSubmit(submitButton.dataset.postId); return; }
-                 const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } // Added share listener
+                 const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } 
              });
         }
 
         // --- 5. FETCH POSTS ---
-        async function fetchPosts() { /* ... (same as before) ... */ 
+        async function fetchPosts() { 
             if (!currentAuthUser) return; feedLoading.style.display = 'block'; try { const { data: posts, error } = await _supabase.from('posts').select(`id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, users:user_id (name, img), likes!left (user_id), poll_votes!left (user_id, selected_option_index) `).eq('likes.user_id', currentAuthUser.id).eq('poll_votes.user_id', currentAuthUser.id).order('created_at', { ascending: false }); if (error) throw error; const processedPosts = posts.map(post => ({ ...post, currentUserLiked: post.likes.length > 0, currentUserPollVote: post.poll_votes.length > 0 ? post.poll_votes[0].selected_option_index : null })); renderPosts(processedPosts); } catch (error) { console.error("Error fetching posts:", error.message); feedLoading.style.display = 'none'; feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading posts.</p>`; }
         }
 
         // --- 6. RENDER POSTS ---
-        function renderPosts(posts) { /* ... (same as before) ... */ 
+        function renderPosts(posts) { 
             feedLoading.style.display = 'none'; if (!posts || posts.length === 0) { feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet.</p>`; return; } const postsHtml = posts.map(post => createPostHTML(post)).join(''); feedContainer.innerHTML = postsHtml; feather.replace(); 
         }
 
         // --- 7. CREATE POST HTML ---
-        function createPostHTML(post) { /* ... (same as before) ... */ 
+        function createPostHTML(post) { 
             const authorName = post.is_anonymous ? 'Campus Confession' : (post.users?.name || 'Unknown User'); const authorAvatar = post.is_anonymous ? `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>` : `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200">`; const postTimestamp = formatTimeAgo(post.created_at); const isLiked = post.currentUserLiked; const likeClass = isLiked ? 'liked text-red-500' : 'text-gray-600'; const userVotedIndex = post.currentUserPollVote; let postBody = ''; switch(post.post_type) { case 'photo': postBody = ` ${post.content ? `<p class="px-4 pb-3 text-gray-800">${post.content}</p>` : ''} <img src="${post.media_url}" alt="Post media" class="w-full object-cover bg-gray-100 min-h-[200px]"> `; break; case 'poll': const pollOptionsHtml = (post.poll_options || []).map((option, index) => { const isDisabled = false; const selectedClasses = 'border border-gray-300 hover:bg-gray-100 cursor-pointer'; return ` <button class="poll-option-button w-full text-left rounded-xl p-3 font-medium text-gray-900 relative transition-colors ${selectedClasses}" data-post-id="${post.id}" data-option-index="${index}" ${isDisabled ? 'disabled' : ''} > <div class="absolute inset-0 bg-primary-300/50 rounded-lg poll-bar-fg" style="width: 0%;"></div> <span class="relative z-10">${option.option} (0%)</span> </button> `; }).join(''); postBody = ` <p class="px-4 pb-3 font-semibold text-lg text-gray-900">${post.content}</p> <div class="px-4 pb-4 space-y-3 poll-options-container" data-post-id="${post.id}">${pollOptionsHtml}</div> `; setTimeout(() => { const container = document.querySelector(`.poll-options-container[data-post-id="${post.id}"]`); if(container) updatePollUI(post.id, container, userVotedIndex); }, 0); break; case 'text': case 'anonymous': default: postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${post.content}</p>`; } const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900'; const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500'; return ` <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" id="post-${post.id}"> <div class="flex items-center space-x-3 p-4 ${headerClass}"> ${authorAvatar} <div> <p class="font-semibold ${headerText}">${authorName}</p> <p class="text-xs ${subText}">${postTimestamp}</p> </div> </div> ${postBody} <div class="flex justify-around border-t border-gray-100"> <button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLiked}"> <i data-feather="heart" class="engagement-icon ${isLiked ? 'fill-current' : ''}"></i> <span class="like-count text-sm font-medium">${post.like_count}</span> </button> <button class="toggle-comments-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> <i data-feather="message-square" class="engagement-icon"></i> <span class="comment-count text-sm font-medium">${post.comment_count}</span> </button> <button class="share-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> <i data-feather="share-2" class="engagement-icon"></i> <span class="text-sm font-medium">Share</span> </button> </div> <div id="comments-section-${post.id}" class="hidden p-4 border-t border-gray-100 space-y-3"> <div id="comments-list-${post.id}" class="space-y-3 max-h-60 overflow-y-auto no-scrollbar"> <p class="text-sm text-gray-500">Loading comments...</p> </div> <div class="flex items-center space-x-2 pt-2 border-t border-gray-100"> <img src="${currentUserProfile?.img || `https://placehold.co/32x32/A8E063/305B1C?text=${currentUserProfile?.name ? currentUserProfile.name.charAt(0) : 'U'}`}" alt="You" class="w-8 h-8 rounded-full bg-gray-200"> <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." class="flex-1 bg-gray-100 rounded-full py-2 px-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary-600"> <button class="comment-submit-button p-2 text-primary-600 hover:bg-primary-50 rounded-full" data-post-id="${post.id}"> <i data-feather="send" class="w-5 h-5"></i> </button> </div> </div> </div> `;
         }
 
@@ -186,81 +186,34 @@
 
         // --- 15. STORIES LOGIC (REMOVED) ---
 
-        // --- 16. SHARE LOGIC (MODIFIED for Web Share API) ---
+        // --- 16. SHARE LOGIC (Using Web Share API) ---
         async function handleShare(postId) {
-            const shareUrl = `${location.origin}/post.html?id=${postId}`; 
-            // Attempt to get post content for better share text (optional, needs adjustment)
+            const shareUrl = `${location.origin}/post.html?id=${postId}`; // Adjust if post.html is elsewhere
             const postElement = document.getElementById(`post-${postId}`);
-            let shareText = `Check out this post on BirlaOne!`; // Default text
-            if(postElement) {
-                const contentP = postElement.querySelector('p.text-gray-800'); // Simple selector, might need improvement
-                if (contentP && contentP.textContent.trim().length > 0) {
-                     shareText = contentP.textContent.trim().substring(0, 100) + '...'; // Limit length
-                }
-            }
+            let shareText = `Check out this post on BirlaOne!`; 
+            if(postElement) { const contentP = postElement.querySelector('p.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } }
             
-            const shareData = {
-                title: 'BirlaOne Post',
-                text: shareText, 
-                url: shareUrl,
-            };
+            const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl };
 
-            if (navigator.share) { // Check if Web Share API is supported
-                try {
-                    await navigator.share(shareData);
-                    console.log('Post shared successfully');
-                } catch (err) {
-                    // Handle errors (e.g., user cancelled share)
-                    // Don't show an error if the user simply closed the share sheet
-                    if (err.name !== 'AbortError') { 
-                         console.error('Error sharing:', err);
-                         alert(`Could not share: ${err.message}`);
-                         // Optionally fall back to copy here if needed
-                         // fallbackCopyToClipboard(shareUrl); 
-                    } else {
-                        console.log('Share cancelled by user.');
-                    }
-                }
-            } else {
-                // Fallback for browsers that don't support Web Share API
-                console.log('Web Share API not supported, falling back to copy.');
-                fallbackCopyToClipboard(shareUrl);
-            }
+            if (navigator.share) { 
+                try { await navigator.share(shareData); console.log('Post shared successfully'); } 
+                catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); alert(`Could not share: ${err.message}`); /* fallbackCopyToClipboard(shareUrl); */ } else { console.log('Share cancelled by user.'); } }
+            } else { console.log('Web Share API not supported, falling back to copy.'); fallbackCopyToClipboard(shareUrl); }
         }
 
         // --- 17. CLIPBOARD HELPER (Fallback) ---
         function fallbackCopyToClipboard(text) { 
-            copyToClipboard(text)
-                .then(() => {
-                    alert("Web Share not available.\nLink copied to clipboard!"); 
-                })
-                .catch(err => {
-                    console.error('Failed to copy link: ', err);
-                    alert("Failed to copy link.");
-                });
+            copyToClipboard(text).then(() => { alert("Web Share not available.\nLink copied to clipboard!"); }).catch(err => { console.error('Failed to copy link: ', err); alert("Failed to copy link."); });
         }
-        
-        function copyToClipboard(text) { /* ... (same execCommand logic as before) ... */ 
+        function copyToClipboard(text) { 
             return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } });
         }
 
-
         // --- 18. REALTIME POLL VOTE SUBSCRIPTION ---
-        function subscribeToPollVoteChanges() { /* ... (same as before) ... */ 
-            if (pollVotesSubscription) { _supabase.removeChannel(pollVotesSubscription); }
-            pollVotesSubscription = _supabase.channel('public:poll_votes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, handleRealtimePollUpdate)
-                .subscribe(/* ... status handling ... */);
-        }
+        function subscribeToPollVoteChanges() { /* ... (same as before) ... */ }
 
         // --- 19. HANDLE REALTIME POLL VOTE UPDATE ---
-        function handleRealtimePollUpdate(payload) { /* ... (same as before) ... */ 
-              console.log('Realtime poll vote event:', payload); const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'poll_votes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const optionsContainer = postElement.querySelector(`.poll-options-container[data-post-id="${postId}"]`);
-              if (optionsContainer) {
-                  updatePollUI(postId, optionsContainer, null); 
-                  console.log(`Realtime update triggered for poll ${postId}`);
-              }
-        }
+        function handleRealtimePollUpdate(payload) { /* ... (same as before) ... */ }
         
     </script>
 
