@@ -5,21 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Feather Icons Script -->
     <script src="https://unpkg.com/feather-icons"></script>
     
-    <!-- Supabase Client v2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
@@ -37,7 +32,6 @@
         };
     </script>
     
-    <!-- Custom Styles -->
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; /* bg-slate-50 */ }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -54,10 +48,8 @@
 </head>
 <body class="antialiased bg-slate-50">
 
-    <!-- App Container -->
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
 
-        <!-- Top Navigation (Transparent) -->
         <header class="fixed top-0 left-0 right-0 z-40 p-4 flex justify-between items-center md:max-w-md md:mx-auto">
             <a href="javascript:history.back()" class="p-2 rounded-full transition-all bg-white/50 hover:bg-white/90 active:scale-90 backdrop-blur-sm shadow-md">
                 <i data-feather="arrow-left" class="text-gray-900"></i>
@@ -67,25 +59,20 @@
             </button>
         </header>
 
-        <!-- More Options Dropdown Menu -->
         <div id="more-options-menu" class="hidden absolute top-16 right-4 z-50 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
              <a href="#" id="share-profile-link" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"> <i data-feather="share-2" class="w-5 h-5"></i> <span>Share Profile</span> </a>
              <a href="#" id="report-profile-link" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"> <i data-feather="flag" class="w-5 h-5"></i> <span>Report Profile</span> </a>
         </div>
 
-        <!-- Main Content - Profile -->
-        <main id="main-content" class="px-6 space-y-6 pb-12 pt-16 overflow-y-auto h-screen no-scrollbar"> {/* Reduced pt */}
+        <main id="main-content" class="px-6 space-y-6 pb-12 pt-16 overflow-y-auto h-screen no-scrollbar"> 
             
-             <!-- Loading State -->
-            <div id="profile-loading" class="text-center py-10 text-gray-500">
+             <div id="profile-loading" class="text-center py-10 text-gray-500">
                  <div class="spinner mx-auto mb-2"></div>
                  <p>Loading profile...</p>
             </div>
 
-            <!-- Profile Content (Hidden until loaded) -->
             <div id="profile-content" class="hidden space-y-6">
 
-                <!-- Profile Header -->
                 <div class="flex flex-col items-center">
                     <img id="profile-picture" src="https://placehold.co/100x100/A8E063/305B1C?text=?" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-primary-600 bg-gray-200 object-cover">
                     <div class="flex items-center space-x-1.5 mt-4">
@@ -96,54 +83,45 @@
                     <p id="profile-bio" class="text-base text-gray-700 mt-2 text-center max-w-sm"></p>
                 </div>
 
-                <!-- Stats -->
                 <div class="flex justify-center items-center divide-x divide-gray-200 w-full bg-gray-50 py-4 rounded-2xl border border-gray-200">
                     <div class="flex flex-col items-center w-1/2 cursor-pointer" id="friends-count-button">
                         <span id="profile-friend-count" class="text-2xl font-bold text-gray-900">0</span>
                         <span class="text-sm text-gray-500">Friends</span>
                     </div>
                     <div class="flex flex-col items-center text-center w-1/2">
-                        <span id="profile-course" class="text-2xl font-bold text-gray-900 uppercase">-</span> {/* Added uppercase */}
+                        <span id="profile-course" class="text-2xl font-bold text-gray-900 uppercase">-</span> 
                         <span class="text-sm text-gray-500">Course</span>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="flex items-center space-x-4">
                     <button id="friends-list-button" class="w-full bg-white border border-primary-600 text-primary-600 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-primary-50 active:scale-95"> <i data-feather="users" class="h-5 w-5"></i> <span class="font-semibold text-lg">Friends List</span> </button>
                     <button id="add-friend-button" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-plus" class="h-5 w-5"></i> <span class="font-semibold text-lg">Add Friend</span> </button>
                     <button id="request-sent-button" class="hidden w-full bg-gray-200 text-gray-600 p-4 rounded-xl flex justify-center items-center space-x-2 cursor-not-allowed"> <i data-feather="check" class="h-5 w-5"></i> <span class="font-semibold text-lg">Request Sent</span> </button>
-                </div>
+                     </div>
 
-                <!-- Roles & Badges -->
                 <div class="space-y-3">
                     <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2"> <i data-feather="star" class="text-yellow-500"></i> <span>Roles & Badges</span> </h2>
                     <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center"> Not Assigned </div>
                 </div>
 
-                <!-- Social Links -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4">
                     <h2 class="text-xl font-bold text-gray-900">Social Links</h2>
                     <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="instagram" class="h-5 w-5"></i> <span class="font-medium">Instagram</span> </div> <span id="profile-instagram" class="font-medium text-gray-900 italic"></span> </div>
                     <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="linkedin" class="h-5 w-5"></i> <span class="font-medium">LinkedIn</span> </div> <span id="profile-linkedin" class="font-medium text-gray-900 italic"></span> </div>
                 </div>
 
-                 <!-- User's Posts Section -->
                  <div class="space-y-3 pt-4 border-t border-gray-200">
                      <h2 class="text-xl font-bold text-gray-900">Posts</h2>
                      <div id="user-posts-container" class="space-y-6">
                          <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div>
-                         <!-- Posts injected here -->
-                     </div>
+                         </div>
                  </div>
 
-             </div><!-- End #profile-content -->
-
-        </main>
+             </div></main>
 
     </div>
 
-     <!-- Friends List Modal -->
      <div id="friends-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
          <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col">
              <div class="flex justify-between items-center p-4 border-b border-gray-200"> <h2 class="text-lg font-semibold">Friends List</h2> <button id="close-friends-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button> </div>
@@ -151,7 +129,6 @@
          </div>
      </div>
 
-    <!-- ===== Supabase & App Logic ===== -->
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
         const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // REPLACE
@@ -191,14 +168,13 @@
             
             if (session) {
                 currentAuthUser = session.user;
-                // Fetch the VIEWING user's profile data (including their own 'id')
                 await fetchCurrentUserOwnProfile(currentAuthUser.id); 
 
                 // --- REDIRECT CHECK ---
                 if (currentUserOwnProfile && currentUserOwnProfile.id === viewedUserId) {
                     console.log("Viewing own profile, redirecting...");
-                    window.location.replace('myprofile.html'); // Use replace to avoid history stack
-                    return; // Stop further execution
+                    window.location.replace('myprofile.html'); 
+                    return; 
                 }
             }
 
@@ -214,19 +190,11 @@
          async function fetchCurrentUserOwnProfile(authId) {
              if (!authId) return;
              try {
-                const { data, error } = await _supabase
-                    .from('users')
-                    .select('id') // Select only the 'id' (student ID)
-                    .eq('auth_id', authId)
-                    .single();
+                const { data, error } = await _supabase.from('users').select('id').eq('auth_id', authId).single();
                 if (error) throw error;
-                currentUserOwnProfile = data; // Store { id: 12345 }
-             } catch (error) {
-                  console.error("Error fetching current user's own profile:", error.message);
-                  // Allow proceeding, but redirect might not work if this fails
-             }
+                currentUserOwnProfile = data; 
+             } catch (error) { console.error("Error fetching current user's own profile:", error.message); }
          }
-
 
         // --- 4. LOAD PROFILE DATA ---
         async function loadProfileData(userId) {
@@ -242,8 +210,8 @@
                 document.getElementById('profile-name').textContent = data.name || 'Campus User';
                 document.getElementById('profile-role').textContent = data.role || 'Role Not Set';
                 document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
-                document.getElementById('profile-friend-count').textContent = data.friend_count ?? 0; // Use nullish coalescing
-                document.getElementById('profile-course').textContent = data.course?.toUpperCase() || '-'; // Uppercase + fallback
+                document.getElementById('profile-friend-count').textContent = data.friend_count ?? 0; 
+                document.getElementById('profile-course').textContent = data.course?.toUpperCase() || '-'; 
 
                 const tickElement = document.getElementById('profile-tick');
                 if (data.tick && tickImages[data.tick.toLowerCase()]) { tickElement.src = tickImages[data.tick.toLowerCase()]; tickElement.alt = `${data.tick} Tick`; tickElement.classList.remove('hidden'); } 
@@ -260,20 +228,24 @@
                 profileLoading.style.display = 'none';
                 profileContent.classList.remove('hidden');
 
-                // Check friendship status AFTER profile loads to update Add Friend button
-                 if (currentAuthUser) {
-                     await checkFriendshipStatus();
-                 }
+                 if (currentAuthUser) { await checkFriendshipStatus(); } 
+                 else { updateFriendButtonState('logged_out'); } // Handle button state for logged out user
 
 
             } catch (error) { showError(`Error loading profile: ${error.message}`); }
         }
 
         // --- 5. LOAD USER POSTS ---
-        async function loadUserPosts(userAuthId) { /* ... (same as before) ... */ }
+        async function loadUserPosts(userAuthId) { 
+             postsLoading.style.display = 'block'; userPostsContainer.innerHTML = ''; 
+             try { const { data: posts, error } = await _supabase.from('posts').select(`*, users:user_id!inner(name, img)`).eq('user_id', userAuthId).order('created_at', { ascending: false }); if (error) throw error; postsLoading.style.display = 'none'; if (posts.length === 0) { userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">This user hasn't posted yet.</p>`; } else { const postsHtml = posts.map(post => createMiniPostHTML(post)).join(''); userPostsContainer.innerHTML = postsHtml; feather.replace(); } } catch (error) { console.error("Error fetching user posts:", error); postsLoading.innerHTML = `<p class="text-center text-red-500">Could not load posts.</p>`; }
+        }
 
         // --- 6. CREATE MINI POST HTML ---
-        function createMiniPostHTML(post) { /* ... (same as before) ... */ }
+        function createMiniPostHTML(post) { 
+             const authorName = post.is_anonymous ? 'Campus Confession' : (post.users?.name || 'Unknown User'); const authorAvatar = post.is_anonymous ? `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>` : `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0">`; const postTimestamp = formatTimeAgo(post.created_at); const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900'; const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500'; let postBody = ''; switch(post.post_type) { case 'photo': postBody = ` ${post.content ? `<p class="px-4 pb-3 text-gray-800">${post.content}</p>` : ''} <img src="${post.media_url}" alt="Post media" class="w-full object-cover bg-gray-100 max-h-60 rounded-b-lg"> `; break; case 'poll': postBody = `<p class="px-4 pb-3 font-semibold text-lg text-gray-900">${post.content}</p><p class="px-4 pb-4 text-sm text-gray-500 italic">(Poll - View full post to see results)</p>`; break; case 'text': case 'anonymous': default: postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${post.content}</p>`; } const footer = ` <div class="flex justify-end space-x-4 border-t border-gray-100 px-4 py-2 text-sm text-gray-500"> <span class="flex items-center"><i data-feather="heart" class="w-4 h-4 mr-1"></i> ${post.like_count}</span> <span class="flex items-center"><i data-feather="message-square" class="w-4 h-4 mr-1"></i> ${post.comment_count}</span> </div> `; return ` <a href="post.html?id=${post.id}" class="block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"> <div class="flex items-center space-x-3 p-4 ${headerClass}"> ${authorAvatar} <div> <p class="font-semibold ${headerText}">${authorName}</p> <p class="text-xs ${subText}">${postTimestamp}</p> </div> </div> ${postBody} ${footer} </a> `;
+        }
+
 
         // --- 7. EVENT LISTENERS ---
         function setupEventListeners() {
@@ -290,163 +262,109 @@
              friendsCountButton.addEventListener('click', openFriendsModal);
              closeFriendsModalButton.addEventListener('click', closeFriendsModal);
              friendsModal.addEventListener('click', (event) => { if (event.target === friendsModal) closeFriendsModal(); }); 
-             // Modified Add Friend Listener
              addFriendButton.addEventListener('click', sendFriendRequest); 
         }
 
          // --- 8. FRIENDS LIST MODAL ---
-         async function openFriendsModal() { /* ... (same as before) ... */ }
-         function closeFriendsModal() { /* ... (same as before) ... */ }
+         async function openFriendsModal() { 
+             if (!viewedUserProfile || !viewedUserProfile.auth_id) { alert("Cannot load friends list: User data missing."); return; }
+             friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading friends...</p>'; friendsModal.classList.add('active'); feather.replace(); 
+             try { const { data: friendships, error: friendsError } = await _supabase.from('friendships').select(` user1:user1_id (id, auth_id, name, img), user2:user2_id (id, auth_id, name, img) `).or(`user1_id.eq.${viewedUserProfile.auth_id},user2_id.eq.${viewedUserProfile.auth_id}`); if (friendsError) throw friendsError; if (friendships.length === 0) { friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No friends to show yet.</p>'; return; } const friends = friendships.map(f => { return f.user1.auth_id === viewedUserProfile.auth_id ? f.user2 : f.user1; }); friendsModalBody.innerHTML = friends.map(friend => ` <a href="profile.html?id=${friend.id}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg"> <img src="${friend.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${friend.name ? friend.name.charAt(0) : '?'}`}" alt="${friend.name}" class="w-10 h-10 rounded-full bg-gray-200"> <span class="font-medium text-gray-800">${friend.name || 'Campus User'}</span> </a> `).join(''); } catch (error) { console.error("Error fetching friends list:", error); friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Could not load friends list.</p>'; }
+         }
+         function closeFriendsModal() { friendsModal.classList.remove('active'); friendsModalBody.innerHTML = ''; }
 
-         // --- 9. SEND FRIEND REQUEST (NEW/MODIFIED) ---
+         // --- 9. SEND FRIEND REQUEST ---
          async function sendFriendRequest() {
               if (!currentAuthUser) { alert("Please log in to send friend requests."); return; }
               if (!viewedUserProfile || !viewedUserProfile.auth_id) { alert("Cannot send request: User data missing."); return; }
-              if (currentAuthUser.id === viewedUserProfile.auth_id) { alert("You cannot send a friend request to yourself."); return; } // Prevent self-request
+              if (currentAuthUser.id === viewedUserProfile.auth_id) { return; } // Should be hidden anyway
 
               addFriendButton.disabled = true;
-              addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; // Show spinner
+              addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; 
 
              try {
-                 // Check if a request already exists between these two users (in either direction)
-                 const { data: existingRequest, error: checkError } = await _supabase
+                 const { error: insertError } = await _supabase
                      .from('friend_requests')
-                     .select('id, status')
-                     .or(`(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`)
-                     .maybeSingle(); // Check both directions
+                     .insert({
+                         sender_id: currentAuthUser.id, // The viewer's auth_id
+                         receiver_id: viewedUserProfile.auth_id, // The profile user's auth_id
+                         status: 'pending' 
+                     });
 
-                 if (checkError) throw checkError;
-
-                 if (existingRequest) {
-                     if (existingRequest.status === 'pending') {
-                          alert("A friend request is already pending between you two.");
-                          updateFriendButtonState('pending'); // Update button to show pending
-                     } else if (existingRequest.status === 'accepted') {
-                          alert("You are already friends!");
-                          updateFriendButtonState('friends'); // Update button to show friends (optional)
-                     } else {
-                          // Could be rejected or cancelled - potentially allow sending new request
-                           await insertRequest();
-                     }
-                     return; // Stop execution if pending or accepted
+                 if (insertError) {
+                      if (insertError.code === '23505') { // unique_violation
+                         alert("A friend request is already pending.");
+                         updateFriendButtonState('pending');
+                      } else { throw insertError; }
+                 } else {
+                     console.log("Friend request sent successfully.");
+                     alert("Friend request sent!");
+                     updateFriendButtonState('pending'); 
                  }
-
-                  // If no existing request, insert a new one
-                 await insertRequest();
-
              } catch (error) {
                  console.error("Error sending friend request:", error);
                  alert("Could not send friend request. " + (error.message.includes('duplicate key') ? 'A request might already exist.' : 'Please try again.'));
-                 // Reset button on error
-                 addFriendButton.disabled = false;
-                 addFriendButton.innerHTML = `<i data-feather="user-plus" class="h-5 w-5"></i> <span class="font-semibold text-lg">Add Friend</span>`;
-                 feather.replace(); // Re-render icon
+                 updateFriendButtonState('none'); // Reset button on error
              }
          }
         
-         async function insertRequest() {
-             const { error: insertError } = await _supabase
-                 .from('friend_requests')
-                 .insert({
-                     sender_id: currentAuthUser.id,
-                     receiver_id: viewedUserProfile.auth_id,
-                     status: 'pending' 
-                 });
-
-             if (insertError) {
-                  // Handle potential unique constraint violation if race condition occurred
-                  if (insertError.code === '23505') { // unique_violation
-                     alert("A friend request is already pending.");
-                     updateFriendButtonState('pending');
-                  } else {
-                      throw insertError; // Re-throw other errors
-                  }
-             } else {
-                 console.log("Friend request sent successfully.");
-                 alert("Friend request sent!");
-                 updateFriendButtonState('pending'); // Update button to show request sent
-             }
-         }
-
-         // --- 10. CHECK FRIENDSHIP STATUS (NEW - Basic) ---
-         // This function updates the 'Add Friend' button based on existing requests or friendships
+         // --- 10. CHECK FRIENDSHIP STATUS ---
          async function checkFriendshipStatus() {
-              if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) {
-                 // Hide Add Friend button if viewing own profile or not logged in
-                 addFriendButton.classList.add('hidden');
-                 return; 
-              }
+              if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { updateFriendButtonState('hidden'); return; }
 
              try {
-                 // Check for existing request (pending)
-                  const { data: request, error: reqError } = await _supabase
-                     .from('friend_requests')
-                     .select('id, status, sender_id')
-                     .or(`(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`)
-                     .eq('status', 'pending') // Only look for pending requests
-                     .maybeSingle();
+                 // Check pending request
+                  const { data: request, error: reqError } = await _supabase.from('friend_requests').select('id, status, sender_id').or(`(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`).eq('status', 'pending').maybeSingle();
+                  if (reqError) throw reqError;
+                  if (request) { updateFriendButtonState('pending'); return; }
 
-                 if (reqError) throw reqError;
-
-                 if (request) {
-                      updateFriendButtonState('pending');
-                     return; // Stop if pending request found
-                 }
-
-                 // Check for existing friendship (accepted)
-                  // Query friendships table using LEAST/GREATEST logic
+                 // Check friendship
                  const user1 = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id;
                  const user2 = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id;
+                  const { data: friendship, error: friendError } = await _supabase.from('friendships').select('id').eq('user1_id', user1).eq('user2_id', user2).maybeSingle();
+                  if (friendError) throw friendError;
+                  if (friendship) { updateFriendButtonState('friends'); return; }
 
-                  const { data: friendship, error: friendError } = await _supabase
-                     .from('friendships')
-                     .select('id')
-                     .eq('user1_id', user1)
-                     .eq('user2_id', user2)
-                     .maybeSingle();
-
-                 if (friendError) throw friendError;
-
-                 if (friendship) {
-                      updateFriendButtonState('friends'); 
-                     return; 
-                 }
-
-                 // If neither pending request nor friendship, show default Add Friend button
-                  updateFriendButtonState('none');
-
-             } catch (error) {
-                 console.error("Error checking friendship status:", error);
-                 // Default to showing Add Friend button on error
-                  updateFriendButtonState('none');
-             }
+                  updateFriendButtonState('none'); // Default: show Add Friend
+             } catch (error) { console.error("Error checking friendship status:", error); updateFriendButtonState('none'); }
          }
 
-         // --- 11. UPDATE FRIEND BUTTON UI (NEW) ---
+         // --- 11. UPDATE FRIEND BUTTON UI ---
          function updateFriendButtonState(status) {
-             addFriendButton.classList.add('hidden'); // Hide all buttons initially
+             // Hide all action buttons initially
+             addFriendButton.classList.add('hidden');
              requestSentButton.classList.add('hidden');
-             // Add placeholders for 'Friends' or 'Accept Request' buttons if needed later
+             // Add placeholders for 'Friends', 'Accept Request' etc.
+             // const friendsButton = document.getElementById('friends-button'); 
+             // if (friendsButton) friendsButton.classList.add('hidden');
 
              if (status === 'pending') {
                  requestSentButton.classList.remove('hidden');
              } else if (status === 'friends') {
-                 // Example: Show a "Friends" button (currently hidden)
-                 // document.getElementById('friends-button').classList.remove('hidden'); 
-                 // For now, just hide 'Add Friend' and 'Request Sent'
-                 console.log("Status: Friends (Button placeholder)");
-             } else { // status === 'none' or error
+                 // Example: Show a "Friends" button (currently hidden/not created)
+                 // if (friendsButton) friendsButton.classList.remove('hidden');
+                 console.log("Status: Friends (Button placeholder)"); 
+                 // For now, just hide add/pending buttons if they are already friends
+             } else if (status === 'none') { // 'none' means show Add Friend
                  addFriendButton.classList.remove('hidden');
                  addFriendButton.disabled = false;
                  addFriendButton.innerHTML = `<i data-feather="user-plus" class="h-5 w-5"></i> <span class="font-semibold text-lg">Add Friend</span>`;
-                 feather.replace(); // Ensure icon is rendered
+                 feather.replace(); 
+             } else if (status === 'logged_out' || status === 'hidden') {
+                 // Explicitly hide for logged out or own profile
+                 addFriendButton.classList.add('hidden');
+                 requestSentButton.classList.add('hidden');
              }
          }
 
 
         // --- 12. HELPERS ---
-        function showError(message) { /* ... (same as before) ... */ }
-        function formatTimeAgo(dateString) { /* ... (same as before) ... */ }
+        function showError(message) { 
+             profileLoading.innerHTML = `<p class="text-center text-red-500 font-semibold">${message}</p>`; profileLoading.style.display = 'block'; profileContent.classList.add('hidden'); postsLoading.innerHTML = ''; 
+        }
+        function formatTimeAgo(dateString) { 
+             const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
+        }
         
     </script>
 
