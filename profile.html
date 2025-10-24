@@ -102,7 +102,7 @@
                         <span id="profile-friend-count" class="text-2xl font-bold text-gray-900">0</span>
                         <span class="text-sm text-gray-500">Friends</span>
                     </div>
-                    <div class="flex flex-col items-center text-center w-1/2">
+                    <div class="flex flex-col items-center text-center w-1f/2">
                         <span id="profile-course" class="text-2xl font-bold text-gray-900 uppercase">-</span> 
                         <span class="text-sm text-gray-500">Course</span>
                     </div>
@@ -119,12 +119,11 @@
                         
                         <button id="request-sent-button" class="hidden w-full bg-gray-200 text-gray-600 p-4 rounded-xl flex justify-center items-center space-x-2 cursor-not-allowed"> <i data-feather="check" class="action-button-icon"></i> <span class="font-semibold text-lg">Requested</span> </button> 
                         
-                         <div id="accept-decline-buttons" class="hidden w-full flex items-center space-x-2">
-                             <button id="accept-request-button" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span> </button> {/* Adjusted size */}
-                             <button id="decline-request-button" class="flex-shrink-0 bg-white border border-danger-500 text-danger-500 p-4 rounded-xl flex justify-center items-center shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <i data-feather="x" class="action-button-icon"></i> </button> 
+                         <div id="accept-decline-buttons" class="hidden w-full flex items-center">
+                             <button id="accept-request-button" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-lg">Accept</span> </button>
                         </div>
 
-                        <button id="remove-friend-button" class="hidden w-full bg-white border border-danger-500 text-danger-600 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <i data-feather="user-minus" class="action-button-icon"></i> <span class="font-semibold text-lg">Remove Friend</span> </button>
+                        <button id="remove-friend-button" class="hidden w-full bg-white border border-danger-500 text-danger-600 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> <span class="font-semibold text-lg">Remove</span> </button>
                     </div>
                 </div>
 
@@ -164,7 +163,7 @@
         const requestSentButton = document.getElementById('request-sent-button');
         const acceptDeclineButtons = document.getElementById('accept-decline-buttons'); 
         const acceptRequestButton = document.getElementById('accept-request-button'); 
-        const declineRequestButton = document.getElementById('decline-request-button'); 
+        // const declineRequestButton = document.getElementById('decline-request-button'); // No longer needed
         const friendsButton = document.getElementById('friends-button'); 
         const removeFriendButton = document.getElementById('remove-friend-button');
         const loginPrompt = document.getElementById('login-prompt'); 
@@ -221,7 +220,10 @@
 
                 const instaSpan = document.getElementById('profile-instagram');
                 const instaUsername = data.instagram?.replace('@','');
-                if (instaUsername && data.instagram !== 'EMPTY') { instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">@${instaUsername}</a>`; instaSpan.className = 'font-medium text-primary-600'; } 
+                if (instaUsername && data.instagram !== 'EMPTY') { 
+                    instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">${instaUsername}</a>`; 
+                    instaSpan.className = 'font-medium text-primary-600'; 
+                } 
                 else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
                 
                 const linkedSpan = document.getElementById('profile-linkedin');
@@ -288,7 +290,7 @@
              const moreOptionsBtn = document.getElementById('more-options-btn'); const moreOptionsMenu = document.getElementById('more-options-menu'); moreOptionsBtn.addEventListener('click', (event) => { event.stopPropagation(); moreOptionsMenu.classList.toggle('hidden'); if (!moreOptionsMenu.classList.contains('hidden')) feather.replace(); }); window.addEventListener('click', (event) => { if (!moreOptionsMenu.classList.contains('hidden') && !moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) { moreOptionsMenu.classList.add('hidden'); } }); document.getElementById('share-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Sharing profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); document.getElementById('report-profile-link').addEventListener('click', (e) => { e.preventDefault(); alert('Reporting profile... (Not implemented)'); moreOptionsMenu.classList.add('hidden'); }); const friendsListButton = document.getElementById('friends-list-button'); const friendsCountButton = document.getElementById('friends-count-button'); const closeFriendsModalButton = document.getElementById('close-friends-modal'); friendsListButton.addEventListener('click', openFriendsModal); friendsCountButton.addEventListener('click', openFriendsModal); closeFriendsModalButton.addEventListener('click', closeFriendsModal); friendsModal.addEventListener('click', (event) => { if (event.target === friendsModal) closeFriendsModal(); }); 
              addFriendButton.addEventListener('click', sendFriendRequest); 
              acceptRequestButton.addEventListener('click', acceptFriendRequest); 
-             declineRequestButton.addEventListener('click', declineFriendRequest); 
+             // declineRequestButton.addEventListener('click', declineFriendRequest); // Removed
              removeFriendButton.addEventListener('click', removeFriend); 
               userPostsContainer.addEventListener('click', (event) => { const likeButton = event.target.closest('.like-button'); if (likeButton) { if (!currentAuthUser) { alert("Please log in to like posts."); return; } toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; } const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { if (!currentAuthUser) { alert("Please log in to vote."); return; } handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; } const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } });
         }
@@ -301,7 +303,35 @@
          async function sendFriendRequest() { if (!currentAuthUser || !currentUserOwnProfile) { alert("Please log in."); return; } if (!viewedUserProfile || !viewedUserProfile.auth_id) { alert("Cannot send request."); return; } if (currentAuthUser.id === viewedUserProfile.auth_id) { return; } addFriendButton.disabled = true; addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error: insertError } = await _supabase.from('friend_requests').insert({ sender_id: currentAuthUser.id, receiver_id: viewedUserProfile.auth_id, status: 'pending' }); if (insertError) { if (insertError.code === '23505') { alert("Request already pending."); updateFriendButtonState('pending_sent'); } else { throw insertError; } } else { console.log("Request sent."); alert("Friend request sent!"); updateFriendButtonState('pending_sent'); } } catch (error) { console.error("Error sending request:", error); alert("Could not send request. " + (error.message.includes('duplicate key') ? 'Maybe exists.' : 'Try again.')); updateFriendButtonState('none'); } }
          
          // --- 10. CHECK FRIENDSHIP STATUS ---
-         async function checkFriendshipStatus() { if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { updateFriendButtonState('hidden'); return; } currentFriendRequest = null; try { const { data: request, error: reqError } = await _supabase.from('friend_requests').select('id, status, sender_id, receiver_id').or(`and(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),and(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`).in('status', ['pending', 'accepted']).maybeSingle(); if (reqError) throw reqError; if (request) { currentFriendRequest = request; if(request.status === 'pending') { if (request.sender_id === currentAuthUser.id) { updateFriendButtonState('pending_sent'); } else { updateFriendButtonState('pending_received'); } } else if (request.status === 'accepted') { await checkActualFriendship(); } return; } await checkActualFriendship(); } catch (error) { console.error("Error checking status:", error); updateFriendButtonState('none'); } }
+         async function checkFriendshipStatus() { 
+            if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { updateFriendButtonState('hidden'); return; } 
+            currentFriendRequest = null; 
+            try { 
+                const { data: request, error: reqError } = await _supabase.from('friend_requests')
+                    .select('id, status, sender_id, receiver_id')
+                    .or(`and(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),and(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`)
+                    .eq('status', 'pending') // Only look for pending requests
+                    .maybeSingle(); 
+                if (reqError) throw reqError; 
+                
+                if (request) {
+                    currentFriendRequest = request;
+                    // Since we only query for 'pending', we know the status.
+                    if (request.sender_id === currentAuthUser.id) {
+                        updateFriendButtonState('pending_sent');
+                    } else {
+                        updateFriendButtonState('pending_received');
+                    }
+                    return; // Found a pending request, stop here.
+                }
+                
+                // No pending request found, check if they are already friends.
+                await checkActualFriendship(); 
+            } catch (error) { 
+                console.error("Error checking status:", error); 
+                updateFriendButtonState('none'); 
+            } 
+        }
          async function checkActualFriendship() { try { const user1_uuid = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const user2_uuid = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const { data: friendship, error: friendError } = await _supabase.from('friendships').select('id').eq('user1_id', user1_uuid).eq('user2_id', user2_uuid).maybeSingle(); if (friendError) throw friendError; if (friendship) { updateFriendButtonState('friends'); } else { updateFriendButtonState('none'); } } catch(error) { console.error("Error checking friendship:", error); updateFriendButtonState('none'); } }
 
          // --- 11. UPDATE FRIEND BUTTON UI ---
@@ -309,17 +339,36 @@
              addFriendButton.classList.add('hidden'); requestSentButton.classList.add('hidden'); acceptDeclineButtons.classList.add('hidden'); removeFriendButton.classList.add('hidden'); 
              if (status === 'pending_sent') { requestSentButton.classList.remove('hidden'); } 
              else if (status === 'pending_received') { acceptDeclineButtons.classList.remove('hidden'); feather.replace(); } 
-             else if (status === 'friends') { removeFriendButton.classList.remove('hidden'); feather.replace(); } 
+             else if (status === 'friends') { removeFriendButton.classList.remove('hidden'); } // No feather.replace() needed
              else if (status === 'none') { addFriendButton.classList.remove('hidden'); addFriendButton.disabled = false; addFriendButton.innerHTML = `<i data-feather="user-plus" class="action-button-icon"></i> <span class="font-semibold text-lg">Add Friend</span>`; feather.replace(); } 
              else if (status === 'logged_out' || status === 'hidden') { /* All remain hidden */ } 
          }
 
         // --- 12. ACCEPT/DECLINE FRIEND REQUEST ---
-        async function acceptFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept."); return; } acceptRequestButton.disabled = true; declineRequestButton.disabled = true; acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request accepted."); updateFriendButtonState('friends'); const friendCountEl = document.getElementById('profile-friend-count'); if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; } catch(error) { console.error("Error accepting request:", error); alert("Could not accept."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; acceptRequestButton.innerHTML = `<i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold">Accept</span>`; feather.replace(); } }
-        async function declineFriendRequest() { if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot decline."); return; } if (!confirm("Decline friend request?")) return; acceptRequestButton.disabled = true; declineRequestButton.disabled = true; declineRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-red-500 border-l-transparent"></div>`; try { const { error } = await _supabase.from('friend_requests').update({ status: 'rejected', updated_at: new Date().toISOString() }).eq('id', currentFriendRequest.id); if (error) throw error; console.log("Request rejected."); updateFriendButtonState('none'); } catch(error) { console.error("Error declining request:", error); alert("Could not decline."); acceptRequestButton.disabled = false; declineRequestButton.disabled = false; declineRequestButton.innerHTML = `<i data-feather="x" class="action-button-icon"></i>`; feather.replace(); } }
+        async function acceptFriendRequest() { 
+            if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept."); return; } 
+            acceptRequestButton.disabled = true; 
+            acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; 
+            try { 
+                // DELETED request instead of updating it
+                const { error } = await _supabase.from('friend_requests').delete().eq('id', currentFriendRequest.id);
+                if (error) throw error; 
+                console.log("Request accepted and row deleted."); 
+                updateFriendButtonState('friends'); 
+                const friendCountEl = document.getElementById('profile-friend-count'); 
+                if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; 
+            } catch(error) { 
+                console.error("Error accepting request:", error); 
+                alert("Could not accept."); 
+                acceptRequestButton.disabled = false; 
+                acceptRequestButton.innerHTML = `<i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-lg">Accept</span>`; 
+                feather.replace(); 
+            } 
+        }
+        // Removed declineFriendRequest function
 
         // --- 13. REMOVE FRIEND ---
-        async function removeFriend() { if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { console.error("Cannot remove friend."); return; } if (!confirm(`Remove ${viewedUserProfile.name} as friend?`)) return; removeFriendButton.disabled = true; removeFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-danger-500 border-l-transparent"></div>`; try { const user1_uuid = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const user2_uuid = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const { error: deleteError } = await _supabase.from('friendships').delete().match({ user1_id: user1_uuid, user2_id: user2_uuid }); if (deleteError) throw deleteError; console.log("Friend removed."); alert("Friend removed."); updateFriendButtonState('none'); const friendCountEl = document.getElementById('profile-friend-count'); if (friendCountEl) friendCountEl.textContent = Math.max(0, parseInt(friendCountEl.textContent) - 1); } catch(error) { console.error("Error removing friend:", error); alert("Could not remove friend."); updateFriendButtonState('friends'); } finally { if (!removeFriendButton.classList.contains('hidden')) { removeFriendButton.disabled = false; if(removeFriendButton.querySelector('.spinner')){ removeFriendButton.innerHTML = `<i data-feather="user-minus" class="action-button-icon"></i> <span class="font-semibold text-lg">Remove Friend</span>`; feather.replace(); } } } }
+        async function removeFriend() { if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { console.error("Cannot remove friend."); return; } if (!confirm(`Remove ${viewedUserProfile.name} as friend?`)) return; removeFriendButton.disabled = true; removeFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-danger-500 border-l-transparent"></div>`; try { const user1_uuid = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const user2_uuid = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; const { error: deleteError } = await _supabase.from('friendships').delete().match({ user1_id: user1_uuid, user2_id: user2_uuid }); if (deleteError) throw deleteError; console.log("Friend removed."); alert("Friend removed."); updateFriendButtonState('none'); const friendCountEl = document.getElementById('profile-friend-count'); if (friendCountEl) friendCountEl.textContent = Math.max(0, parseInt(friendCountEl.textContent) - 1); } catch(error) { console.error("Error removing friend:", error); alert("Could not remove friend."); updateFriendButtonState('friends'); } finally { if (!removeFriendButton.classList.contains('hidden')) { removeFriendButton.disabled = false; if(removeFriendButton.querySelector('.spinner')){ removeFriendButton.innerHTML = `<span class="font-semibold text-lg">Remove</span>`; } } } }
 
         // --- 14. LIKE/UNLIKE LOGIC ---
         async function toggleLike(postId, isLiked, buttonElement) { if (!currentAuthUser || buttonElement.disabled) return; buttonElement.disabled = true; const likeIcon = buttonElement.querySelector('svg.feather-heart'); const countSpan = buttonElement.querySelector('.like-count'); let currentCount = parseInt(countSpan.textContent); if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; } try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; } } catch (error) { console.error("Like Error:", error.message); if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; } } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); } }
