@@ -197,8 +197,8 @@
                         <span>Roles & Badges</span>
                     </h2>
                     <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
-                         Not Assigned
-                     </div>
+                            Not Assigned
+                       </div>
                 </div>
 
                 <div class="space-y-3">
@@ -207,8 +207,8 @@
                         <span>Scheduled Lectures</span>
                     </h2>
                      <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
-                         No lectures Scheduled
-                     </div>
+                            No lectures Scheduled
+                       </div>
                 </div>
 
                 <div class="space-y-3">
@@ -217,8 +217,8 @@
                         <span>Upcoming Activities</span>
                     </h2>
                     <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
-                         No Upcoming activities
-                     </div>
+                            No Upcoming activities
+                       </div>
                 </div>
 
             </main>
@@ -317,7 +317,7 @@
         function showSkeletonAndRedirect(url, delay = 0) {
             // Ensure skeleton is visible initially (it should be by default)
              setTimeout(() => {
-                window.location.href = url;
+                 window.location.href = url;
              }, delay);
         }
 
@@ -375,20 +375,33 @@
         }
 
         // --- 5. LOG USER DATA ---
-async function logUserData(userData) {
-    // ... (omitted code) ...
-    try {
-        // Insert into the 'logs' table
-        const { error: logError } = await _supabase
-            .from('logs')
-            .insert({
-                time: new Date().toISOString(), // <-- ADD THIS LINE
-                user_id: userData.auth_id, // Assuming user_id in logs corresponds to auth_id
-                Name: userData.name || 'N/A',
-                course: userData.course || 'N/A',
-            });
-    // ... (omitted code) ...
-}
+        async function logUserData(userData) {
+             if (!userData || !userData.auth_id) {
+                 console.error("Cannot log data: User Auth ID is missing.");
+                 return;
+             }
+             try {
+                // Insert into the 'logs' table
+                 const { error: logError } = await _supabase
+                     .from('logs')
+                     .insert({
+                         time: new Date().toISOString(), // <-- FIX: Provide the current time
+                         user_id: userData.auth_id, // Assuming user_id in logs corresponds to auth_id
+                         Name: userData.name || 'N/A',
+                         course: userData.course || 'N/A',
+                     });
+
+                 if (logError) {
+                     // Check for specific errors, e.g., foreign key violation if user_id doesn't exist
+                     console.error("Error inserting into logs table:", logError.message);
+                 } else {
+                     console.log("User data logged successfully.");
+                 }
+             } catch (error) {
+                  console.error("Exception during logging:", error.message);
+             }
+        }
+
 
         // --- 6. NOTIFICATION FUNCTIONS (Copied from feed.html) ---
 
@@ -451,10 +464,10 @@ async function logUserData(userData) {
 
                 // Check if data is null or empty array
                  if (!data || (Array.isArray(data) && data.length === 0)) {
-                    noNotifications.style.display = 'block';
-                } else {
-                    renderNotifications(data);
-                }
+                     noNotifications.style.display = 'block';
+                 } else {
+                     renderNotifications(data);
+                 }
             } catch (error) {
                 console.error("Error fetching notifications:", error.message);
                 notificationsLoading.style.display = 'none';
@@ -481,8 +494,8 @@ async function logUserData(userData) {
 
                  const tickType = notif.sender_tick?.toLowerCase();
                  const tickHtml = (tickType && localTickImages[tickType])
-                        ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`
-                        : '';
+                         ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`
+                         : '';
 
                 const timeAgo = formatTimeAgo(notif.created_at);
 
@@ -508,20 +521,20 @@ async function logUserData(userData) {
 
                 div.addEventListener('click', (e) => {
                     if (isDirectLink && !e.target.closest('.w-2.h-2')) {
-                        markSingleAsRead(notif.id);
+                         markSingleAsRead(notif.id);
                     } else {
-                        if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
-                           // Check if current page is already myprofile.html before navigating
-                           if (!window.location.pathname.endsWith('myprofile.html')) {
-                                window.location.href = notif.link;
-                           } else {
-                               // Optional: If already on myprofile, maybe open the requests modal directly?
-                                // Example: if (typeof openFriendRequestsModal === 'function') openFriendRequestsModal();
-                           }
-                        }
-                        if (!notif.is_read) {
-                            markSingleAsRead(notif.id, div);
-                        }
+                         if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
+                             // Check if current page is already myprofile.html before navigating
+                             if (!window.location.pathname.endsWith('myprofile.html')) {
+                                  window.location.href = notif.link;
+                             } else {
+                                 // Optional: If already on myprofile, maybe open the requests modal directly?
+                                 // Example: if (typeof openFriendRequestsModal === 'function') openFriendRequestsModal();
+                             }
+                         }
+                         if (!notif.is_read) {
+                             markSingleAsRead(notif.id, div);
+                         }
                     }
                 });
 
