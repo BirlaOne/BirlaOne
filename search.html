@@ -10,6 +10,9 @@
     
     <!-- Feather Icons Script -->
     <script src="https://unpkg.com/feather-icons"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,19 +31,8 @@
                         logo: ['Pacifico', 'cursive'],
                     },
                     colors: {
-                        'primary': {
-                            '50': '#f7fbf4',
-                            '100': '#eef8e9',
-                            '200': '#dcf1d3',
-                            '300': '#c3e7b3',
-                            '400': '#a6d98e',
-                            '500': '#87c964',
-                            '600': '#56ab2f', /* Base Green */
-                            '700': '#458a26',
-                            '800': '#396f21',
-                            '900': '#305b1c',
-                            '950': '#1a320f',
-                        },
+                        'primary': { '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3','400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26','800': '#396f21','900': '#305b1c','950': '#1a320f' },
+                        'danger': { '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a','300': '#e57373', '400': '#ef5350', '500': '#f44336','600': '#e53935', '700': '#d32f2f', '800': '#c62828','900': '#b71c1c', '950': '#8d1111' }
                     }
                 },
             },
@@ -49,40 +41,26 @@
     
     <!-- Custom Styles -->
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* bg-slate-50 */
-        }
-        
-        /* Custom shadows for nav bars */
-        .top-nav-shadow {
-            box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03);
-        }
-        .bottom-nav-shadow {
-            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; /* bg-slate-50 */ }
+        .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
+        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
+        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
+        .tick-mark-search { width: 1rem; height: 1rem; vertical-align: middle; margin-left: 4px; display: inline-block; }
+        .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Hide scrollbar */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        /* Feather Icon Styling */
-        i[data-feather] {
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Bottom nav icon sizing */
-        .bottom-nav-icon i[data-feather] {
-            width: 28px;
-            height: 28px;
-        }
-
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
+        .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
+        .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
+        .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
+        .toast.show { opacity: 1; }
+        .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+        @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="antialiased">
@@ -98,103 +76,332 @@
                 <h1 class="text-3xl font-bold text-gray-900">Search</h1>
                 <div class="relative flex items-center">
                     <i data-feather="search" class="absolute left-4 w-5 h-5 text-gray-400"></i>
-                    <input type="text" placeholder="Search for students, clubs..." class="w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pr-4 pl-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
+                    <input id="search-input" type="text" placeholder="Search for students..." class="w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pr-4 pl-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
                 </div>
             </div>
 
-            <!-- Search Results -->
-            <div class="p-4 space-y-3">
-                <h2 class="text-lg font-semibold text-gray-700">Popular</h2>
-
-                <!-- User Result 1 -->
-                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
-                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=PS" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-900">Priya Sharma</p>
-                        <p class="text-sm text-gray-500">B.E. (CS) - 3rd Year</p>
+            <!-- Content Area -->
+            <div class="p-4 space-y-4">
+                <!-- Popular Users Section (Visible by default) -->
+                <div id="popular-section">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-3">Popular</h2>
+                    <div id="popular-users-list" class="space-y-3">
+                        <div id="popular-loading" class="text-center text-gray-500 py-4">Loading popular users...</div>
+                        <!-- Popular user items will be injected here -->
                     </div>
-                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
-                        <i data-feather="user-plus" class="w-5 h-5"></i>
-                    </button>
-                </a>
+                </div>
 
-                <!-- User Result 2 -->
-                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
-                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=RK" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-900">Rohan Kumar</p>
-                        <p class="text-sm text-gray-500">B.Pharm - 2nd Year</p>
-                    </div>
-                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
-                        <i data-feather="user-plus" class="w-5 h-5"></i>
-                    </button>
-                </a>
-
-                <!-- User Result 3 -->
-                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
-                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=AS" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-900">Ananya Singh</p>
-                        <p class="text-sm text-gray-500">M.Sc. (Eco) - 1st Year</p>
-                    </div>
-                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
-                        <i data-feather="user-plus" class="w-5 h-5"></i>
-                    </button>
-                </a>
-
-                <!-- User Result 4 -->
-                <a href="profile.html" class="flex items-center space-x-4 p-3 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors">
-                    <img src="https://placehold.co/60x60/DCEFD3/305B1C?text=VM" alt="Profile" class="w-14 h-14 rounded-full border-2 border-primary-200">
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-900">Vikram Mehra</p>
-                        <p class="text-sm text-gray-500">B.E. (Mech) - 4th Year</p>
-                    </div>
-                    <button class="p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90">
-                        <i data-feather="user-plus" class="w-5 h-5"></i>
-                    </button>
-                </a>
-
+                <!-- Search Results Section (Hidden by default) -->
+                <div id="search-results-section" class="hidden">
+                     <h2 class="text-lg font-semibold text-gray-700 mb-3">Results</h2>
+                     <div id="search-results-list" class="space-y-3">
+                         <div id="search-loading" class="text-center text-gray-500 py-4 hidden">Searching...</div>
+                         <div id="no-results" class="text-center text-gray-500 py-4 hidden">No users found.</div>
+                         <!-- Search result items will be injected here -->
+                     </div>
+                </div>
             </div>
 
         </main>
 
         <!-- Bottom Navigation -->
         <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-            
-            <!-- Dashboard -->
-            <!-- Note: Swapped 'text-primary-600' with 'text-gray-400' -->
-            <a href="test.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
-                <i data-feather="layout"></i>
-            </a>
-            
-            <!-- Feed -->
-            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
-                <i data-feather="file-text"></i>
-            </a>
-            
-            <!-- Create (Centered & Aligned) -->
-            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
-                <i data-feather="plus-circle"></i>
-            </a>
-            
-            <!-- Search (Active) -->
-            <!-- Note: Swapped 'text-gray-400' with 'text-primary-600' and added stroke -->
-            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Search">
-                <i data-feather="search" class="stroke-[2.5px]"></i>
-            </a>
-            
-            <!-- Mini Apps -->
-            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
-                <i data-feather="grid"></i>
-            </a>
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
+            <!-- Active Search Link -->
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Search"> <i data-feather="search" class="stroke-[2.5px]"></i> </a>
+            <a href="myprofile.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Profile"> <i data-feather="user"></i> </a>
         </nav>
 
     </div>
 
+     <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
     <!-- JavaScript -->
     <script>
-        // Render Feather Icons
-        feather.replace();
+        // --- Supabase Client & Globals ---
+        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // REPLACE
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c'; // REPLACE
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentAuthUser = null;
+        let searchTimeout;
+        const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
+
+        // --- DOM Elements ---
+        const searchInput = document.getElementById('search-input');
+        const popularSection = document.getElementById('popular-section');
+        const popularUsersList = document.getElementById('popular-users-list');
+        const popularLoading = document.getElementById('popular-loading');
+        const searchResultsSection = document.getElementById('search-results-section');
+        const searchResultsList = document.getElementById('search-results-list');
+        const searchLoading = document.getElementById('search-loading');
+        const noResults = document.getElementById('no-results');
+        const toastContainer = document.getElementById('toast-container');
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            feather.replace(); // Initial icon render
+
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            if (error || !session) { 
+                window.location.href = 'login.html'; // Redirect if not logged in
+                return; 
+            }
+            currentAuthUser = session.user;
+            
+            await fetchPopularUsers();
+            setupEventListeners();
+        });
+
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            // Search Input Listener with Debounce
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch(searchInput.value.trim());
+                }, 300); // Wait 300ms after user stops typing
+            });
+
+             // Event Delegation for Add Friend Buttons
+            document.body.addEventListener('click', async (event) => {
+                const addButton = event.target.closest('.add-friend-btn');
+                if (addButton && !addButton.disabled) {
+                    const targetUserId = addButton.dataset.userId;
+                    await sendFriendRequest(targetUserId, addButton);
+                }
+            });
+        }
+
+        // --- Search Logic ---
+        async function performSearch(searchTerm) {
+            if (!searchTerm) {
+                // Show popular if search is cleared
+                popularSection.style.display = 'block';
+                searchResultsSection.style.display = 'none';
+                return;
+            }
+
+            popularSection.style.display = 'none';
+            searchResultsSection.style.display = 'block';
+            searchResultsList.innerHTML = ''; // Clear previous results
+            searchLoading.style.display = 'block';
+            noResults.style.display = 'none';
+
+            try {
+                const { data: users, error } = await _supabase.from('users')
+                    .select('id, auth_id, name, img, course, tick')
+                    .ilike('name', `%${searchTerm}%`) // Case-insensitive search
+                    .neq('auth_id', currentAuthUser.id) // Exclude self
+                    .limit(10);
+                
+                if (error) throw error;
+
+                if (users.length === 0) {
+                    noResults.style.display = 'block';
+                } else {
+                    const friendshipStatuses = await checkMultipleFriendshipStatuses(users.map(u => u.auth_id));
+                    renderUserList(users, searchResultsList, friendshipStatuses);
+                }
+
+            } catch (error) {
+                console.error("Error searching users:", error);
+                searchResultsList.innerHTML = '<p class="text-center text-red-500">Error performing search.</p>';
+            } finally {
+                searchLoading.style.display = 'none';
+            }
+        }
+
+
+        // --- Fetch Popular Users ---
+        async function fetchPopularUsers() {
+            popularLoading.style.display = 'block';
+            popularUsersList.innerHTML = ''; // Clear previous
+            try {
+                const { data: users, error } = await _supabase.from('users')
+                    .select('id, auth_id, name, img, course, tick, friend_count')
+                    .gt('friend_count', 0) // Friend count > 0
+                    .neq('auth_id', currentAuthUser.id) // Exclude self
+                    .order('friend_count', { ascending: false }) // Highest first
+                    .limit(10); // Limit results
+
+                if (error) throw error;
+                
+                if (users.length > 0) {
+                    const friendshipStatuses = await checkMultipleFriendshipStatuses(users.map(u => u.auth_id));
+                    renderUserList(users, popularUsersList, friendshipStatuses);
+                } else {
+                    popularUsersList.innerHTML = '<p class="text-center text-gray-500">No popular users found yet.</p>';
+                }
+
+            } catch (error) {
+                console.error("Error fetching popular users:", error);
+                popularUsersList.innerHTML = '<p class="text-center text-red-500">Could not load popular users.</p>';
+            } finally {
+                popularLoading.style.display = 'none';
+            }
+        }
+
+        // --- Render User List ---
+        function renderUserList(users, container, friendshipStatuses) {
+            container.innerHTML = users.map(user => createUserItemHTML(user, friendshipStatuses[user.auth_id])).join('');
+            feather.replace(); // Render icons for add buttons etc.
+        }
+        
+        // --- Create Single User Item HTML ---
+        function createUserItemHTML(user, status) {
+            const profileUrl = `profile.html?id=${user.id}`;
+            const avatarUrl = user.img || `https://placehold.co/60x60/DCEFD3/305B1C?text=${user.name ? user.name.charAt(0) : '?'}`;
+            const tickType = user.tick?.toLowerCase();
+            const tickHtml = (tickType && tickImages[tickType]) 
+                ? `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="tick-mark-search">` 
+                : '';
+            const courseText = user.course ? user.course.toUpperCase() : 'Course not set';
+            
+            let actionButtonHtml = '';
+            if (status === 'none') {
+                actionButtonHtml = `
+                    <button class="add-friend-btn p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90" data-user-id="${user.auth_id}" title="Add Friend">
+                        <i data-feather="user-plus" class="w-5 h-5"></i>
+                    </button>`;
+            } else if (status === 'pending_sent') {
+                 actionButtonHtml = `
+                    <button class="p-2 rounded-full text-gray-500 bg-gray-200 cursor-not-allowed" disabled title="Request Sent">
+                        <i data-feather="check" class="w-5 h-5"></i>
+                    </button>`;
+            }
+            // No button for 'friends' or 'pending_received' (they need to accept on their end)
+
+            return `
+                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-2xl">
+                    <a href="${profileUrl}" class="flex-shrink-0">
+                        <img src="${avatarUrl}" alt="${user.name}" class="w-14 h-14 rounded-full border-2 border-primary-200">
+                    </a>
+                    <a href="${profileUrl}" class="flex-1 min-w-0">
+                        <p class="font-semibold text-gray-900 truncate flex items-center">
+                            ${user.name || 'User'} ${tickHtml}
+                        </p>
+                        <p class="text-sm text-gray-500 truncate">${courseText}</p>
+                    </a>
+                    <div class="flex-shrink-0">
+                        ${actionButtonHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Friendship Status Checking ---
+        async function checkMultipleFriendshipStatuses(targetUserIds) {
+            if (!currentAuthUser || targetUserIds.length === 0) return {};
+
+            const myAuthId = currentAuthUser.id;
+            const statuses = {};
+            targetUserIds.forEach(id => statuses[id] = 'none'); // Default state
+
+            try {
+                // Check existing friendships
+                const { data: friendships, error: friendError } = await _supabase.from('friendships')
+                    .select('user1_id, user2_id')
+                    .or(`and(user1_id.eq.${myAuthId},user2_id.in.(${targetUserIds.join(',')})),and(user2_id.eq.${myAuthId},user1_id.in.(${targetUserIds.join(',')}))`);
+                
+                if (friendError) throw friendError;
+                friendships.forEach(f => {
+                    const friendId = f.user1_id === myAuthId ? f.user2_id : f.user1_id;
+                    if (statuses[friendId]) statuses[friendId] = 'friends';
+                });
+
+                // Check pending friend requests (where status is not already 'friends')
+                const userIdsToCheckRequests = targetUserIds.filter(id => statuses[id] === 'none');
+                if (userIdsToCheckRequests.length > 0) {
+                    const { data: requests, error: reqError } = await _supabase.from('friend_requests')
+                        .select('sender_id, receiver_id, status')
+                        .or(`and(sender_id.eq.${myAuthId},receiver_id.in.(${userIdsToCheckRequests.join(',')})),and(receiver_id.eq.${myAuthId},sender_id.in.(${userIdsToCheckRequests.join(',')}))`)
+                        .eq('status', 'pending');
+
+                    if (reqError) throw reqError;
+                    requests.forEach(req => {
+                        const otherUserId = req.sender_id === myAuthId ? req.receiver_id : req.sender_id;
+                        if (statuses[otherUserId] === 'none') { // Check again, might have become friend via another check
+                            statuses[otherUserId] = req.sender_id === myAuthId ? 'pending_sent' : 'pending_received';
+                        }
+                    });
+                }
+
+            } catch (error) {
+                console.error("Error checking friendship statuses:", error);
+            }
+            return statuses;
+        }
+
+
+        // --- Send Friend Request ---
+        async function sendFriendRequest(targetAuthId, buttonElement) {
+            if (!currentAuthUser || !targetAuthId) return;
+
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '<div class="spinner w-5 h-5 mx-auto"></div>'; // Show spinner
+
+            try {
+                const { error } = await _supabase.from('friend_requests').insert({
+                    sender_id: currentAuthUser.id,
+                    receiver_id: targetAuthId,
+                    status: 'pending' 
+                });
+
+                if (error) {
+                    if (error.code === '23505') { // Unique constraint violation (already exists)
+                        showToast("Friend request already sent.", 'success');
+                         buttonElement.innerHTML = '<i data-feather="check" class="w-5 h-5"></i>'; // Show requested icon
+                         buttonElement.title = "Request Sent";
+                         buttonElement.classList.replace('bg-primary-100', 'bg-gray-200');
+                         buttonElement.classList.replace('text-primary-600', 'text-gray-500');
+                         buttonElement.classList.add('cursor-not-allowed');
+                         feather.replace();
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showToast("Friend request sent!", 'success');
+                    buttonElement.innerHTML = '<i data-feather="check" class="w-5 h-5"></i>'; // Show requested icon
+                    buttonElement.title = "Request Sent";
+                    buttonElement.classList.replace('bg-primary-100', 'bg-gray-200');
+                    buttonElement.classList.replace('text-primary-600', 'text-gray-500');
+                    buttonElement.classList.add('cursor-not-allowed');
+                    feather.replace();
+                }
+
+            } catch (error) {
+                console.error("Error sending friend request:", error);
+                showToast("Could not send friend request.", 'error');
+                // Restore original button on error
+                buttonElement.innerHTML = '<i data-feather="user-plus" class="w-5 h-5"></i>';
+                buttonElement.disabled = false;
+                feather.replace();
+            }
+        }
+
+        // --- Toast Notification ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i data-feather="${iconName}" class="toast-icon"></i>
+                <span class="font-medium">${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            feather.replace(); 
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 3000);
+        }
+
     </script>
 
 </body>
