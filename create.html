@@ -5,23 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BirlaOne - Create Post</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Feather Icons Script -->
     <script src="https://unpkg.com/feather-icons"></script>
     
-    <!-- Supabase Client v2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Pacifico font for the logo -->
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     
-    <!-- Tailwind Config with NEW GREEN THEME -->
     <script>
         tailwind.config = {
             theme: {
@@ -50,7 +44,6 @@
         };
     </script>
     
-    <!-- Custom Styles -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -97,6 +90,15 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Tick Mark Style */
+        .post-tick-mark { 
+            width: 1rem; 
+            height: 1rem; 
+            vertical-align: -0.125em; 
+            margin-left: 4px; 
+            display: inline-block;
+        }
+
         /* Custom file input appearance */
         #file-upload-input {
             display: none;
@@ -109,18 +111,14 @@
 </head>
 <body class="antialiased">
 
-    <!-- App Container -->
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
 
-        <!-- Loading Overlay (hidden by default) -->
         <div id="loading-overlay" class="hidden fixed inset-0 z-50 bg-white/70 backdrop-blur-sm flex items-center justify-center">
             <div class="spinner"></div>
         </div>
 
-        <!-- Main Content - Create Post -->
         <main class="pt-6 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
             
-            <!-- Page Header -->
             <div class="flex justify-between items-center">
                 <h1 class="text-3xl font-bold text-gray-900">Create Post</h1>
                 <a href="feed.html" class="p-2 rounded-full text-gray-500 hover:bg-gray-100">
@@ -128,7 +126,6 @@
                 </a>
             </div>
 
-            <!-- Post Type Tabs -->
             <div class="flex border-b border-gray-200">
                 <button id="tab-text" onclick="switchTab('text')" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all">
                     Text
@@ -144,14 +141,14 @@
                 </button>
             </div>
 
-            <!-- Tab Panels -->
             <div>
-                <!-- Text Panel -->
                 <div id="panel-text" class="space-y-4">
                     <div class="flex items-center space-x-3">
                         <img id="user-avatar-text" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
                         <div>
-                            <p id="user-name-text" class="font-semibold text-gray-900">Loading...</p>
+                            <div class="flex items-center">
+                                <span id="user-name-text" class="font-semibold text-gray-900">Loading...</span>
+                                </div>
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
@@ -161,12 +158,13 @@
                     </button>
                 </div>
 
-                <!-- Photo/Video Panel -->
                 <div id="panel-photo" class="space-y-4 hidden">
                     <div class="flex items-center space-x-3">
                         <img id="user-avatar-photo" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
                         <div>
-                            <p id="user-name-photo" class="font-semibold text-gray-900">Loading...</p>
+                            <div class="flex items-center">
+                                <span id="user-name-photo" class="font-semibold text-gray-900">Loading...</span>
+                                </div>
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
@@ -184,12 +182,13 @@
                     </button>
                 </div>
 
-                <!-- Poll Panel -->
                 <div id="panel-poll" class="space-y-4 hidden">
                     <div class="flex items-center space-x-3">
                         <img id="user-avatar-poll" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200">
                         <div>
-                            <p id="user-name-poll" class="font-semibold text-gray-900">Loading...</p>
+                            <div class="flex items-center">
+                                <span id="user-name-poll" class="font-semibold text-gray-900">Loading...</span>
+                                </div>
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
@@ -210,7 +209,6 @@
                     </button>
                 </div>
 
-                <!-- Anonymous Panel -->
                 <div id="panel-anonymous" class="space-y-4 hidden">
                     <div class="flex items-center space-x-3 p-4 bg-gray-800 rounded-xl">
                         <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
@@ -230,38 +228,31 @@
 
         </main>
 
-        <!-- Bottom Navigation -->
         <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
             
-            <!-- Dashboard -->
             <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
                 <i data-feather="layout"></i>
             </a>
             
-            <!-- Feed -->
             <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
                 <i data-feather="file-text"></i>
             </a>
             
-            <!-- Create (Active) -->
             <a href="create.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Create">
                 <i data-feather="plus-circle" class="stroke-[2.5px]"></i>
             </a>
             
-            <!-- Search -->
             <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
                 <i data-feather="search"></i>
             </a>
             
-            <!-- Mini Apps -->
-            <a href="miniapps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
                 <i data-feather="grid"></i>
             </a>
         </nav>
 
     </div>
 
-    <!-- ===== Supabase & App Logic ===== -->
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
         // !!! IMPORTANT: REPLACE with your Supabase project details
@@ -274,6 +265,7 @@
         // --- Global variables ---
         let currentAuthUser = null;
         let currentUserProfile = null;
+        const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
         const loadingOverlay = document.getElementById('loading-overlay');
 
         // --- 2. AUTH & SESSION CHECK ---
@@ -303,13 +295,13 @@
         });
 
         // --- 3. FETCH USER PROFILE ---
-        // Fetches the user's data from the 'users' table (name, img)
+        // Fetches the user's data from the 'users' table (name, img, tick)
         async function fetchUserProfile(authId) {
             if (!authId) return;
 
             const { data, error } = await _supabase
                 .from('users')
-                .select('name, img') // Assuming 'img' is the column for profile picture URL
+                .select('name, img, tick') // <-- Added 'tick'
                 .eq('auth_id', authId)
                 .single();
 
@@ -324,15 +316,26 @@
                 // Update UI with user's name and avatar
                 const userName = data.name || 'Campus User';
                 const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${userName.charAt(0)}`;
+                const tickType = data.tick?.toLowerCase();
+                let tickHtml = '';
+                if (tickType && tickImages[tickType]) {
+                    tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`;
+                }
 
+                // Update Text Panel
                 document.getElementById('user-avatar-text').src = userAvatar;
                 document.getElementById('user-name-text').innerText = userName;
+                if (tickHtml) document.getElementById('user-name-text').parentElement.insertAdjacentHTML('beforeend', tickHtml);
                 
+                // Update Photo Panel
                 document.getElementById('user-avatar-photo').src = userAvatar;
                 document.getElementById('user-name-photo').innerText = userName;
+                if (tickHtml) document.getElementById('user-name-photo').parentElement.insertAdjacentHTML('beforeend', tickHtml);
 
+                // Update Poll Panel
                 document.getElementById('user-avatar-poll').src = userAvatar;
                 document.getElementById('user-name-poll').innerText = userName;
+                if (tickHtml) document.getElementById('user-name-poll').parentElement.insertAdjacentHTML('beforeend', tickHtml);
             }
         }
 
@@ -580,4 +583,3 @@
 
 </body>
 </html>
-
