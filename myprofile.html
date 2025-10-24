@@ -71,6 +71,15 @@
         #cropper-container img { max-width: 100%; }
         /* Ensure Cropper.js modal is on top */
         #image-upload-modal { z-index: 51; }
+
+        /* Bottom Nav Styles */
+        .bottom-nav-shadow {
+            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
+        }
+        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather {
+            width: 28px;
+            height: 28px;
+        }
     </style>
 </head>
 <body class="antialiased bg-slate-50">
@@ -87,7 +96,7 @@
             </button>
         </header>
 
-        <main id="main-content" class="px-6 space-y-6 pb-24 overflow-y-auto h-screen no-scrollbar pt-16"> 
+        <main id="main-content" class="px-6 space-y-6 pb-28 overflow-y-auto h-screen no-scrollbar pt-16"> 
             
             <div id="profile-loading" class="text-center py-10 text-gray-500">
                   <div class="spinner mx-auto mb-2"></div>
@@ -98,7 +107,7 @@
                 <i data-feather="alert-circle" class="w-12 h-12 text-danger-500 mx-auto"></i>
                 <h2 class="text-xl font-bold">Not Logged In</h2>
                 <p class="text-gray-500">You must be logged in to view your profile.</p>
-                </div>
+             </div>
 
             <div id="profile-content" class="hidden space-y-6">
 
@@ -117,6 +126,16 @@
                     <p id="profile-bio" class="text-base text-gray-700 mt-2 text-center max-w-sm"></p>
                 </div>
 
+                <div class="flex justify-center items-center divide-x divide-gray-200 w-full bg-gray-50 py-4 rounded-2xl border border-gray-200">
+                    <div class="flex flex-col items-center w-1/2">
+                        <span id="profile-friend-count-box" class="text-2xl font-bold text-gray-900">0</span>
+                        <span class="text-sm text-gray-500">Friends</span>
+                    </div>
+                    <div class="flex flex-col items-center text-center w-1/2">
+                        <span id="profile-course-box" class="text-2xl font-bold text-gray-900 uppercase">-</span> 
+                        <span class="text-sm text-gray-500">Course</span>
+                    </div>
+                </div>
                 <div id="friend-requests-container">
                     <button id="friend-requests-btn" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95">
                         <i data-feather="user-check" class="action-button-icon"></i>
@@ -153,7 +172,25 @@
 
              </div>
         </main>
-    </div>
+
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
+                <i data-feather="layout"></i>
+            </a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
+                <i data-feather="file-text"></i>
+            </a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
+                <i data-feather="plus-circle"></i>
+            </a>
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
+                <i data-feather="search"></i>
+            </a>
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+                <i data-feather="grid"></i>
+            </a>
+        </nav>
+        </div>
 
     <div id="edit-profile-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[90vh] flex flex-col">
@@ -202,7 +239,7 @@
                 <button id="close-requests-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button> 
             </div> 
             <div id="requests-modal-body" class="p-4 overflow-y-auto"> 
-                </div> 
+            </div> 
         </div> 
     </div>
 
@@ -398,6 +435,11 @@
                 document.getElementById('profile-role').textContent = data.role || 'Role Not Set';
                 document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
                 
+                // === POPULATE NEW BOX ===
+                document.getElementById('profile-friend-count-box').textContent = data.friend_count ?? 0;
+                document.getElementById('profile-course-box').textContent = data.course?.toUpperCase() || '-';
+                // === END POPULATE NEW BOX ===
+                
                 // Populate New Personal Info
                 // --- FIX: Changed 'data.student_id' to 'data.id' ---
                 document.getElementById('profile-student-id').textContent = data.id || 'Not Set'; // Changed from data.student_id
@@ -459,14 +501,14 @@
                  if (posts.length === 0) { 
                      userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">You haven't posted yet.</p>`; 
                  } else { 
-                      const processedPosts = posts.map(post => ({
-                          ...post,
-                          currentUserLiked: (post.likes?.length > 0),
-                          currentUserPollVote: (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null)
-                      }));
-                     const postsHtml = processedPosts.map(post => createFullPostHTML(post, true)).join(''); 
-                     userPostsContainer.innerHTML = postsHtml; 
-                     feather.replace(); 
+                     const processedPosts = posts.map(post => ({
+                         ...post,
+                         currentUserLiked: (post.likes?.length > 0),
+                         currentUserPollVote: (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null)
+                     }));
+                    const postsHtml = processedPosts.map(post => createFullPostHTML(post, true)).join(''); 
+                    userPostsContainer.innerHTML = postsHtml; 
+                    feather.replace(); 
                  } 
              } catch (error) { 
                  console.error("Error fetching user posts:", error); 
