@@ -3,25 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
-    <!-- Page Title (will be set dynamically) -->
     <title>My Profile</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
     
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Cropper.js for image cropping -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-    <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -84,7 +77,6 @@
 
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
 
-        <!-- Header with Edit Profile Button -->
         <header class="fixed top-0 left-0 right-0 z-40 p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
             <a href="javascript:history.back()" class="p-2 rounded-full transition-all bg-white/50 hover:bg-white/90 active:scale-90 backdrop-blur-sm shadow-md">
                 <i data-feather="arrow-left" class="text-gray-900"></i>
@@ -95,30 +87,22 @@
             </button>
         </header>
 
-        <!-- Main Content -->
         <main id="main-content" class="px-6 space-y-6 pb-24 overflow-y-auto h-screen no-scrollbar pt-16"> 
             
-            <!-- Loading Spinner -->
-             <div id="profile-loading" class="text-center py-10 text-gray-500">
+            <div id="profile-loading" class="text-center py-10 text-gray-500">
                   <div class="spinner mx-auto mb-2"></div>
                   <p>Loading profile...</p>
              </div>
             
-            <!-- Logged Out Message -->
             <div id="login-prompt" class="hidden text-center py-10 text-gray-700 space-y-4">
                 <i data-feather="alert-circle" class="w-12 h-12 text-danger-500 mx-auto"></i>
                 <h2 class="text-xl font-bold">Not Logged In</h2>
                 <p class="text-gray-500">You must be logged in to view your profile.</p>
-                <!-- Add a login button if you have a login page -->
-                <!-- <a href="login.html" class="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold">Log In</a> -->
-            </div>
+                </div>
 
-            <!-- Profile Content (Hidden by default) -->
             <div id="profile-content" class="hidden space-y-6">
 
-                <!-- Profile Header -->
                 <div class="flex flex-col items-center"> 
-                    <!-- Clickable Profile Picture -->
                     <button id="profile-picture-btn" class="relative group" title="Click to change profile picture">
                         <img id="profile-picture" src="https://placehold.co/100x100/A8E063/305B1C?text=?" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-primary-600 bg-gray-200 object-cover">
                         <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
@@ -133,7 +117,6 @@
                     <p id="profile-bio" class="text-base text-gray-700 mt-2 text-center max-w-sm"></p>
                 </div>
 
-                <!-- Friend Requests Button -->
                 <div id="friend-requests-container">
                     <button id="friend-requests-btn" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95">
                         <i data-feather="user-check" class="action-button-icon"></i>
@@ -142,7 +125,6 @@
                     </button>
                 </div>
 
-                <!-- Personal Info Section -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
                     <h2 class="text-xl font-bold text-gray-900">Personal Info</h2>
                     <div class="flex justify-between items-center">
@@ -163,30 +145,22 @@
                     </div>
                 </div>
 
-                <!-- Roles & Badges (Same as before) -->
                 <div class="space-y-3"> <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2"> <i data-feather="star" class="text-yellow-500"></i> <span>Roles & Badges</span> </h2> <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center"> Not Assigned </div> </div>
 
-                <!-- Social Links (Same as before) -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4"> <h2 class="text-xl font-bold text-gray-900">Social Links</h2> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="instagram" class="h-5 w-5"></i> <span class="font-medium">Instagram</span> </div> <span id="profile-instagram" class="font-medium text-gray-900 italic"></span> </div> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="linkedin" class="h-5 w-5"></i> <span class="font-medium">LinkedIn</span> </div> <span id="profile-linkedin" class="font-medium text-gray-900 italic"></span> </div> </div>
 
-                 <!-- User's Posts Section -->
-                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">My Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> <!-- Posts injected here --> </div> </div>
+                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">My Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> </div> </div>
 
              </div>
         </main>
     </div>
 
-    <!-- Modals -->
-
-    <!-- Edit Profile Modal -->
     <div id="edit-profile-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[90vh] flex flex-col">
-            <!-- Header -->
             <div class="flex justify-between items-center p-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold">Edit Profile</h2>
                 <button id="close-edit-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button>
             </div>
-            <!-- Form Body -->
             <div class="p-4 space-y-4 overflow-y-auto">
                 <div>
                     <label for="edit-bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
@@ -211,7 +185,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Footer -->
             <div class="p-4 border-t border-gray-200 flex items-center space-x-4">
                 <button id="cancel-edit-btn" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-3 rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
                 <button id="save-profile-btn" class="w-1/2 bg-primary-600 text-white p-3 rounded-xl font-semibold hover:bg-primary-700 flex items-center justify-center space-x-2">
@@ -222,35 +195,29 @@
         </div>
     </div>
 
-    <!-- Friend Requests Modal -->
-     <div id="friend-requests-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
+    <div id="friend-requests-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col"> 
             <div class="flex justify-between items-center p-4 border-b border-gray-200"> 
                 <h2 class="text-lg font-semibold">Friend Requests</h2> 
                 <button id="close-requests-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button> 
             </div> 
             <div id="requests-modal-body" class="p-4 overflow-y-auto"> 
-                <!-- Requests will be injected here -->
-            </div> 
+                </div> 
         </div> 
     </div>
 
-    <!-- Image Upload Modal -->
     <div id="image-upload-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm flex flex-col">
-            <!-- Header -->
             <div class="flex justify-between items-center p-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold">Update Profile Picture</h2>
                 <button id="close-upload-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button>
             </div>
-            <!-- Body -->
             <div class="p-4 space-y-4">
                 <input type="file" id="image-upload-input" accept="image/png, image/jpeg" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"/>
                 <div id="cropper-container" class="hidden">
                     <img id="cropper-image" src="">
                 </div>
             </div>
-            <!-- Footer -->
             <div class="p-4 border-t border-gray-200 flex items-center space-x-4">
                 <button id="cancel-upload-btn" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-3 rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
                 <button id="save-image-btn" class="w-1/2 bg-primary-600 text-white p-3 rounded-xl font-semibold hover:bg-primary-700 flex items-center justify-center space-x-2" disabled>
@@ -262,7 +229,6 @@
     </div>
 
 
-    <!-- Confirmation Modal -->
     <div id="confirm-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
             <h2 id="confirm-title" class="text-xl font-bold text-gray-900">Confirm Action</h2>
@@ -280,7 +246,6 @@
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
     <div id="toast-container"></div>
 
 
@@ -413,8 +378,9 @@
             profileContent.classList.add('hidden');
             try {
                 // Use 'auth_id' to fetch from 'users' table
+                // --- FIX: Changed 'student_id' to 'id' ---
                 const { data, error } = await _supabase.from('users')
-                    .select('id, auth_id, name, img, course, bio, friend_count, tick, instagram, linkedin, role, student_id, mob, email')
+                    .select('id, auth_id, name, img, course, bio, friend_count, tick, instagram, linkedin, role, id, mob, email') // Changed 'student_id' to 'id'
                     .eq('auth_id', authId)
                     .single();
                 
@@ -433,7 +399,8 @@
                 document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
                 
                 // Populate New Personal Info
-                document.getElementById('profile-student-id').textContent = data.student_id || 'Not Set';
+                // --- FIX: Changed 'data.student_id' to 'data.id' ---
+                document.getElementById('profile-student-id').textContent = data.id || 'Not Set'; // Changed from data.student_id
                 document.getElementById('profile-course').textContent = data.course?.toUpperCase() || 'Not Set';
                 document.getElementById('profile-mobile').textContent = data.mob || 'Not Set';
                 document.getElementById('profile-email').textContent = data.email || 'Not Set';
