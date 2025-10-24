@@ -1,687 +1,690 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <title>BirlaOne</title>
-  <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
-  
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
-
-  <style>
-    :root {
-      --primary-accent: #56ab2f;
-      --primary-gradient: linear-gradient(90deg, #a8e063, #56ab2f);
-      --danger-color: #e53935;
-      --font-family: 'Inter', sans-serif;
-      --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
-      --card-bg-light: rgba(255, 255, 255, 0.9);
-      --card-bg-rgb-light: 255, 255, 255;
-      --text-primary-light: #121212;
-      --text-secondary-light: #5f5f5f;
-      --border-color-light: #e0e0e0;
-      --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
-      --header-bg-light: rgba(255, 255, 255, 0.7);
-      --bg-gradient-dark: linear-gradient(180deg, #2a2a3d, #1e1e2e);
-      --card-bg-dark: rgba(42, 42, 61, 0.9);
-      --card-bg-rgb-dark: 42, 42, 61;
-      --text-primary-dark: #f0f0f0;
-      --text-secondary-dark: #a0a0b0;
-      --border-color-dark: #4a4a6a;
-      --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.2);
-      --header-bg-dark: rgba(30, 30, 46, 0.7);
-    }
-    [data-theme="light"] {
-      --bg-gradient: var(--bg-gradient-light);
-      --card-bg: var(--card-bg-light);
-      --card-bg-rgb: var(--card-bg-rgb-light);
-      --text-primary: var(--text-primary-light);
-      --text-secondary: var(--text-secondary-light);
-      --border-color: var(--border-color-light);
-      --shadow: var(--shadow-light);
-      --header-bg: var(--header-bg-light);
-    }
-    [data-theme="dark"] {
-      --bg-gradient: var(--bg-gradient-dark);
-      --card-bg: var(--card-bg-dark);
-      --card-bg-rgb: var(--card-bg-rgb-dark);
-      --text-primary: var(--text-primary-dark);
-      --text-secondary: var(--text-secondary-dark);
-      --border-color: var(--border-color-dark);
-      --shadow: var(--shadow-dark);
-      --header-bg: var(--header-bg-dark);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; }
-    body { font-family: var(--font-family); background: var(--bg-gradient); color: var(--text-primary); transition: background 0.4s ease, color 0.4s ease; overflow-x: hidden; }
-    header.top-bar { margin: 0; padding: 12px 16px; background: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BirlaOne Dashboard</title>
     
-    .top-bar h1 {
-      font-family: 'Pacifico', cursive;
-      font-size: 26px;
-      font-weight: 400;
-      color: var(--text-primary);
-    }
-
-    .menu-toggle, .profile-link { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
-    .profile-img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; }
-    .menu-icon { color: var(--text-primary); font-size: 24px; }
-    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 199; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-    .sidebar-overlay.active { opacity: 1; visibility: visible; }
-    .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--card-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 2px 0 20px rgba(0,0,0,0.2); transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 200; display: flex; flex-direction: column; }
-    .sidebar.active { transform: translateX(0); }
-    .sidebar-profile-card { display: flex; align-items: center; gap: 15px; padding: 20px; border-bottom: 1px solid var(--border-color); }
-    .sidebar-profile-img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; flex-shrink: 0; }
-    .sidebar-user-info { overflow: hidden; }
-    #sidebar-username { font-weight: 600; font-size: 18px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #sidebar-user-id { font-size: 14px; color: var(--text-secondary); }
-    .sidebar nav { flex-grow: 1; padding: 10px 0; }
-    .sidebar nav a { display: flex; align-items: center; gap: 15px; color: var(--text-primary); text-decoration: none; padding: 15px 20px; font-weight: 500; font-size: 16px; transition: background-color 0.2s, color 0.2s; border-radius: 0 30px 30px 0; margin-right: 10px; }
-    .sidebar nav a:hover { background-color: rgba(86, 171, 47, 0.1); color: var(--primary-accent); }
-    .nav-icon { width: 24px; height: 24px; stroke-width: 2; }
-    .sidebar-footer { padding: 20px; margin-top: auto; border-top: 1px solid var(--border-color); }
-    .theme-switch-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 10px; background-color: rgba(128, 128, 128, 0.1); margin-bottom: 15px; }
-    .theme-switch-label { font-weight: 500; }
-    .theme-switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-    .theme-switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4a4a6a; transition: 0.4s; border-radius: 26px; }
-    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%; z-index: 2; }
-    input:checked + .slider { background: var(--primary-gradient); }
-    input:checked + .slider:before { transform: translateX(24px); }
-    .logout-button { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--danger-color); color: white; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
-    .logout-button:hover { background: #c62828; }
-    .container { padding: 16px; max-width: 800px; margin: 0 auto; }
-    .section-title { text-align: center; font-weight: 600; font-size: 20px; margin: 20px 0; color: var(--text-secondary); }
-    .button-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    .name-button { background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.3s ease; box-shadow: var(--shadow); }
-    .name-button.selected-name-button { background: var(--primary-gradient); color: white; border-color: transparent; transform: scale(1.05); }
-    .input-bar { display: flex; align-items: center; background-color: var(--card-bg); border-radius: 12px; padding: 8px; margin-bottom: 20px; box-shadow: var(--shadow); }
-    .input-bar input { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 16px; outline: none; padding: 8px; }
-    .input-bar button { background: var(--primary-gradient); border: none; width: 40px; height: 40px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-    .input-bar button:active { transform: scale(0.9); }
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    .search-bar-container {
-      display: flex;
-      align-items: center;
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      padding: 8px 15px;
-      margin: 30px 0 10px 0;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border-color);
-    }
-    .search-bar-container svg {
-      color: var(--text-secondary);
-      margin-right: 10px;
-    }
-    .search-bar-container input {
-      flex: 1;
-      background: none;
-      border: none;
-      color: var(--text-primary);
-      font-size: 16px;
-      outline: none;
-    }
+    <script src="https://unpkg.com/feather-icons"></script>
 
-    .remove_div { text-align: center; margin-bottom: 20px; }
-    .remove-my-confession { background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; }
-    .encrypted { text-align: center; font-size: 12px; color: var(--text-secondary); margin: 30px 0 10px 0; }
-    #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
-    .toast { background: var(--card-bg); color: var(--text-primary); padding: 12px 20px; margin-top: 10px; border-left: 5px solid var(--primary-accent); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); font-weight: 500; font-size: 14px; animation: slideInUp 0.4s ease, fadeOut 0.4s ease 2.6s; }
-    @keyframes slideInUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-    .confession-card, .channel-card { background: var(--card-bg); margin: 16px auto; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease; position: relative; border-left: 4px solid var(--primary-accent); animation: fadeUp 0.4s ease; }
-    .confession-card:hover, .channel-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
-    @keyframes fadeUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .card-pic { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-accent); object-fit: cover; }
-    .card-name { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 16px; }
-    .confession-message { font-size: 15px; color: var(--text-primary); line-height: 1.7; position: relative; padding-left: 24px; margin: 0; word-wrap: break-word; }
-    .confession-message::before { content: "“"; font-size: 24px; position: absolute; left: 0; top: -4px; color: var(--primary-accent); font-weight: bold; }
-    .confession-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 10px; }
-    .confession-footer button { background: none; border: none; color: var(--primary-accent); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 4px; font-size: 14px; transition: color 0.2s; }
-    .confession-footer button:hover { color: #2e7d32; }
-    .reply-count { font-size: 14px; color: var(--text-secondary); margin-right: 12px; }
-    .replies-wrapper { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, margin-top 0.5s ease-in-out, opacity 0.4s ease; border-top: 1px solid transparent; margin-top: 0; opacity: 0; }
-    .replies-wrapper.active { max-height: 1000px; border-top: 1px solid var(--border-color); margin-top: 16px; opacity: 1; }
-    .reply-card { border-radius: 10px; padding: 12px; background: rgba(128, 128, 128, 0.05); margin-bottom: 12px; border-left: 3px solid var(--primary-accent); animation: fadeUp 0.3s ease; }
-    .reply-card .card-header { margin-bottom: 8px; }
-    .reply-card .confession-message { font-style: normal; font-size: 14px; word-wrap: break-word; padding-left: 0; }
-    .reply-card .confession-message::before { content: none; }
-    .reply-card-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; }
-    .reply-delete-btn { background: none; border: none; color: var(--danger-color); font-size: 12px; font-weight: 600; cursor: pointer; }
-    .reply-input-bar-inline { display: flex; align-items: center; background-color: rgba(128, 128, 128, 0.1); border-radius: 12px; padding: 8px; margin-top: 12px; }
-    .reply-input-bar-inline input { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 14px; outline: none; padding: 8px; }
-    .reply-input-bar-inline button { background: var(--primary-gradient); border: none; width: 36px; height: 36px; border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-    .reply-input-bar-inline button:active { transform: scale(0.9); }
-    .channel-card { display: flex; align-items: center; gap: 15px; }
-    .channel-link { text-decoration: none; color: inherit; }
-    .channel-info { flex: 1; }
-    .channel-title { font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 6px; }
-    .channel-description { font-size: 14px; color: var(--text-secondary); }
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); justify-content: center; align-items: center; }
-    #confirm-modal { display: none; }
-    .confirm-content { background: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: var(--shadow); width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--border-color); animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .confirm-content h3 { font-size: 18px; margin-bottom: 16px; font-weight: 600; }
-    .confirm-content .button-group { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
-    .confirm-content button { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; flex-grow: 1;}
-    #confirm-yes { background: var(--danger-color); color: white; }
-    #confirm-no { background-color: rgba(128, 128, 128, 0.2); color: var(--text-primary); }
-
-    /* --- ✅ NEW STYLES FOR CHANNEL LOCK --- */
-    #channels-container.locked > *:not(.lock-overlay) {
-        filter: blur(5px);
-        -webkit-filter: blur(5px);
-        pointer-events: none;
-        user-select: none;
-    }
-    .lock-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2;
-    }
-    .lock-overlay-content {
-        background: rgba(var(--card-bg-rgb), 0.7);
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
-        padding: 20px 30px;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: 16px;
-        border: 1px solid var(--border-color);
-    }
-  </style>
-</head>
-<body>
-  <div id="toast-container"></div>
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-profile-card">
-      <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="sidebarProfilePic" class="sidebar-profile-img" alt="Profile" loading="lazy"/>
-      <div class="sidebar-user-info">
-        <div id="sidebar-username">Loading...</div>
-        <div id="sidebar-user-id">Student ID: ...</div>
-      </div>
-    </div>
-    <nav>
-      <a href="#" onclick="location.reload()"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>Home</span></a>
-      <a href="about-us.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><span>About Us</span></a>
-      <a href="contact-us.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>Contact Us</span></a>
-      <a href="change-password.html"><svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg><span>Change Password</span></a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="theme-switch-wrapper">
-        <span class="theme-switch-label">Theme</span>
-        <label class="theme-switch"><input type="checkbox" id="theme-checkbox" /><span class="slider"></span></label>
-      </div>
-      <button class="logout-button" onclick="logout()">Logout</button>
-    </div>
-  </aside>
-
-  <header class="top-bar">
-    <button class="menu-toggle" onclick="toggleSidebar()"><span class="menu-icon">☰</span></button>
-    <h1>BirlaOne</h1>
-    <a href="myprofile.html" class="profile-link"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="profilePic" class="profile-img" alt="Profile" loading="lazy"/></a>
-  </header>
-
-  <main class="container">
-    <div class="button-group">
-      <button class="name-button selected-name-button" onclick="selectName(this)">Anonymous</button>
-      <button class="name-button" id="nameButton" onclick="selectName(this)">Loading...</button>
-    </div>
-    <div class="input-bar">
-      <input type="text" id="messageInput" placeholder="🌟 What's on your mind?"/>
-      <button onclick="addConfession()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
-    </div>
-    <div class="remove_div" id="removeDiv" style="display:none;">
-      <button class="remove-my-confession" onclick="confirmRemove()">Remove my confession</button>
-    </div>
-    <h3 class="section-title">College Confessions</h3>
-    <div id="confession-list"></div>
-    <div class="encrypted">All Confessions are End to End Encrypted 🔒</div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <div id="channels-container" style="position: relative;">
-        <div class="search-bar-container">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="search" id="channelSearch" placeholder="Search for channels...">
-        </div>
-        <h3 class="section-title">Channels</h3>
-        <div id="channel-list"></div>
-    </div>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     
-    <div class="encrypted">Made with ♥️ by Developer Mohit Mali.</div>
-  </main>
-  
-  <div id="confirm-modal" class="modal">
-    <div class="confirm-content">
-      <h3>Are you sure you want to delete this?</h3>
-      <div class="button-group">
-        <button id="confirm-yes" onclick="removeMyConfession()">Yes, Delete</button>
-        <button id="confirm-no" onclick="hideConfirmModal()">No, Cancel</button>
-      </div>
-    </div>
-  </div>
-  
-<script>
-    const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let selectedName = "Anonymous";
-    let currentUser = null;
-    let realtimeChannel = null;
-    let allChannels = [];
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        logo: ['Pacifico', 'cursive'],
+                    },
+                    colors: {
+                        'primary': {
+                            '50': '#f7fbf4', '100': '#eef8e9', '200': '#dcf1d3', '300': '#c3e7b3',
+                            '400': '#a6d98e', '500': '#87c964', '600': '#56ab2f', '700': '#458a26',
+                            '800': '#396f21', '900': '#305b1c', '950': '#1a320f',
+                        },
+                         'danger': { // Added Danger colors
+                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a', '300': '#e57373',
+                            '400': '#ef5350', '500': '#f44336', '600': '#e53935', '700': '#d32f2f',
+                            '800': '#c62828', '900': '#b71c1c', '950': '#8d1111',
+                        }
+                    }
+                },
+            },
+        };
+    </script>
     
-    const ticks = {
-        blue: { src: "https://i.ibb.co/kgJpMCHr/blue.png", title: "Verified User" },
-        silver: { src: "https://i.ibb.co/gLJLF9Z2/silver.png", title: "Special User" },
-        gold: { src: "https://i.ibb.co/Q2C7MrM/gold.png", title: "Admin User" },
-        green: { src: "https://i.ibb.co/SXGL4Nq0/green.png", title: "Official Channel" },
-        black: { src: "https://i.ibb.co/zVNSNzrK/black.png", title: "Anonymous" }
-    };
-
-    // --- UI & UTILITY FUNCTIONS ---
-    function showToast(message) {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = 'toast';
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('active');
-      document.getElementById('sidebarOverlay').classList.toggle('active');
-    }
-    
-    async function logout() {
-      showToast("Logging out...");
-      if (realtimeChannel) await client.removeChannel(realtimeChannel);
-      await client.auth.signOut();
-    }
-    function toggleTheme() {
-        const root = document.documentElement;
-        const newTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        root.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateChannelLinks();
-    }
-    function applySavedTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        const themeCheckbox = document.getElementById('theme-checkbox');
-        if (themeCheckbox) themeCheckbox.checked = savedTheme === 'dark';
-    }
-    function selectName(button) {
-      document.querySelectorAll('.name-button').forEach(btn => btn.classList.remove('selected-name-button'));
-      button.classList.add('selected-name-button');
-      selectedName = button.innerText.trim();
-    }
-    function confirmRemove() { document.getElementById('confirm-modal').style.display = 'flex'; }
-    function hideConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
-    
-    // --- ✅ NEW: FUNCTION TO LOCK CHANNEL SECTION ---
-    function lockChannelsSection() {
-        const channelsContainer = document.getElementById('channels-container');
-        const channelList = document.getElementById('channel-list');
-
-        // Add placeholder content for the blur effect
-        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding: 20px 0;">Content Locked</p>';
-
-        // Apply blur and add overlay
-        channelsContainer.classList.add('locked');
-        const overlay = document.createElement('div');
-        overlay.className = 'lock-overlay';
-        overlay.innerHTML = `<div class="lock-overlay-content">🔒 You don't have access to Channels</div>`;
-        channelsContainer.appendChild(overlay);
-    }
-
-    // --- DATA FETCHING & RENDERING ---
-
-    function updateChannelLinks() {
-      if (!currentUser) return;
-      const theme = localStorage.getItem('theme') || 'light';
-      document.querySelectorAll('.channel-link').forEach(link => {
-        try {
-          const url = new URL(link.href);
-          url.searchParams.set('id', currentUser.id);
-          url.searchParams.set('course', currentUser.course);
-          url.searchParams.set('theme', theme);
-          link.href = url.toString();
-        } catch (e) { console.error("Failed to update channel link href:", e); }
-      });
-    }
-
-    function renderChannels(channelsToRender) {
-        const channelList = document.getElementById('channel-list');
-        if (channelsToRender.length === 0) {
-            channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No channels found.</p>';
-            return;
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
         }
-        channelList.innerHTML = channelsToRender.map(channel => `
-            <a href="${channel.href}" class="channel-link" target="_blank">
-                <div class="channel-card">
-                    <img src="${channel.img}" alt="Channel Icon" class="card-pic" loading="lazy">
-                    <div class="channel-info">
-                        <div class="channel-title">
-                            ${channel.name}
-                            <img src="https://i.ibb.co/SXGL4Nq0/green.png" alt="Tick" style="width:16px; height:16px;">
+        
+        /* Page load fade-in animation */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        
+        /* Custom shadows for nav bars */
+        .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
+        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
+
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Feather Icon Styling */
+        i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
+        
+        /* Bottom nav icon sizing */
+        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
+
+        /* Spinner */
+        .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Tick Mark Style */
+        .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
+
+        /* Notification Panel Styles */
+        #notification-panel { transition: transform 0.3s ease-in-out; }
+        .notification-item-enter { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .notification-item-enter-active { opacity: 1; transform: translateY(0); }
+
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
+        .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
+        .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
+        .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
+        .toast.show { opacity: 1; }
+        .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+        @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+
+        <div id="skeleton-loader" class="absolute inset-0 z-50 bg-white pt-20 pb-24 px-4 overflow-hidden">
+            <div class="animate-pulse space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                </div>
+                
+                <div>
+                    <div class="h-5 w-1/3 bg-gray-200 rounded-full mb-3"></div> <div class="h-20 bg-gray-200 rounded-2xl"></div> </div>
+                
+                <div class="h-32 bg-gray-200 rounded-2xl"></div>
+                
+                <div class="space-y-3">
+                    <div class="h-5 w-1/2 bg-gray-200 rounded-full"></div>
+                    <div class="h-20 bg-gray-200 rounded-2xl"></div>
+                </div>
+                 <div class="space-y-3">
+                    <div class="h-5 w-1/2 bg-gray-200 rounded-full"></div>
+                    <div class="h-20 bg-gray-200 rounded-2xl"></div>
+                </div>
+            </div>
+            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white flex justify-between items-center p-4 border-b border-gray-100"> <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-24 h-6 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+            </div>
+            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white flex justify-around items-center p-3 border-t border-gray-100"> <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+            </div>
+        </div>
+        
+        <div id="app-content" class="hidden">
+            <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
+                <a href="myprofile.html" class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
+                    <i data-feather="user" class="text-gray-700"></i>
+                </a>
+                <h1 class="text-3xl font-logo text-primary-600">BirlaOne</h1>
+                <button id="notification-bell-btn" class="relative p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
+                    <i data-feather="bell" class="text-gray-700"></i>
+                    <span id="notification-badge" class="hidden absolute top-1 right-1 block h-4 w-4 rounded-full bg-red-500 text-white text-[10px] leading-tight text-center ring-2 ring-white">
+                        0
+                    </span>
+                </button>
+            </header>
+
+            <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Academic Score</h2>
+                            <i data-feather="award" class="text-primary-600 h-5 w-5"></i>
                         </div>
-                        <div class="channel-description">${channel.tagline}</div>
+                        <div>
+                            <span class="text-4xl font-bold text-gray-900">--</span>
+                            <span class="text-sm font-medium text-gray-500">/ 100</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Plastic Recycled</h2>
+                            <i data-feather="refresh-ccw" class="text-green-600 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-4xl font-bold text-gray-900">--</span>
+                            <span class="text-sm font-medium text-gray-500">kg</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Campus Friends</h2>
+                            <i data-feather="users" class="text-purple-500 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span id="friends-count-value" class="text-4xl font-bold text-gray-900">--</span>
+                            <span class="text-sm font-medium text-gray-500">Total</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600">Net Worth</h2>
+                            <i data-feather="credit-card" class="text-indigo-500 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-4xl font-bold text-gray-900">₹--</span>
+                            <p class="text-xs text-gray-500">Personal Wealth</p>
+                        </div>
                     </div>
                 </div>
-            </a>
-        `).join('');
-        updateChannelLinks();
-    }
 
-    async function fetchChannels() {
-        if (!currentUser || !currentUser.course) {
-            document.getElementById('channel-list').innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading user data...</p>';
-            return;
-        }
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                        <i data-feather="star" class="text-yellow-500"></i>
+                        <span>Roles & Badges</span>
+                    </h2>
+                    <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
+                         Not Assigned
+                     </div>
+                </div>
 
-        const channelList = document.getElementById('channel-list');
-        channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Loading channels...</p>';
-        
-        const { data, error } = await client
-            .from('Channels')
-            .select('*')
-            .or(`allowed_courses.cs.{"all"},allowed_courses.cs.{"${currentUser.course}"}`);
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                        <i data-feather="book-open" class="text-primary-600"></i>
+                        <span>Scheduled Lectures</span>
+                    </h2>
+                     <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
+                         No lectures Scheduled
+                     </div>
+                </div>
 
-        if (error) {
-            console.error("Error fetching channels:", error);
-            channelList.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">Could not load channels.</p>';
-        } else {
-            allChannels = data;
-            renderChannels(allChannels);
-        }
-    }
-    
-    function createConfessionHTML(conf) {
-        const tickData = ticks[conf.tick];
-        const tick = tickData ? `<img src="${tickData.src}" width="16" title="${tickData.title}" loading="lazy">` : '';
-        const formattedMessage = conf.message.replace(/\\n/g, '<br>').replace(/\n/g, "<br>");
-        const replyCount = conf.replies_count > 0 ? `<span class="reply-count">${conf.replies_count} ${conf.replies_count === 1 ? 'Reply' : 'Replies'}</span>` : '';
-        return `
-            <div class="confession-card" data-id="${conf.user_id}">
-                <div class="card-header"><img src="${conf.pic}" class="card-pic" alt="User picture" loading="lazy"><div class="card-name"><span>${conf.c_name}</span>${tick}</div></div>
-                <p class="confession-message">${formattedMessage}</p>
-                <div class="confession-footer">${replyCount}<button onclick="toggleReplies(this, '${conf.user_id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>Reply</button></div>
-                <div class="replies-wrapper"></div>
-            </div>`;
-    }
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                        <i data-feather="calendar" class="text-green-600"></i>
+                        <span>Upcoming Activities</span>
+                    </h2>
+                    <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
+                         No Upcoming activities
+                     </div>
+                </div>
 
-    async function fetchConfessions() {
-        const { data, error } = await client.from('confessions').select('*').order('created_at', { ascending: false });
-        if (error) return;
-        document.getElementById('confession-list').innerHTML = data.map(createConfessionHTML).join('');
-        if (currentUser) {
-          const userHasConfession = data.some(conf => conf.user_id == currentUser.id);
-          document.getElementById('removeDiv').style.display = userHasConfession ? 'block' : 'none';
-        }
-    }
+            </main>
 
-    async function addConfession() {
-        if (!currentUser) return showToast("You must be logged in.");
-        const messageInput = document.getElementById('messageInput');
-        const message = messageInput.value.trim();
-        if (!message) return showToast("Please write something!");
+            <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+                <a href="index.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Dashboard">
+                    <i data-feather="layout" class="stroke-[2.5px]"></i>
+                </a>
+                <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
+                    <i data-feather="file-text"></i>
+                </a>
+                <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
+                    <i data-feather="plus-circle"></i>
+                </a>
+                <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
+                    <i data-feather="search"></i>
+                </a>
+                <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+                    <i data-feather="grid"></i>
+                </a>
+            </nav>
 
-        const oldCard = document.querySelector(`.confession-card[data-id="${currentUser.id}"]`);
-        if (oldCard) oldCard.remove();
+             <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl border-l border-gray-200 z-50 flex flex-col transform translate-x-full">
+                <div class="flex justify-between items-center p-3 border-b border-gray-200">
+                    <h3 class="font-semibold text-lg">Notifications</h3>
+                    <button id="close-notification-panel-btn" class="p-1 rounded-full text-gray-500 hover:bg-gray-100">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div id="notification-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                    <p id="notifications-loading" class="text-center text-gray-500 py-4">Loading...</p>
+                    <p id="no-notifications" class="hidden text-center text-gray-500 py-4">No notifications yet.</p>
+                </div>
+                <div class="p-2 border-t border-gray-200">
+                    <button id="mark-all-read-btn" class="w-full text-sm text-primary-600 font-medium py-2 hover:bg-primary-50 rounded">
+                        Mark all as read
+                    </button>
+                </div>
+            </div>
+            <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+             <div id="toast-container"></div> </div> </div> <script>
+        // --- 1. SUPABASE CLIENT SETUP ---
+        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // Replace if needed
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c'; // Replace if needed
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
-        if (selectedName.toLowerCase() === 'anonymous') {
-            c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
-        }
-        const newConfessionData = { user_id: currentUser.id, c_name, message, tick, pic, replies_count: 0 };
-        
-        document.getElementById('confession-list').insertAdjacentHTML('afterbegin', createConfessionHTML(newConfessionData));
-        document.getElementById('removeDiv').style.display = 'block';
-        messageInput.value = '';
+        // --- Global variables ---
+        let currentAuthUser = null;
+        let currentUserProfile = null; // Store user profile data
+        const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
 
-        await client.from('confessions').delete().eq('user_id', currentUser.id);
-        const { error: insertError } = await client.from('confessions').insert([newConfessionData]);
+        // --- DOM Elements ---
+        const skeletonLoader = document.getElementById('skeleton-loader');
+        const appContent = document.getElementById('app-content');
+        const friendsCountValue = document.getElementById('friends-count-value');
 
-        if (insertError) {
-            showToast("Failed to post confession.");
-            console.error("Confession insert error:", insertError);
-            await fetchConfessions(); 
-        } else {
-            showToast("Confessed Successfully!");
-        }
-    }
+        // --- NOTIFICATION GLOBALS ---
+        const notificationBellBtn = document.getElementById('notification-bell-btn');
+        const notificationBadge = document.getElementById('notification-badge');
+        const notificationPanel = document.getElementById('notification-panel');
+        const notificationList = document.getElementById('notification-list');
+        const notificationsLoading = document.getElementById('notifications-loading');
+        const noNotifications = document.getElementById('no-notifications');
+        const closeNotificationPanelBtn = document.getElementById('close-notification-panel-btn');
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        const notificationBackdrop = document.getElementById('notification-backdrop');
+        let notificationSubscription = null;
+        const toastContainer = document.getElementById('toast-container');
 
-    async function removeMyConfession() {
-        hideConfirmModal();
-        if (!currentUser) return;
-        
-        document.querySelector(`.confession-card[data-id="${currentUser.id}"]`)?.remove();
-        document.getElementById('removeDiv').style.display = 'none';
+        // --- 2. AUTH & INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await _supabase.auth.getSession();
 
-        const { error } = await client.from('confessions').delete().eq('user_id', currentUser.id);
-        if (error) {
-            showToast("Delete failed. Please refresh.");
-        } else {
-            showToast("Confession Removed.");
-        }
-    }
-
-    async function logUserVisit() {
-        if (currentUser) {
-            await client.from('logs').insert([{ 
-                time: new Date().toISOString(), 
-                user_id: currentUser.id, 
-                Name: currentUser.name,
-                course: currentUser.course
-            }]);
-        }
-    }
-
-    // --- REPLY FUNCTIONS ---
-    async function toggleReplies(button, confessionUserId) {
-        const wrapper = button.closest('.confession-card').querySelector('.replies-wrapper');
-        if (wrapper.classList.contains('active')) {
-            wrapper.classList.remove('active');
-            setTimeout(() => { wrapper.innerHTML = ''; }, 300);
-            return;
-        }
-        wrapper.classList.add('active');
-        wrapper.innerHTML = '<p style="text-align:center; padding:10px; color:var(--text-secondary);">Loading...</p>';
-        const { data } = await client.from('replies').select('*').eq('confession_user_id', confessionUserId).order('created_at', { ascending: true });
-        renderRepliesAndInput(wrapper, data || [], confessionUserId);
-    }
-
-    function createReplyHTML(reply) {
-        const tickData = ticks[reply.tick];
-        const tick = tickData ? `<img src="${tickData.src}" width="16" title="${tickData.title}" loading="lazy">` : '';
-        const deleteBtn = currentUser && reply.user_id == currentUser.id ? `<button class="reply-delete-btn" onclick="deleteReply(this, ${reply.id})">Delete</button>` : '';
-        return `
-            <div class="reply-card" data-reply-id="${reply.id}">
-                <div class="card-header"><img src="${reply.pic}" class="card-pic" alt="pic" style="width:30px;height:30px;" loading="lazy"><div class="card-name" style="font-size:14px;"><span>${reply.c_name}</span>${tick}</div></div>
-                <p class="confession-message">${reply.message}</p>
-                <div class="reply-card-footer">${deleteBtn}</div>
-            </div>`;
-    }
-
-    function renderRepliesAndInput(container, replies, confessionUserId) {
-        let repliesHtml = replies.length > 0
-            ? replies.map(createReplyHTML).join('')
-            : '<p class="no-replies" style="text-align:center;color:var(--text-secondary); padding:10px 0;">Be the first to reply!</p>';
-        container.innerHTML = repliesHtml + `
-            <div class="reply-input-bar-inline">
-                <input type="text" placeholder="Replying as ${selectedName}..."/>
-                <button onclick="addReply(this, '${confessionUserId}')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
-            </div>`;
-    }
-
-    async function addReply(button, confessionUserId) {
-        const input = button.closest('.reply-input-bar-inline').querySelector('input');
-        const message = input.value.trim();
-        if (!message || !currentUser) {
-            return showToast("You must be logged in to reply.");
-        }
-        
-        let c_name = currentUser.name, pic = currentUser.img, tick = currentUser.tick || '';
-        if (selectedName.toLowerCase() === 'anonymous') {
-            c_name = 'Anonymous', pic = 'https://t4.ftcdn.net/jpg/05/89/93/27/360_F_589932782_vQAEAZhHnq1QCGu5ikwrYaQD0Mmurm0N.jpg', tick = 'black';
-        }
-
-        const newReplyData = { 
-            confession_user_id: confessionUserId, 
-            message, 
-            user_id: currentUser.id,
-            c_name, pic, tick, 
-            id: Date.now() // Temporary ID for immediate render
-        };
-        
-        const wrapper = button.closest('.replies-wrapper');
-        wrapper.querySelector('.no-replies')?.remove();
-        const replyInputBar = wrapper.querySelector('.reply-input-bar-inline');
-        replyInputBar.insertAdjacentHTML('beforebegin', createReplyHTML(newReplyData));
-        input.value = '';
-
-        const { id, ...dbReplyData } = newReplyData; // Exclude temp ID for DB insert
-        const { error } = await client.from('replies').insert([dbReplyData]);
-
-        if (error) {
-            showToast("Couldn't post reply.");
-            console.error("Reply Insert Error:", error); 
-            wrapper.querySelector(`[data-reply-id="${newReplyData.id}"]`)?.remove();
-        }
-    }
-    
-    async function deleteReply(button, replyId) {
-        const card = button.closest('.reply-card');
-        const wrapper = button.closest('.replies-wrapper');
-        const confessionCard = button.closest('.confession-card');
-        const confessionUserId = confessionCard.dataset.id;
-        card.remove();
-        const { error } = await client.from('replies').delete().eq('id', replyId);
-        if (error) {
-            showToast("Failed to delete reply.");
-            console.error("Delete Reply Error:", error);
-            const { data } = await client.from('replies').select('*').eq('confession_user_id', confessionUserId).order('created_at', { ascending: true });
-            renderRepliesAndInput(wrapper, data || [], confessionUserId);
-        }
-    }
-    
-    // --- REALTIME & INITIALIZATION ---
-    function handleRealtimeUpdate(payload) {
-        const { eventType, table, new: newRecord, old: oldRecord } = payload;
-        const record = eventType === 'DELETE' ? oldRecord : newRecord;
-
-        if (table === 'confessions') {
-            const list = document.getElementById('confession-list');
-            const card = list.querySelector(`.confession-card[data-id="${record.user_id}"]`);
-            if (eventType === 'INSERT' && !card) {
-                list.insertAdjacentHTML('afterbegin', createConfessionHTML(record));
-            } else if (eventType === 'DELETE' && card) {
-                card.remove();
-            } else if (eventType === 'UPDATE' && card) {
-                card.outerHTML = createConfessionHTML(record);
+            if (error || !session) {
+                // If no session, show skeleton briefly then redirect
+                 showSkeletonAndRedirect('login.html', 500);
+                 return;
             }
-        } else if (table === 'replies') {
-            const confessionCard = document.querySelector(`.confession-card[data-id="${record.confession_user_id}"]`);
-            if (!confessionCard) return;
-            const wrapper = confessionCard.querySelector('.replies-wrapper');
-            if (!wrapper.classList.contains('active')) return;
-            
-            const replyCard = wrapper.querySelector(`[data-reply-id="${record.id}"]`);
-            if (eventType === 'INSERT' && !replyCard) {
-                wrapper.querySelector('.no-replies')?.remove();
-                wrapper.querySelector('.reply-input-bar-inline').insertAdjacentHTML('beforebegin', createReplyHTML(record));
-            } else if (eventType === 'DELETE' && replyCard) {
-                replyCard.remove();
-            }
-        }
-    }
 
-    async function subscribeToChanges() {
-        if (realtimeChannel) await client.removeChannel(realtimeChannel);
-        realtimeChannel = client.channel('public-db-changes')
-            .on('postgres_changes', { event: '*', schema: 'public' }, handleRealtimeUpdate)
-            .subscribe();
-    }
+            currentAuthUser = session.user;
 
-    async function fetchAndSetCurrentUser(session) {
-      // --- ✅ MODIFIED: Fetch c_permission ---
-      const { data, error } = await client.from('users').select('id, img, name, course, tick, c_permission').eq('auth_id', session.user.id).single();
-      if (error) return false;
-      currentUser = data;
-      const picUrl = data.img || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-      document.getElementById('profilePic').src = picUrl;
-      document.getElementById('sidebarProfilePic').src = picUrl;
-      document.getElementById('nameButton').innerText = data.name || 'Student';
-      document.getElementById('sidebar-username').innerText = data.name || 'Student';
-      document.getElementById('sidebar-user-id').innerText = `Student ID: ${data.id || 'N/A'}`;
-      return true;
-    }
+            // Fetch profile, log data, and update UI
+            await fetchUserProfileAndLog(currentAuthUser.id);
 
-    async function initializeApp(session) {
-        if (!session || !session.user) { window.location.href = "login.html"; return; }
-        
-        const profileLoaded = await fetchAndSetCurrentUser(session);
-        if (!profileLoaded) {
-            showToast("Could not load profile. Logging out.");
-            setTimeout(logout, 1500); return;
-        }
-        
-        await fetchConfessions();
+            // Hide skeleton, show content
+            hideSkeletonShowApp(500); // 0.5 sec delay
 
-        // --- ✅ MODIFIED: Check permissions before fetching channels ---
-        if (currentUser && currentUser.c_permission === 'no') {
-            lockChannelsSection();
-        } else {
-            await fetchChannels();
-        }
-
-        await logUserVisit();
-        subscribeToChanges();
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        applySavedTheme();
-        document.getElementById('theme-checkbox').addEventListener('change', toggleTheme);
-        
-        document.getElementById('channelSearch').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredChannels = allChannels.filter(channel => 
-                channel.name.toLowerCase().includes(searchTerm) || 
-                (channel.tagline && channel.tagline.toLowerCase().includes(searchTerm))
-            );
-            renderChannels(filteredChannels);
+            // Initialize Notifications AFTER content is potentially visible
+            setupNotificationListeners();
+            fetchUnreadCount();
+            setupRealtimeNotifications();
         });
 
-        client.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') initializeApp(session);
-            else if (event === 'SIGNED_OUT') {
-                currentUser = null;
-                window.location.href = "login.html";
+        // --- 3. SKELETON LOADER & CONTENT DISPLAY ---
+        function showSkeletonAndRedirect(url, delay = 0) {
+            // Ensure skeleton is visible initially (it should be by default)
+             setTimeout(() => {
+                window.location.href = url;
+             }, delay);
+        }
+
+        function hideSkeletonShowApp(delay = 0) {
+             setTimeout(() => {
+                 if (skeletonLoader && appContent) {
+                     skeletonLoader.style.transition = 'opacity 0.4s ease-out';
+                     skeletonLoader.style.opacity = '0';
+                     setTimeout(() => {
+                         skeletonLoader.style.display = 'none';
+                         appContent.classList.remove('hidden');
+                         appContent.classList.add('fade-in');
+                         feather.replace(); // Render icons now
+                     }, 400); // Match transition duration
+                 }
+             }, delay);
+        }
+
+        // --- 4. FETCH USER PROFILE & LOG DATA ---
+        async function fetchUserProfileAndLog(authId) {
+            if (!authId) return;
+
+            try {
+                // Fetch necessary user data including friend_count, id (student_id), name, course
+                const { data, error } = await _supabase
+                    .from('users')
+                    .select('auth_id, name, id, course, friend_count') // Select needed fields
+                    .eq('auth_id', authId)
+                    .single();
+
+                if (error) throw error;
+
+                if (data) {
+                    currentUserProfile = data; // Store profile data globally
+
+                    // Update UI: Friends Count
+                    if (friendsCountValue) {
+                        friendsCountValue.textContent = data.friend_count ?? 0;
+                    }
+
+                    // Log user data
+                    await logUserData(data);
+
+                } else {
+                    console.warn("User profile data not found.");
+                    // Log attempt even if data is missing? Decide based on requirements.
+                    // await logUserData({ auth_id: authId, name: 'Unknown', id: 'Unknown', course: 'Unknown' });
+                }
+
+            } catch (error) {
+                console.error("Error fetching user profile or logging:", error.message);
+                // Optionally show an error to the user
+                // showToast("Could not load profile data.", "error");
             }
-        });
-    });
-</script>
+        }
+
+        // --- 5. LOG USER DATA ---
+        async function logUserData(userData) {
+             if (!userData || !userData.auth_id) {
+                 console.error("Cannot log data: User Auth ID is missing.");
+                 return;
+             }
+             try {
+                // Insert into the 'logs' table
+                 const { error: logError } = await _supabase
+                     .from('logs')
+                     .insert({
+                         user_id: userData.auth_id, // Assuming user_id in logs corresponds to auth_id
+                         Name: userData.name || 'N/A',
+                         course: userData.course || 'N/A',
+                         // 'time' column has a default value of now() in the DB schema
+                     });
+
+                 if (logError) {
+                     // Check for specific errors, e.g., foreign key violation if user_id doesn't exist
+                     console.error("Error inserting into logs table:", logError.message);
+                 } else {
+                     console.log("User data logged successfully.");
+                 }
+             } catch (error) {
+                  console.error("Exception during logging:", error.message);
+             }
+        }
+
+
+        // --- 6. NOTIFICATION FUNCTIONS (Copied from feed.html) ---
+
+        function setupNotificationListeners() {
+            if (!notificationBellBtn) return;
+            notificationBellBtn.addEventListener('click', toggleNotificationPanel);
+            closeNotificationPanelBtn.addEventListener('click', closePanel);
+            markAllReadBtn.addEventListener('click', markAllAsRead);
+            notificationBackdrop.addEventListener('click', closePanel);
+        }
+
+        function toggleNotificationPanel() {
+            const isHidden = notificationPanel.classList.contains('hidden');
+            if (isHidden) {
+                openPanel();
+                fetchNotifications();
+            } else {
+                closePanel();
+            }
+        }
+
+        function openPanel() {
+            notificationPanel.classList.remove('hidden');
+            notificationBackdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                notificationPanel.classList.remove('translate-x-full');
+            });
+        }
+
+        function closePanel() {
+            notificationPanel.classList.add('translate-x-full');
+            notificationBackdrop.classList.add('hidden');
+            setTimeout(() => {
+                notificationPanel.classList.add('hidden');
+            }, 300); // Match transition duration
+        }
+
+        async function fetchUnreadCount() {
+            if (!currentAuthUser) return;
+            try {
+                const { data, error } = await _supabase.rpc('get_unread_notifications_count');
+                if (error) throw error;
+                updateBadge(data);
+            } catch (error) {
+                console.error("Error fetching unread count:", error.message);
+            }
+        }
+
+        async function fetchNotifications() {
+            if (!currentAuthUser) return;
+            notificationsLoading.style.display = 'block';
+            noNotifications.style.display = 'none';
+            notificationList.innerHTML = ''; // Clear previous
+
+            try {
+                const { data, error } = await _supabase.rpc('get_my_notifications');
+                if (error) throw error;
+
+                notificationsLoading.style.display = 'none';
+
+                // Check if data is null or empty array
+                 if (!data || (Array.isArray(data) && data.length === 0)) {
+                    noNotifications.style.display = 'block';
+                } else {
+                    renderNotifications(data);
+                }
+            } catch (error) {
+                console.error("Error fetching notifications:", error.message);
+                notificationsLoading.style.display = 'none';
+                notificationList.innerHTML = '<p class="text-center text-red-500 py-4">Could not load notifications.</p>';
+            }
+        }
+
+        function renderNotifications(notifications) {
+            notificationList.innerHTML = ''; // Clear fully
+             const localTickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
+
+             // Handle potential non-array data (Supabase RPC might return single object or null)
+             const notificationsArray = Array.isArray(notifications) ? notifications : (notifications ? [notifications] : []);
+
+            notificationsArray.forEach(notif => {
+                 if (!notif) return; // Skip if null/undefined in array somehow
+                 const div = document.createElement('div');
+                div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors ${!notif.is_read ? 'bg-primary-50' : 'bg-white'} hover:bg-gray-100`;
+                div.dataset.notificationId = notif.id;
+
+                const senderAvatar = notif.sender_img
+                    ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">`
+                    : `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">?</div>`;
+
+                 const tickType = notif.sender_tick?.toLowerCase();
+                 const tickHtml = (tickType && localTickImages[tickType])
+                        ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`
+                        : '';
+
+                const timeAgo = formatTimeAgo(notif.created_at);
+
+                const contentHtml = `
+                    <p class="text-sm text-gray-800">
+                        ${notif.sender_name ? `<strong class="font-medium">${notif.sender_name}</strong>${tickHtml} ` : ''}
+                        ${notif.content_preview || `Notification type: ${notif.type}`}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-0.5">${timeAgo}</p>
+                `;
+
+                const isDirectLink = notif.link && !notif.link.includes('myprofile.html');
+                const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">';
+                const linkWrapperEnd = isDirectLink ? '</a>' : '</div>';
+
+                div.innerHTML = `
+                    ${senderAvatar}
+                    ${linkWrapperStart}
+                        ${contentHtml}
+                    ${linkWrapperEnd}
+                    ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
+                `;
+
+                div.addEventListener('click', (e) => {
+                    if (isDirectLink && !e.target.closest('.w-2.h-2')) {
+                        markSingleAsRead(notif.id);
+                    } else {
+                        if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
+                           // Check if current page is already myprofile.html before navigating
+                           if (!window.location.pathname.endsWith('myprofile.html')) {
+                                window.location.href = notif.link;
+                           } else {
+                               // Optional: If already on myprofile, maybe open the requests modal directly?
+                                // Example: if (typeof openFriendRequestsModal === 'function') openFriendRequestsModal();
+                           }
+                        }
+                        if (!notif.is_read) {
+                            markSingleAsRead(notif.id, div);
+                        }
+                    }
+                });
+
+                div.classList.add('notification-item-enter');
+                notificationList.appendChild(div);
+                requestAnimationFrame(() => {
+                    div.classList.add('notification-item-enter-active');
+                });
+            });
+            feather.replace();
+        }
+
+        async function markSingleAsRead(notificationId, elementToUpdate = null) {
+            if (!currentAuthUser) return;
+             const notificationElement = elementToUpdate || notificationList.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
+             const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
+             if (!unreadDot) return;
+
+            try {
+                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
+                if (error) throw error;
+
+                if (notificationElement) {
+                    notificationElement.classList.remove('bg-primary-50');
+                    notificationElement.classList.add('bg-white');
+                    unreadDot.remove();
+                }
+                fetchUnreadCount();
+            } catch (error) {
+                console.error("Error marking notification read:", error.message);
+                showToast("Could not mark notification as read.", 'error');
+            }
+        }
+
+        async function markAllAsRead() {
+            if (!currentAuthUser) return;
+            setButtonLoading(markAllReadBtn, true);
+            try {
+                const { error } = await _supabase.rpc('mark_all_notifications_read');
+                if (error) throw error;
+
+                notificationList.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
+                    el.classList.remove('bg-primary-50');
+                    el.classList.add('bg-white');
+                    const unreadDot = el.querySelector('.w-2.h-2.bg-primary-500');
+                    if (unreadDot) unreadDot.remove();
+                });
+                updateBadge(0);
+                showToast("All notifications marked as read.", 'success');
+
+            } catch (error) {
+                console.error("Error marking all notifications read:", error.message);
+                showToast("Could not mark all as read.", 'error');
+            } finally {
+                setButtonLoading(markAllReadBtn, false);
+            }
+        }
+
+        function setupRealtimeNotifications() {
+             if (!currentAuthUser) return;
+             if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
+
+             notificationSubscription = _supabase
+                 .channel('public:notifications')
+                 .on(
+                     'postgres_changes',
+                     { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` },
+                     (payload) => {
+                         console.log('New notification received:', payload.new);
+                         fetchUnreadCount();
+                         showToast(payload.new.content_preview || 'You have a new notification!', 'success');
+                         if (!notificationPanel.classList.contains('hidden')) {
+                             fetchNotifications(); // Refetch list if panel is open
+                         }
+                     }
+                 )
+                 .subscribe((status, err) => {
+                      if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
+                      if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
+                 });
+
+                 window.addEventListener('beforeunload', () => {
+                     if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
+                 });
+        }
+
+        function updateBadge(count) {
+             // Ensure elements exist before modifying
+             if (!notificationBadge) return;
+            if (count > 0) {
+                notificationBadge.textContent = count > 9 ? '9+' : count;
+                notificationBadge.classList.remove('hidden');
+            } else {
+                notificationBadge.classList.add('hidden');
+            }
+        }
+
+        // --- 7. HELPER FUNCTIONS ---
+        function formatTimeAgo(dateString) {
+             const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`;
+            toastContainer.appendChild(toast);
+            feather.replace();
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 3000);
+        }
+
+        function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) {
+             buttonEl.disabled = isLoading;
+             const textEl = buttonEl.querySelector('.button-text');
+             const spinnerEl = buttonEl.querySelector('.button-spinner');
+
+             if (isSmall) {
+                 const iconEl = buttonEl.querySelector('i[data-feather]');
+                 if (isLoading) {
+                     if (iconEl) iconEl.style.display = 'none';
+                     if (!spinnerEl) {
+                         const spinner = document.createElement('div');
+                         spinner.className = 'spinner button-spinner w-5 h-5';
+                         buttonEl.prepend(spinner);
+                     } else { spinnerEl.style.display = 'block'; }
+                 } else {
+                     const existingSpinner = buttonEl.querySelector('.button-spinner');
+                     if (existingSpinner) existingSpinner.remove();
+                     if (iconEl) { iconEl.style.display = 'block'; }
+                     else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); }
+                 }
+             } else {
+                 const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
+                  if (isLoading) {
+                     buttonEl.dataset.originalText = originalText;
+                     buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
+                 } else {
+                     buttonEl.innerHTML = originalText;
+                     delete buttonEl.dataset.originalText;
+                     feather.replace(); // Re-render icons if needed
+                 }
+             }
+        }
+
+    </script>
+
 </body>
 </html>
