@@ -27,18 +27,15 @@
                     },
                     colors: {
                         'primary': {
-                            '50': '#f7fbf4',
-                            '100': '#eef8e9',
-                            '200': '#dcf1d3',
-                            '300': '#c3e7b3',
-                            '400': '#a6d98e',
-                            '500': '#87c964',
-                            '600': '#56ab2f', /* Base Green */
-                            '700': '#458a26',
-                            '800': '#396f21',
-                            '900': '#305b1c',
-                            '950': '#1a320f',
+                            '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3',
+                            '400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26',
+                            '800': '#396f21','900': '#305b1c','950': '#1a320f',
                         },
+                         'danger': { // Added Danger colors
+                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a','300': '#e57373',
+                            '400': '#ef5350', '500': '#f44336','600': '#e53935', '700': '#d32f2f',
+                            '800': '#c62828','900': '#b71c1c', '950': '#8d1111'
+                        }
                     }
                 },
             },
@@ -46,68 +43,81 @@
     </script>
     
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* bg-slate-50 */
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
+        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #56ab2f; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
+        #file-upload-input { display: none; }
+        #file-upload-label { cursor: pointer; }
+
+        /* --- NEW STYLES --- */
+        /* Editable Div Styling */
+        .editable-content {
+            min-height: 160px; /* Same as h-40 textarea */
+            height: auto;
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1rem; /* p-4 */
+            background-color: #f9fafb; /* bg-gray-50 */
+            color: #111827; /* text-gray-900 */
+            line-height: 1.5; /* Default line height */
         }
-        
-        /* Custom shadows for nav bars */
-        .bottom-nav-shadow {
-            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
+        .editable-content:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #56ab2f; /* focus:ring-2 focus:ring-primary-600 */
+        }
+        .editable-content[placeholder]:empty:before {
+            content: attr(placeholder);
+            color: #6b7280; /* placeholder-gray-500 */
+            pointer-events: none;
+            display: block; /* For cursor placement */
+        }
+        /* Toolbar Styling */
+        .format-toolbar {
+            display: flex;
+            gap: 0.5rem; /* space-x-2 */
+            margin-bottom: 0.75rem; /* mb-3 */
+            padding: 0.5rem; /* p-2 */
+            background-color: #f3f4f6; /* bg-gray-100 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .format-toolbar button {
+            padding: 0.375rem 0.625rem; /* ~px-2.5 py-1.5 */
+            border-radius: 0.375rem; /* rounded-md */
+            background-color: white;
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            font-weight: 600; /* font-semibold */
+            font-size: 0.875rem; /* text-sm */
+            color: #374151; /* text-gray-700 */
+            transition: background-color 0.2s;
+        }
+        .format-toolbar button:hover {
+            background-color: #f9fafb; /* hover:bg-gray-50 */
+        }
+        .format-toolbar button.active {
+             background-color: #eef8e9; /* primary-100 */
+             color: #305b1c; /* primary-900 */
+             border-color: #a6d98e; /* primary-400 */
+        }
+        .format-toolbar button i[data-feather] {
+            width: 18px; height: 18px;
         }
 
-        /* Hide scrollbar */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        /* Feather Icon Styling */
-        i[data-feather] {
-            width: 24px;
-            height: 24px;
-        }
-        
-        /* Bottom nav icon sizing -- CORRECTED RULE */
-        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather {
-            width: 28px;
-            height: 28px;
-        }
-
-        /* Loading spinner */
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #56ab2f;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Tick Mark Style */
-        .post-tick-mark { 
-            width: 1rem; 
-            height: 1rem; 
-            vertical-align: -0.125em; 
-            margin-left: 4px; 
-            display: inline-block;
-        }
-
-        /* Custom file input appearance */
-        #file-upload-input {
-            display: none;
-        }
-        #file-upload-label {
-            cursor: pointer;
-        }
-
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
+        .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
+        .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
+        .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
+        .toast.show { opacity: 1; }
+        .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+        @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- END NEW STYLES --- */
     </style>
 </head>
 <body class="antialiased">
@@ -128,18 +138,10 @@
             </div>
 
             <div class="flex border-b border-gray-200">
-                <button id="tab-text" onclick="switchTab('text')" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all">
-                    Text
-                </button>
-                <button id="tab-photo" onclick="switchTab('photo')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
-                    Photo/Video
-                </button>
-                <button id="tab-poll" onclick="switchTab('poll')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
-                    Poll
-                </button>
-                <button id="tab-anonymous" onclick="switchTab('anonymous')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">
-                    Anonymous
-                </button>
+                <button id="tab-text" onclick="switchTab('text')" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all">Text</button>
+                <button id="tab-photo" onclick="switchTab('photo')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Photo/Video</button>
+                <button id="tab-poll" onclick="switchTab('poll')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Poll</button>
+                <button id="tab-anonymous" onclick="switchTab('anonymous')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Anonymous</button>
             </div>
 
             <div>
@@ -153,10 +155,12 @@
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea id="text-post-content" class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="What's on your mind?"></textarea>
-                    <button id="submit-text-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
-                        Post
-                    </button>
+                     <div class="format-toolbar">
+                        <button onclick="formatDoc('bold');" title="Bold"><i data-feather="bold"></i></button>
+                        <button onclick="formatDoc('italic');" title="Italic"><i data-feather="italic"></i></button>
+                        </div>
+                    <div id="text-post-content" contenteditable="true" class="editable-content" placeholder="What's on your mind?"></div>
+                    <button id="submit-text-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post</button>
                 </div>
 
                 <div id="panel-photo" class="space-y-4 hidden">
@@ -170,17 +174,13 @@
                         </div>
                     </div>
                     <textarea id="photo-post-caption" class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Write a caption..."></textarea>
-                    
                     <input type="file" id="file-upload-input" accept="image/*,video/*">
                     <label id="file-upload-label" for="file-upload-input" class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-500 transition-all hover:border-primary-600 hover:text-primary-600">
                         <i data-feather="upload-cloud" class="w-12 h-12"></i>
                         <p id="file-upload-text" class="font-semibold mt-2">Click to upload</p>
                         <p class="text-sm">PNG, JPG, MP4 or GIF</p>
                     </label>
-                    
-                    <button id="submit-photo-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
-                        Post
-                    </button>
+                    <button id="submit-photo-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post</button>
                 </div>
 
                 <div id="panel-poll" class="space-y-4 hidden">
@@ -189,12 +189,11 @@
                         <div>
                             <div class="flex items-center">
                                 <span id="user-name-poll" class="font-semibold text-gray-900">Loading...</span>
-                                </div>
+                                 </div>
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
                     <textarea id="poll-question" class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Ask a question..."></textarea>
-                    
                     <div id="poll-options-container" class="space-y-3">
                         <h3 class="font-semibold text-gray-700">Options</h3>
                         <input type="text" placeholder="Option 1" class="poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
@@ -204,10 +203,7 @@
                         <i data-feather="plus" class="w-5 h-5"></i>
                         <span>Add Option</span>
                     </button>
-
-                    <button id="submit-poll-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
-                        Post Poll
-                    </button>
+                    <button id="submit-poll-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post Poll</button>
                 </div>
 
                 <div id="panel-anonymous" class="space-y-4 hidden">
@@ -220,46 +216,33 @@
                             <p class="text-xs text-gray-400">This post will not be linked to your profile.</p>
                         </div>
                     </div>
-                    <textarea id="anonymous-post-content" class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Share your confession..."></textarea>
-                    <button id="submit-anonymous-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">
-                        Post Anonymously
-                    </button>
+                     <div class="format-toolbar">
+                        <button onclick="formatDoc('bold');" title="Bold"><i data-feather="bold"></i></button>
+                        <button onclick="formatDoc('italic');" title="Italic"><i data-feather="italic"></i></button>
+                    </div>
+                    <div id="anonymous-post-content" contenteditable="true" class="editable-content" placeholder="Share your confession..."></div>
+                    <button id="submit-anonymous-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post Anonymously</button>
                 </div>
             </div>
 
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-            
-            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard">
-                <i data-feather="layout"></i>
-            </a>
-            
-            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
-                <i data-feather="file-text"></i>
-            </a>
-            
-            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Create">
-                <i data-feather="plus-circle" class="stroke-[2.5px]"></i>
-            </a>
-            
-            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
-                <i data-feather="search"></i>
-            </a>
-            
-            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
-                <i data-feather="grid"></i>
-            </a>
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"><i data-feather="layout"></i></a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"><i data-feather="file-text"></i></a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Create"><i data-feather="plus-circle" class="stroke-[2.5px]"></i></a>
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"><i data-feather="search"></i></a>
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"><i data-feather="grid"></i></a>
         </nav>
+
+        <div id="toast-container"></div>
 
     </div>
 
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
-        // !!! IMPORTANT: REPLACE with your Supabase project details
         const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
-        
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -268,318 +251,210 @@
         let currentUserProfile = null;
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
         const loadingOverlay = document.getElementById('loading-overlay');
+        const toastContainer = document.getElementById('toast-container'); // Toast container
 
         // --- 2. AUTH & SESSION CHECK ---
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session }, error } = await _supabase.auth.getSession();
-            
-            if (error) {
-                console.error("Error getting session:", error.message);
-                return;
-            }
-            
-            if (!session) {
-                // No user logged in, redirect to login page
-                window.location.href = 'login.html';
-                return;
-            }
+            if (error) { console.error("Error getting session:", error.message); return; }
+            if (!session) { window.location.href = 'login.html'; return; }
 
-            // User is logged in
             currentAuthUser = session.user;
             await fetchUserProfile(currentAuthUser.id);
-
-            // Render Feather Icons
             feather.replace();
-            
-            // Setup all event listeners
             setupEventListeners();
         });
 
         // --- 3. FETCH USER PROFILE ---
-        // Fetches the user's data from the 'users' table (name, img, tick)
         async function fetchUserProfile(authId) {
-            if (!authId) return;
-
-            const { data, error } = await _supabase
-                .from('users')
-                .select('name, img, tick') // <-- Added 'tick'
-                .eq('auth_id', authId)
-                .single();
-
-            if (error) {
-                console.error("Error fetching user profile:", error.message);
-                alert("Error: Could not load your user profile.");
-                return;
-            }
-
-            if (data) {
-                currentUserProfile = data;
-                // Update UI with user's name and avatar
-                const userName = data.name || 'Campus User';
-                const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${userName.charAt(0)}`;
-                const tickType = data.tick?.toLowerCase();
-                let tickHtml = '';
-                if (tickType && tickImages[tickType]) {
-                    tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`;
-                }
-
-                // Update Text Panel
-                document.getElementById('user-avatar-text').src = userAvatar;
-                document.getElementById('user-name-text').innerText = userName;
-                if (tickHtml) document.getElementById('user-name-text').parentElement.insertAdjacentHTML('beforeend', tickHtml);
-                
-                // Update Photo Panel
-                document.getElementById('user-avatar-photo').src = userAvatar;
-                document.getElementById('user-name-photo').innerText = userName;
-                if (tickHtml) document.getElementById('user-name-photo').parentElement.insertAdjacentHTML('beforeend', tickHtml);
-
-                // Update Poll Panel
-                document.getElementById('user-avatar-poll').src = userAvatar;
-                document.getElementById('user-name-poll').innerText = userName;
-                if (tickHtml) document.getElementById('user-name-poll').parentElement.insertAdjacentHTML('beforeend', tickHtml);
-            }
+            // ... (Keep existing fetchUserProfile function - already includes tick) ...
+             if (!authId) return;
+             const { data, error } = await _supabase.from('users').select('name, img, tick').eq('auth_id', authId).single();
+             if (error) { console.error("Error fetching user profile:", error.message); showToast("Error: Could not load your user profile.", "error"); return; }
+             if (data) {
+                 currentUserProfile = data;
+                 const userName = data.name || 'Campus User';
+                 const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${userName.charAt(0)}`;
+                 const tickType = data.tick?.toLowerCase();
+                 let tickHtml = '';
+                 if (tickType && tickImages[tickType]) {
+                     tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`;
+                 }
+                 // Update panels
+                 ['text', 'photo', 'poll'].forEach(type => {
+                     document.getElementById(`user-avatar-${type}`).src = userAvatar;
+                     document.getElementById(`user-name-${type}`).innerText = userName;
+                     const nameElementParent = document.getElementById(`user-name-${type}`).parentElement;
+                     // Clear previous tick if any before adding new one
+                     const existingTick = nameElementParent.querySelector('.post-tick-mark');
+                     if(existingTick) existingTick.remove();
+                     if (tickHtml) nameElementParent.insertAdjacentHTML('beforeend', tickHtml);
+                 });
+             }
         }
 
         // --- 4. TAB SWITCHING LOGIC ---
         const tabs = ['text', 'photo', 'poll', 'anonymous'];
-        
         function switchTab(activeTab) {
-            tabs.forEach(tab => {
-                document.getElementById(`panel-${tab}`).classList.add('hidden');
-                document.getElementById(`tab-${tab}`).classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
-                document.getElementById(`tab-${tab}`).classList.add('border-transparent', 'text-gray-500', 'font-medium');
-            });
-            
-            document.getElementById(`panel-${activeTab}`).classList.remove('hidden');
-            document.getElementById(`tab-${activeTab}`).classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
-            document.getElementById(`tab-${activeTab}`).classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+            // ... (Keep existing switchTab function) ...
+             tabs.forEach(tab => {
+                 document.getElementById(`panel-${tab}`).classList.add('hidden');
+                 document.getElementById(`tab-${tab}`).classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
+                 document.getElementById(`tab-${tab}`).classList.add('border-transparent', 'text-gray-500', 'font-medium');
+             });
+             document.getElementById(`panel-${activeTab}`).classList.remove('hidden');
+             document.getElementById(`tab-${activeTab}`).classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
+             document.getElementById(`tab-${activeTab}`).classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+             // Re-render icons if needed, especially for toolbar
+             if (activeTab === 'text' || activeTab === 'anonymous') {
+                 feather.replace();
+             }
         }
 
-        // --- 5. POSTING LOGIC ---
-        function setupEventListeners() {
-            // Text Post
-            document.getElementById('submit-text-post').addEventListener('click', handleTextPost);
-            
-            // Photo/Video Post
-            document.getElementById('file-upload-input').addEventListener('change', handleFileSelect);
-            document.getElementById('submit-photo-post').addEventListener('click', handlePhotoPost);
+        // --- 5. RICH TEXT FORMATTING ---
+        function formatDoc(command, value = null) {
+            document.execCommand(command, false, value);
+            // Optional: Add logic here to update toolbar button states (active/inactive)
+        }
 
-            // Poll Post
-            document.getElementById('add-poll-option').addEventListener('click', addPollOption);
-            document.getElementById('submit-poll-post').addEventListener('click', handlePollPost);
-            
-            // Anonymous Post
-            document.getElementById('submit-anonymous-post').addEventListener('click', handleAnonymousPost);
+        // --- 6. POSTING LOGIC ---
+        function setupEventListeners() {
+            // ... (Keep existing listeners for tabs, photo upload, poll options) ...
+             document.getElementById('submit-text-post').addEventListener('click', handleTextPost);
+             document.getElementById('file-upload-input').addEventListener('change', handleFileSelect);
+             document.getElementById('submit-photo-post').addEventListener('click', handlePhotoPost);
+             document.getElementById('add-poll-option').addEventListener('click', addPollOption);
+             document.getElementById('submit-poll-post').addEventListener('click', handlePollPost);
+             document.getElementById('submit-anonymous-post').addEventListener('click', handleAnonymousPost);
         }
 
         // --- Helper functions for loading and feedback ---
         function showLoading() {
-            const button = document.querySelector(`#panel-${getCurrentTab()} button[id^='submit-']`);
-            if (button) {
-                button.disabled = true;
-                button.innerHTML = '<div class="spinner"></div>';
-            }
-            loadingOverlay.classList.remove('hidden');
+            // ... (Keep existing showLoading) ...
+             const button = document.querySelector(`#panel-${getCurrentTab()} button[id^='submit-']`);
+             if (button) { button.disabled = true; button.innerHTML = '<div class="spinner"></div>'; }
+             loadingOverlay.classList.remove('hidden');
         }
 
-        function hideLoading(success = true) {
+        function hideLoading(success = true, message = "Post created successfully!") {
+            // ... (Keep existing hideLoading, but use showToast) ...
             const button = document.querySelector(`#panel-${getCurrentTab()} button[id^='submit-']`);
-            if (button) {
-                button.disabled = false;
-                button.innerHTML = button.id.includes('poll') ? 'Post Poll' : (button.id.includes('anonymous') ? 'Post Anonymously' : 'Post');
-            }
-            loadingOverlay.classList.add('hidden');
-            
-            if (success) {
-                alert("Post created successfully!"); // Simple feedback
-                window.location.href = 'feed.html'; // Redirect to feed
-            }
+             if (button) { button.disabled = false; button.innerHTML = button.id.includes('poll') ? 'Post Poll' : (button.id.includes('anonymous') ? 'Post Anonymously' : 'Post'); }
+             loadingOverlay.classList.add('hidden');
+             if (success) {
+                 showToast(message, 'success'); // Use toast
+                 setTimeout(() => { window.location.href = 'feed.html'; }, 1500); // Redirect after toast
+             } else {
+                  showToast(message, 'error'); // Show error toast if message provided
+             }
         }
 
         function getCurrentTab() {
-            const activeTab = document.querySelector('.border-primary-600[id^="tab-"]');
-            return activeTab.id.replace('tab-', '');
+            // ... (Keep existing getCurrentTab) ...
+             const activeTab = document.querySelector('.border-primary-600[id^="tab-"]');
+             return activeTab.id.replace('tab-', '');
         }
 
-        // --- POST HANDLERS ---
+        // --- Convert HTML to simplified text/markdown ---
+        function editableContentToText(elementId) {
+            const editor = document.getElementById(elementId);
+            if (!editor) return '';
 
-        // A. TEXT POST
+            // 1. Clone the node to avoid modifying the original
+            const clone = editor.cloneNode(true);
+
+            // 2. Replace basic formatting tags with markdown/plain text equivalents
+            clone.querySelectorAll('b, strong').forEach(el => el.replaceWith(`**${el.innerHTML}**`));
+            clone.querySelectorAll('i, em').forEach(el => el.replaceWith(`*${el.innerHTML}*`));
+
+            // 3. Handle line breaks (most important)
+            // Replace <br> tags with newline characters
+            clone.innerHTML = clone.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
+            // Replace closing block tags (like </p>, </div>) potentially created by contenteditable with newlines
+            clone.innerHTML = clone.innerHTML.replace(/<\/(p|div)>/gi, '\n');
+            // Remove remaining HTML tags
+            clone.innerHTML = clone.innerHTML.replace(/<[^>]*>/g, '');
+
+            // 4. Decode HTML entities and trim whitespace
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = clone.innerHTML;
+            return tempDiv.textContent.trim(); // Use textContent to decode entities
+        }
+
+
+        // --- POST HANDLERS (UPDATED for contenteditable and toast) ---
+
         async function handleTextPost() {
-            const content = document.getElementById('text-post-content').value;
-            if (!content.trim()) {
-                alert("Please write something!");
-                return;
-            }
-
+            // const content = document.getElementById('text-post-content').value; // OLD
+            const content = editableContentToText('text-post-content'); // NEW
+            if (!content) { showToast("Please write something!", 'error'); return; }
             showLoading();
-
-            const { error } = await _supabase.from('posts').insert({
-                user_id: currentAuthUser.id,
-                post_type: 'text',
-                content: content,
-                is_anonymous: false
-            });
-
-            if (error) {
-                console.error("Error posting text:", error.message);
-                alert(`Error: ${error.message}`);
-                hideLoading(false);
-            } else {
-                hideLoading(true);
-            }
+            const { error } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'text', content: content, is_anonymous: false });
+            if (error) { console.error("Error posting text:", error.message); hideLoading(false, `Error: ${error.message}`); }
+            else { hideLoading(true); }
         }
 
-        // B. PHOTO/VIDEO POST
-        let selectedFile = null;
-
-        function handleFileSelect(event) {
-            selectedFile = event.target.files[0];
-            if (selectedFile) {
-                document.getElementById('file-upload-text').textContent = selectedFile.name;
-            } else {
-                document.getElementById('file-upload-text').textContent = 'Click to upload';
-            }
-        }
-
-        async function handlePhotoPost() {
-            const caption = document.getElementById('photo-post-caption').value;
-            if (!selectedFile) {
-                alert("Please select a photo or video to upload.");
-                return;
-            }
-
-            showLoading();
-
-            try {
-                // 1. Upload file to Supabase Storage
-                const fileExt = selectedFile.name.split('.').pop();
-                const fileName = `${currentAuthUser.id}/${Date.now()}.${fileExt}`;
-                
-                const { data: uploadData, error: uploadError } = await _supabase.storage
-                    .from('posts_media') // IMPORTANT: Bucket must be named 'posts_media'
-                    .upload(fileName, selectedFile);
-                
-                if (uploadError) {
-                    throw new Error(`Storage Error: ${uploadError.message}`);
-                }
-
-                // 2. Get public URL
-                const { data: urlData } = _supabase.storage
-                    .from('posts_media')
-                    .getPublicUrl(fileName);
-
-                if (!urlData.publicUrl) {
-                    throw new Error("Could not get public URL for the media.");
-                }
-
-                // 3. Insert into 'posts' table
-                const { error: dbError } = await _supabase.from('posts').insert({
-                    user_id: currentAuthUser.id,
-                    post_type: 'photo', // You can add logic to detect video
-                    content: caption,
-                    media_url: urlData.publicUrl,
-                    is_anonymous: false
-                });
-
-                if (dbError) {
-                    throw new Error(`Database Error: ${dbError.message}`);
-                }
-
-                // Success
-                hideLoading(true);
-
-            } catch (error) {
-                console.error("Error posting photo:", error);
-                alert(`Error: ${error.message}`);
-                hideLoading(false);
-            } finally {
-                selectedFile = null;
-                document.getElementById('file-upload-input').value = null;
-                document.getElementById('file-upload-text').textContent = 'Click to upload';
-            }
-        }
-
-        // C. POLL POST
-        function addPollOption() {
-            const container = document.getElementById('poll-options-container');
-            const optionCount = container.querySelectorAll('.poll-option').length;
-            
-            if (optionCount >= 5) {
-                alert("You can add a maximum of 5 options.");
-                return;
-            }
-            
-            const newOption = document.createElement('input');
-            newOption.type = 'text';
-            newOption.placeholder = `Option ${optionCount + 1}`;
-            newOption.className = 'poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600';
-            container.appendChild(newOption);
-        }
-
-        async function handlePollPost() {
-            const question = document.getElementById('poll-question').value;
-            if (!question.trim()) {
-                alert("Please ask a question for your poll.");
-                return;
-            }
-
-            const options = [];
-            document.querySelectorAll('.poll-option').forEach(input => {
-                if (input.value.trim()) {
-                    options.push({ option: input.value.trim() });
-                }
-            });
-
-            if (options.length < 2) {
-                alert("Please provide at least two poll options.");
-                return;
-            }
-
-            showLoading();
-
-            const { error } = await _supabase.from('posts').insert({
-                user_id: currentAuthUser.id,
-                post_type: 'poll',
-                content: question,
-                poll_options: options, // Save options as JSON
-                is_anonymous: false
-            });
-
-            if (error) {
-                console.error("Error posting poll:", error.message);
-                alert(`Error: ${error.message}`);
-                hideLoading(false);
-            } else {
-                hideLoading(true);
-            }
-        }
-
-        // D. ANONYMOUS POST
         async function handleAnonymousPost() {
-            const content = document.getElementById('anonymous-post-content').value;
-            if (!content.trim()) {
-                alert("Please write something!");
-                return;
-            }
-
+            // const content = document.getElementById('anonymous-post-content').value; // OLD
+            const content = editableContentToText('anonymous-post-content'); // NEW
+            if (!content) { showToast("Please write something!", 'error'); return; }
             showLoading();
-
-            const { error } = await _supabase.from('posts').insert({
-                user_id: currentAuthUser.id, // We still link the user for moderation/deletion
-                post_type: 'anonymous',
-                content: content,
-                is_anonymous: true
-            });
-
-            if (error) {
-                console.error("Error posting anonymously:", error.message);
-                alert(`Error: ${error.message}`);
-                hideLoading(false);
-            } else {
-                hideLoading(true);
-            }
+            const { error } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'anonymous', content: content, is_anonymous: true });
+            if (error) { console.error("Error posting anonymously:", error.message); hideLoading(false, `Error: ${error.message}`); }
+            else { hideLoading(true); }
         }
-        
+
+        // --- Keep other post handlers (Photo, Poll) as they are ---
+         let selectedFile = null;
+         function handleFileSelect(event) { /* ... keep existing ... */ selectedFile = event.target.files[0]; if (selectedFile) { document.getElementById('file-upload-text').textContent = selectedFile.name; } else { document.getElementById('file-upload-text').textContent = 'Click to upload'; }}
+         async function handlePhotoPost() { /* ... keep existing, but use showToast for errors ... */
+             const caption = document.getElementById('photo-post-caption').value;
+             if (!selectedFile) { showToast("Please select a photo or video to upload.", "error"); return; }
+             showLoading();
+             try {
+                 const fileExt = selectedFile.name.split('.').pop();
+                 const fileName = `${currentAuthUser.id}/${Date.now()}.${fileExt}`;
+                 const { data: uploadData, error: uploadError } = await _supabase.storage.from('posts_media').upload(fileName, selectedFile);
+                 if (uploadError) { throw new Error(`Storage Error: ${uploadError.message}`); }
+                 const { data: urlData } = _supabase.storage.from('posts_media').getPublicUrl(fileName);
+                 if (!urlData.publicUrl) { throw new Error("Could not get public URL for the media."); }
+                 const { error: dbError } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'photo', content: caption, media_url: urlData.publicUrl, is_anonymous: false });
+                 if (dbError) { throw new Error(`Database Error: ${dbError.message}`); }
+                 hideLoading(true);
+             } catch (error) {
+                 console.error("Error posting photo:", error);
+                 hideLoading(false, `Error: ${error.message}`); // Use toast
+             } finally {
+                 selectedFile = null; document.getElementById('file-upload-input').value = null; document.getElementById('file-upload-text').textContent = 'Click to upload';
+             }
+         }
+         function addPollOption() { /* ... keep existing ... */
+             const container = document.getElementById('poll-options-container'); const optionCount = container.querySelectorAll('.poll-option').length; if (optionCount >= 5) { showToast("You can add a maximum of 5 options.", "error"); return; } const newOption = document.createElement('input'); newOption.type = 'text'; newOption.placeholder = `Option ${optionCount + 1}`; newOption.className = 'poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600'; container.appendChild(newOption);
+         }
+         async function handlePollPost() { /* ... keep existing, but use showToast for errors ... */
+              const question = document.getElementById('poll-question').value; if (!question.trim()) { showToast("Please ask a question for your poll.", "error"); return; } const options = []; document.querySelectorAll('.poll-option').forEach(input => { if (input.value.trim()) { options.push({ option: input.value.trim() }); } }); if (options.length < 2) { showToast("Please provide at least two poll options.", "error"); return; } showLoading(); const { error } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'poll', content: question, poll_options: options, is_anonymous: false }); if (error) { console.error("Error posting poll:", error.message); hideLoading(false, `Error: ${error.message}`); } else { hideLoading(true); }
+         }
+
+        // --- Toast Notification Function ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i data-feather="${iconName}" class="toast-icon"></i>
+                <span class="font-medium">${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+            feather.replace(); // Render the new icon
+            // Trigger animation
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 3000);
+        }
+
     </script>
 
 </body>
