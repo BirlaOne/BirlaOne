@@ -375,33 +375,20 @@
         }
 
         // --- 5. LOG USER DATA ---
-        async function logUserData(userData) {
-             if (!userData || !userData.auth_id) {
-                 console.error("Cannot log data: User Auth ID is missing.");
-                 return;
-             }
-             try {
-                // Insert into the 'logs' table
-                 const { error: logError } = await _supabase
-                     .from('logs')
-                     .insert({
-                         user_id: userData.auth_id, // Assuming user_id in logs corresponds to auth_id
-                         Name: userData.name || 'N/A',
-                         course: userData.course || 'N/A',
-                         // 'time' column has a default value of now() in the DB schema
-                     });
-
-                 if (logError) {
-                     // Check for specific errors, e.g., foreign key violation if user_id doesn't exist
-                     console.error("Error inserting into logs table:", logError.message);
-                 } else {
-                     console.log("User data logged successfully.");
-                 }
-             } catch (error) {
-                  console.error("Exception during logging:", error.message);
-             }
-        }
-
+async function logUserData(userData) {
+    // ... (omitted code) ...
+    try {
+        // Insert into the 'logs' table
+        const { error: logError } = await _supabase
+            .from('logs')
+            .insert({
+                time: new Date().toISOString(), // <-- ADD THIS LINE
+                user_id: userData.auth_id, // Assuming user_id in logs corresponds to auth_id
+                Name: userData.name || 'N/A',
+                course: userData.course || 'N/A',
+            });
+    // ... (omitted code) ...
+}
 
         // --- 6. NOTIFICATION FUNCTIONS (Copied from feed.html) ---
 
