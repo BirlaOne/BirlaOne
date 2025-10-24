@@ -77,6 +77,16 @@
         /* Smaller icons in action buttons */
         .action-button-icon { width: 20px; height: 20px; /* h-5 w-5 */ }
 
+        /* Custom shadows for nav bars */
+        .bottom-nav-shadow {
+            box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03);
+        }
+        /* Bottom nav icon sizing */
+        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather {
+            width: 28px;
+            height: 28px;
+        }
+
         /* Toast Notifications */
         #toast-container {
             position: fixed;
@@ -148,7 +158,7 @@
              <a href="#" id="report-profile-link" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"> <i data-feather="flag" class="w-5 h-5"></i> <span>Report Profile</span> </a>
         </div>
 
-        <main id="main-content" class="px-6 space-y-6 pb-12 overflow-y-auto h-screen no-scrollbar pt-16"> 
+        <main id="main-content" class="px-6 pb-28 overflow-y-auto h-screen no-scrollbar pt-16"> 
             
              <div id="profile-loading" class="text-center py-10 text-gray-500">
                   <div class="spinner mx-auto mb-2"></div>
@@ -210,14 +220,13 @@
 
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4"> <h2 class="text-xl font-bold text-gray-900">Social Links</h2> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="instagram" class="h-5 w-5"></i> <span class="font-medium">Instagram</span> </div> <span id="profile-instagram" class="font-medium text-gray-900 italic"></span> </div> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="linkedin" class="h-5 w-5"></i> <span class="font-medium">LinkedIn</span> </div> <span id="profile-linkedin" class="font-medium text-gray-900 italic"></span> </div> </div>
 
-                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> <!-- Posts injected here --> </div> </div>
+                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> </div> </div>
 
              </div></main>
 
     </div>
 
-    <!-- Friends List Modal -->
-     <div id="friends-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
+    <div id="friends-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col"> 
             <div class="flex justify-between items-center p-4 border-b border-gray-200"> 
                 <h2 class="text-lg font-semibold">Friends List</h2> 
@@ -229,7 +238,6 @@
         </div> 
     </div>
 
-    <!-- Confirmation Modal -->
     <div id="confirm-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
             <h2 id="confirm-title" class="text-xl font-bold text-gray-900">Confirm Action</h2>
@@ -247,8 +255,15 @@
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
     <div id="toast-container"></div>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+        <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
+        <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
+        <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
+        <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"> <i data-feather="search"></i> </a>
+        <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"> <i data-feather="grid"></i> </a>
+    </nav>
 
 
     <script>
@@ -442,7 +457,9 @@
                 const { data, error } = await _supabase.from('users').select('id, auth_id, name, img, course, bio, friend_count, tick, instagram, linkedin, role').eq('id', userId).single();
                 if (error) { if (error.code === 'PGRST116') throw new Error(`User profile not found.`); throw error; }
                 if (!data) throw new Error(`User profile not found.`);
+                
                 viewedUserProfile = data; 
+                document.title = data.name || 'User Profile';
 
                 // Populate UI
                 document.getElementById('profile-picture').src = data.img || `https://placehold.co/100x100/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : '?'}`;
@@ -489,7 +506,8 @@
              postsLoading.style.display = 'block'; userPostsContainer.innerHTML = ''; 
              try { 
                  let query = _supabase.from('posts').select(`id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, users:user_id (name, img, tick) `) 
-                           .eq('user_id', userAuthId); 
+                           .eq('user_id', userAuthId)
+                           .eq('is_anonymous', false); 
                  if(currentAuthUser) {
                       query = query.select(`*, users:user_id (name, img, tick), likes!left(user_id), poll_votes!left(user_id, selected_option_index) `) 
                                .eq('likes.user_id', currentAuthUser.id)
@@ -819,4 +837,3 @@
 
 </body>
 </html>
-
