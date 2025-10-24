@@ -88,6 +88,7 @@
             flex-direction: column;
             align-items: center;
             gap: 0.5rem;
+            pointer-events: none; /* Allow clicks to pass through */
         }
         .toast {
             display: flex;
@@ -99,6 +100,7 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             animation: toast-in 0.3s ease-in-out;
             opacity: 0;
+            pointer-events: all; /* Toasts are clickable */
         }
         .toast.toast-success {
             background-color: #305b1c; /* primary-900 */
@@ -398,6 +400,42 @@
          }
 
         // --- 5. LOAD PROFILE DATA ---
+        /**
+         * Extracts a social media handle from a given value (URL or username)
+         * @param {string | null} value - The value from the database (e.g., "https://insta.com/user" or "user")
+         * @param {string} platformBase - The base URL (e.g., "instagram.com/" or "linkedin.com/in/")
+         * @returns {string | null} - The extracted handle, or null if invalid.
+         */
+        function extractSocialId(value, platformBase) {
+            if (!value || value === 'EMPTY') return null;
+            
+            try {
+                // Check if it's a full URL
+                if (value.includes(platformBase)) {
+                    const url = new URL(value.startsWith('http') ? value : `https://${value}`);
+                    let path = url.pathname;
+                    
+                    // Remove leading/trailing slashes and the platform base path
+                    path = path.replace(/^\/|\/$/g, ''); // Remove trailing/leading slashes
+                    const base = platformBase.replace(/\/$/g, ''); // Remove trailing slash from base
+                    
+                    if (path.startsWith(base)) {
+                         path = path.substring(base.length);
+                    }
+                    
+                    // Clean up remaining path (e.g., /in/username -> username)
+                    return path.replace(/^\/|\/$/g, '').split('/').pop();
+                }
+            } catch (e) {
+                 // Not a valid URL, fall through to treat as username
+                 console.warn("Could not parse social URL, treating as username:", value);
+            }
+
+            // Not a URL or parsing failed, treat as raw username
+            // Remove leading "@"
+            return value.replace(/^@/, '');
+        }
+
         async function loadProfileData(userId) {
             profileLoading.style.display = 'block'; profileContent.classList.add('hidden');
             try {
@@ -418,17 +456,24 @@
                 if (data.tick && tickImages[data.tick.toLowerCase()]) { tickElement.src = tickImages[data.tick.toLowerCase()]; tickElement.alt = `${data.tick} Tick`; tickElement.classList.remove('hidden'); } 
                 else { tickElement.classList.add('hidden'); }
 
+                // --- Updated Social Links ---
                 const instaSpan = document.getElementById('profile-instagram');
-                const instaUsername = data.instagram?.replace('@','');
-                if (instaUsername && data.instagram !== 'EMPTY') { 
+                const instaUsername = extractSocialId(data.instagram, 'instagram.com');
+                
+                if (instaUsername) { 
                     instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">${instaUsername}</a>`; 
                     instaSpan.className = 'font-medium text-primary-600'; 
                 } 
                 else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
                 
                 const linkedSpan = document.getElementById('profile-linkedin');
-                const linkedHandle = data.linkedin; 
-                if (linkedHandle && data.linkedin !== 'EMPTY') { const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; linkedSpan.className = 'font-medium text-blue-600'; } 
+                const linkedHandle = extractSocialId(data.linkedin, 'linkedin.com/in/'); 
+
+                if (linkedHandle) { 
+                    const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; 
+                    linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; 
+                    linkedSpan.className = 'font-medium text-blue-600'; 
+                } 
                 else { linkedSpan.textContent = 'Not Set'; linkedSpan.className = 'font-medium text-gray-400 italic'; }
 
                 profileLoading.style.display = 'none';
@@ -496,11 +541,113 @@
         }
 
          // --- 9. FRIENDS LIST MODAL ---
-         async function openFriendsModal() { if (!viewedUserProfile || !viewedUserProfile.auth_id) { showToast("Cannot load friends list.", 'error'); return; } friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading...</p>'; friendsModal.classList.add('active'); feather.replace(); try { const { data: friendships, error: friendsError } = await _supabase.from('friendships').select(` u1:user1_id (id, auth_id, name, img), u2:user2_id (id, auth_id, name, img) `).or(`user1_id.eq.${viewedUserProfile.auth_id},user2_id.eq.${viewedUserProfile.auth_id}`); if (friendsError) throw friendsError; if (friendships.length === 0) { friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No friends yet.</p>'; return; } const friends = friendships.map(f => f.u1.auth_id === viewedUserProfile.auth_id ? f.u2 : f.u1); friendsModalBody.innerHTML = friends.map(friend => ` <a href="profile.html?id=${friend.id}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg"> <img src="${friend.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${friend.name ? friend.name.charAt(0) : '?'}`}" alt="${friend.name}" class="w-10 h-10 rounded-full bg-gray-200"> <span class="font-medium text-gray-800">${friend.name || 'User'}</span> </a> `).join(''); } catch (error) { console.error("Error fetching friends:", error); friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading.</p>'; } }
+         async function openFriendsModal() { 
+            if (!viewedUserProfile || !viewedUserProfile.auth_id) { 
+                showToast("Cannot load friends list.", 'error'); 
+                return; 
+            } 
+            
+            friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading...</p>'; 
+            friendsModal.classList.add('active'); 
+            feather.replace(); 
+            
+            try { 
+                // --- Updated query to select 'tick' ---
+                const { data: friendships, error: friendsError } = await _supabase.from('friendships')
+                    .select(` u1:user1_id (id, auth_id, name, img, tick), u2:user2_id (id, auth_id, name, img, tick) `)
+                    .or(`user1_id.eq.${viewedUserProfile.auth_id},user2_id.eq.${viewedUserProfile.auth_id}`); 
+                
+                if (friendsError) throw friendsError; 
+                
+                if (friendships.length === 0) { 
+                    friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No friends yet.</p>'; 
+                    return; 
+                } 
+                
+                const friends = friendships.map(f => f.u1.auth_id === viewedUserProfile.auth_id ? f.u2 : f.u1); 
+                
+                // --- Sort to put current user first ---
+                friends.sort((a, b) => {
+                    if (currentAuthUser) {
+                        if (a.auth_id === currentAuthUser.id) return -1;
+                        if (b.auth_id === currentAuthUser.id) return 1;
+                    }
+                    return (a.name || '').localeCompare(b.name || ''); // Alphabetical fallback
+                });
+
+                // --- Generate HTML with ticks and (You) label ---
+                friendsModalBody.innerHTML = friends.map(friend => {
+                    const tickType = friend.tick?.toLowerCase();
+                    const tickHtml = (tickType && tickImages[tickType]) 
+                        ? `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1.5">` // Added margin
+                        : '';
+                    
+                    const isCurrentUser = currentAuthUser && friend.auth_id === currentAuthUser.id;
+                    const profileLink = isCurrentUser ? 'myprofile.html' : `profile.html?id=${friend.id}`;
+
+                    return `
+                     <a href="${profileLink}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg">
+                         <img src="${friend.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${friend.name ? friend.name.charAt(0) : '?'}`}" alt="${friend.name}" class="w-10 h-10 rounded-full bg-gray-200">
+                         <div class="flex-1 flex items-center">
+                             <span class="font-medium text-gray-800">${friend.name || 'User'}</span>
+                             ${tickHtml}
+                         </div>
+                         ${isCurrentUser ? '<span class="text-sm font-medium text-primary-600">(You)</span>' : ''}
+                     </a> 
+                    `;
+                }).join('');
+
+                feather.replace(); // Render ticks
+
+            } catch (error) { 
+                console.error("Error fetching friends:", error); 
+                friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading.</p>'; 
+            } 
+        }
          function closeFriendsModal() { friendsModal.classList.remove('active'); friendsModalBody.innerHTML = ''; }
 
          // --- 10. SEND FRIEND REQUEST ---
-         async function sendFriendRequest() { if (!currentAuthUser || !currentUserOwnProfile) { showToast("Please log in.", 'error'); return; } if (!viewedUserProfile || !viewedUserProfile.auth_id) { showToast("Cannot send request.", 'error'); return; } if (currentAuthUser.id === viewedUserProfile.auth_id) { return; } addFriendButton.disabled = true; addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; try { const { error: insertError } = await _supabase.from('friend_requests').insert({ sender_id: currentAuthUser.id, receiver_id: viewedUserProfile.auth_id, status: 'pending' }); if (insertError) { if (insertError.code === '23505') { showToast("Request already pending.", 'error'); updateFriendButtonState('pending_sent'); } else { throw insertError; } } else { console.log("Request sent."); showToast("Friend request sent!", 'success'); updateFriendButtonState('pending_sent'); } } catch (error) { console.error("Error sending request:", error); showToast("Could not send request.", 'error'); updateFriendButtonState('none'); } }
+         async function sendFriendRequest() { 
+            if (!currentAuthUser || !currentUserOwnProfile) { 
+                showToast("Please log in.", 'error'); 
+                return; 
+            } 
+            if (!viewedUserProfile || !viewedUserProfile.auth_id) { 
+                showToast("Cannot send request.", 'error'); 
+                return; 
+            } 
+            if (currentAuthUser.id === viewedUserProfile.auth_id) { 
+                return; 
+            } 
+            
+            addFriendButton.disabled = true; 
+            addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; 
+            
+            try { 
+                const { error: insertError } = await _supabase.from('friend_requests').insert({ 
+                    sender_id: currentAuthUser.id, 
+                    receiver_id: viewedUserProfile.auth_id, 
+                    status: 'pending' 
+                }); 
+                
+                if (insertError) { 
+                    if (insertError.code === '23505') { 
+                        showToast("Request already pending.", 'error'); 
+                        updateFriendButtonState('pending_sent'); 
+                    } else { 
+                        throw insertError; 
+                    } 
+                } else { 
+                    console.log("Request sent."); 
+                    showToast("Friend request sent!", 'success'); 
+                    updateFriendButtonState('pending_sent'); 
+                } 
+            } catch (error) { 
+                console.error("Error sending request:", error); 
+                showToast("Could not send request.", 'error'); 
+                updateFriendButtonState('none'); 
+            } 
+        }
          
          // --- 11. CHECK FRIENDSHIP STATUS ---
          async function checkFriendshipStatus() { 
@@ -672,3 +819,4 @@
 
 </body>
 </html>
+
