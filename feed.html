@@ -92,6 +92,8 @@
          .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
          @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+         button:disabled { opacity: 0.6; cursor: not-allowed; } /* Added button disabled style */
+
     </style>
 </head>
 <body class="antialiased">
@@ -207,7 +209,8 @@
         // --- 3. FETCH USER PROFILE ---
         async function fetchUserProfile(authId) { 
              if (!authId) return; 
-             const { data, error } = await _supabase.from('users').select('name, img').eq('auth_id', authId).single(); 
+             // Fetch tick along with name and img
+             const { data, error } = await _supabase.from('users').select('name, img, tick').eq('auth_id', authId).single(); 
              if (error) { console.error("Error fetching user profile:", error.message); } 
              else if (data) { 
                  currentUserProfile = data; 
@@ -284,9 +287,17 @@
              // === END ADD TICK ===
 
              let postBody = ''; 
+             // --- Process content for display ---
+             let displayContent = post.content || '';
+             // Simple markdown-like replacement for display (more robust parsing needed for complex markdown)
+             displayContent = displayContent
+                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                 .replace(/\*(.*?)\*/g, '<em>$1</em>')     // Italic
+                 .replace(/\n/g, '<br>'); // Newlines
+
              switch(post.post_type) { 
                  case 'photo': 
-                     postBody = ` ${post.content ? `<p class="px-4 pb-3 text-gray-800">${post.content}</p>` : ''} <img src="${post.media_url}" alt="Post media" class="w-full object-cover bg-gray-100 min-h-[200px]"> `; 
+                     postBody = ` ${displayContent ? `<p class="px-4 pb-3 text-gray-800">${displayContent}</p>` : ''} <img src="${post.media_url}" alt="Post media" class="w-full object-cover bg-gray-100 min-h-[200px]"> `; 
                      break; 
                  case 'poll': 
                      const pollOptionsHtml = (post.poll_options || []).map((option, index) => { 
@@ -294,21 +305,20 @@
                          const selectedClasses = 'border border-gray-300 hover:bg-gray-100 cursor-pointer'; 
                          return ` <button class="poll-option-button w-full text-left rounded-xl p-3 font-medium text-gray-900 relative transition-colors ${selectedClasses}" data-post-id="${post.id}" data-option-index="${index}" ${isDisabled ? 'disabled' : ''} > <div class="absolute inset-0 bg-primary-300/50 rounded-lg poll-bar-fg" style="width: 0%;"></div> <span class="relative z-10">${option.option} (0%)</span> </button> `; 
                      }).join(''); 
-                     postBody = ` <p class="px-4 pb-3 font-semibold text-lg text-gray-900">${post.content}</p> <div class="px-4 pb-4 space-y-3 poll-options-container" data-post-id="${post.id}">${pollOptionsHtml}</div> `; 
+                     postBody = ` <p class="px-4 pb-3 font-semibold text-lg text-gray-900">${displayContent}</p> <div class="px-4 pb-4 space-y-3 poll-options-container" data-post-id="${post.id}">${pollOptionsHtml}</div> `; 
                      setTimeout(() => { 
                          const container = document.querySelector(`.poll-options-container[data-post-id="${post.id}"]`); 
                          if(container) updatePollUI(post.id, container, userVotedIndex); 
                      }, 0); 
                      break; 
                  case 'text': 
-                     postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${post.content}</p>`; 
+                     postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${displayContent}</p>`; 
                      break;
                  case 'anonymous': 
-                     // === ADD SPACE FOR ANONYMOUS POST ===
-                     postBody = `<p class="px-4 pt-2 pb-4 text-gray-800 text-base">${post.content}</p>`; // Added pt-2
+                     postBody = `<p class="px-4 pt-2 pb-4 text-gray-800 text-base">${displayContent}</p>`; // Added pt-2
                      break; 
                  default: 
-                     postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${post.content}</p>`; 
+                     postBody = `<p class="px-4 pb-4 text-gray-800 text-base">${displayContent}</p>`; 
              } 
              const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; 
              const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900'; 
@@ -356,7 +366,7 @@
 
         // --- 8. LIKE/UNLIKE LOGIC --- (Keep existing function)
         async function toggleLike(postId, isLiked, buttonElement) { 
-            // ... (Your existing toggleLike function) ...
+            // ... (Keep existing) ...
              if (!currentAuthUser || buttonElement.disabled) return; 
              buttonElement.disabled = true; 
              const likeIcon = buttonElement.querySelector('svg.feather-heart'); 
@@ -374,27 +384,27 @@
 
         // --- 9. HELPER: Time Ago --- (Keep existing function)
         function formatTimeAgo(dateString) { 
-            // ... (Your existing formatTimeAgo function) ...
+            // ... (Keep existing) ...
               const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
 
         // --- 10. REALTIME LIKE SUBSCRIPTION --- (Keep existing function)
         function subscribeToLikeChanges() { 
-            // ... (Your existing subscribeToLikeChanges function) ...
+             // ... (Keep existing) ...
              if (likesSubscription) { _supabase.removeChannel(likesSubscription); }
              likesSubscription = _supabase.channel('public:likes').on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, handleRealtimeLikeUpdate).subscribe(/* ... status handling ... */);
         }
 
         // --- 11. HANDLE REALTIME LIKE UPDATE --- (Keep existing function)
         function handleRealtimeLikeUpdate(payload) { 
-            // ... (Your existing handleRealtimeLikeUpdate function) ...
+             // ... (Keep existing) ...
               console.log('Realtime like event:', payload); const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'likes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const userId = record.user_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const likeButton = postElement.querySelector(`.like-button[data-post-id="${postId}"]`); const countSpan = likeButton?.querySelector('.like-count'); const likeIcon = likeButton?.querySelector('svg.feather-heart'); if (!likeButton || !countSpan || !likeIcon) return; 
               (async () => { try { const { data, error } = await _supabase.from('posts').select('like_count').eq('id', postId).single(); if (error) throw error; if (data) { countSpan.textContent = data.like_count; } if (userId === currentAuthUser?.id) { const isNowLiked = eventType === 'INSERT'; likeButton.dataset.liked = isNowLiked.toString(); likeButton.classList.toggle('liked', isNowLiked); likeButton.classList.toggle('text-red-500', isNowLiked); likeButton.classList.toggle('text-gray-600', !isNowLiked); likeIcon.style.fill = isNowLiked ? 'currentColor' : 'none'; } } catch(err) { console.error("Error fetching updated like count:", err); } })();
         }
 
         // --- 12. POLL VOTE LOGIC --- (Keep existing function)
         async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { 
-            // ... (Your existing handlePollVote function) ...
+            // ... (Keep existing) ...
              if (!currentAuthUser) return;
              const isCurrentlySelected = clickedButton.classList.contains('border-primary-600');
              let operation = 'upsert'; 
@@ -411,28 +421,29 @@
                      await updatePollUI(postId, optionsContainer, optionIndex); 
                  }
              } catch (error) { 
-                 console.error(`Error performing poll vote ${operation}:`, error.message); alert(`Could not ${operation === 'delete' ? 'remove' : 'record'} your vote.`); 
+                 console.error(`Error performing poll vote ${operation}:`, error.message); 
+                 showToast(`Could not ${operation === 'delete' ? 'remove' : 'record'} your vote.`, 'error'); // Use toast
                  await updatePollUI(postId, optionsContainer, null); 
              } 
         }
 
         // --- 13. LOAD & UPDATE POLL RESULTS --- (Keep existing function)
         async function loadPollResults(postId) { 
-            // ... (Your existing loadPollResults function) ...
+            // ... (Keep existing) ...
              const optionsContainer = document.querySelector(`.poll-options-container[data-post-id="${postId}"]`); if (!optionsContainer) return; try { const { data: userVote, error: userVoteError } = await _supabase.from('poll_votes').select('selected_option_index').eq('post_id', postId).eq('user_id', currentAuthUser.id).maybeSingle(); if (userVoteError) throw userVoteError; await updatePollUI(postId, optionsContainer, userVote?.selected_option_index); } catch(error) { console.error(`Error loading poll results for post ${postId}:`, error.message); }
         }
         async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { 
-            // ... (Your existing updatePollUI function) ...
+            // ... (Keep existing) ...
              if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = false; button.classList.add('hover:bg-gray-100', 'cursor-pointer'); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Error updating poll UI for post ${postId}:`, error.message); }
         }
 
-        // --- 14. COMMENTS LOGIC --- (Keep existing functions: toggle, render, submit, delete)
+        // --- 14. COMMENTS LOGIC --- (Keep existing functions: toggle, render, submit, delete, but use toast)
         async function toggleCommentsSection(postId) { 
-            // ... (Your existing toggleCommentsSection function) ...
+            // ... (Keep existing) ...
               const commentsSection = document.getElementById(`comments-section-${postId}`); const commentsList = document.getElementById(`comments-list-${postId}`); if (!commentsSection || !commentsList) return; const isHidden = commentsSection.classList.contains('hidden'); if (isHidden) { commentsSection.classList.remove('hidden'); commentsList.innerHTML = '<p class="text-sm text-gray-500">Loading comments...</p>'; feather.replace(); try { const { data: comments, error } = await _supabase.from('comments').select(`id, content, created_at, user_id, users:user_id (name, img, tick)`).eq('post_id', postId).is('parent_comment_id', null).order('created_at', { ascending: true }); if (error) throw error; renderComments(postId, comments); } catch (error) { console.error("Error fetching comments:", error.message); commentsList.innerHTML = '<p class="text-sm text-red-500">Error loading comments.</p>'; } } else { commentsSection.classList.add('hidden'); }
         }
         function renderComments(postId, comments) { 
-            // --- UPDATED to include TICK ---
+            // ... (Keep existing renderComments function - already includes tick) ...
             const commentsList = document.getElementById(`comments-list-${postId}`); 
             if (!commentsList) return; 
             if (comments.length === 0) { 
@@ -469,7 +480,8 @@
             feather.replace();
         }
         async function handleCommentSubmit(postId) { 
-            // ... (Your existing handleCommentSubmit function - Updated to fetch tick) ...
+            // ... (Keep existing handleCommentSubmit function - already includes tick logic) ...
+            // Use toast for error
               if (!currentAuthUser) return; const input = document.getElementById(`comment-input-${postId}`); const content = input.value.trim(); if (!content) return; const submitButton = document.querySelector(`.comment-submit-button[data-post-id="${postId}"]`); submitButton.disabled = true; const originalIconHTML = submitButton.innerHTML; submitButton.innerHTML = '<div class="spinner w-5 h-5 border-t-primary-600"></div>'; try { const { data: newComment, error } = await _supabase.from('comments').insert({ post_id: postId, user_id: currentAuthUser.id, content: content }).select(`*, users:user_id (name, img, tick)`).single(); if (error) throw error; const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList) { const noComments = commentsList.querySelector('p'); if (noComments && commentsList.children.length <= 1) { commentsList.innerHTML = ''; } const commenterName = newComment.users?.name || 'Unknown User'; const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; const commentTime = formatTimeAgo(newComment.created_at); const deleteButtonHtml = `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>`; 
               // Add Tick for new comment
                let newCommenterTickHtml = ''; 
@@ -478,45 +490,60 @@
                    newCommenterTickHtml = `<img src="${tickImages[newCommenterTickType]}" alt="${newCommenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
                }
               
-              const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${newCommenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; commentsList.insertAdjacentHTML('beforeend', newCommentHtml); commentsList.scrollTop = commentsList.scrollHeight; feather.replace(); } input.value = ''; const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = parseInt(countSpan.textContent) + 1; } } catch (error) { console.error("Error submitting comment:", error.message); alert("Could not post comment."); } finally { submitButton.disabled = false; submitButton.innerHTML = originalIconHTML; const restoredIcon = submitButton.querySelector('i[data-feather="send"]'); if(restoredIcon) feather.replace({ 'data-feather': 'send'}); }
+              const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${newCommenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; commentsList.insertAdjacentHTML('beforeend', newCommentHtml); commentsList.scrollTop = commentsList.scrollHeight; feather.replace(); } input.value = ''; const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = parseInt(countSpan.textContent) + 1; } } catch (error) { console.error("Error submitting comment:", error.message); showToast("Could not post comment.", "error"); } finally { submitButton.disabled = false; submitButton.innerHTML = originalIconHTML; const restoredIcon = submitButton.querySelector('i[data-feather="send"]'); if(restoredIcon) feather.replace({ 'data-feather': 'send'}); }
         }
         async function handleDeleteComment(commentId, postId, buttonElement) {
-            // ... (Your existing handleDeleteComment function) ...
+             // ... (Keep existing handleDeleteComment function, but use toast for error) ...
              if (!currentAuthUser) return;
              if (!confirm("Are you sure you want to delete this comment?")) return; 
              buttonElement.disabled = true; const commentElement = buttonElement.closest('.comment-item'); 
              try { const { error } = await _supabase.from('comments').delete().match({ id: commentId, user_id: currentAuthUser.id }); if (error) throw error;
                  if (commentElement) { commentElement.style.opacity = '0'; commentElement.style.transition = 'opacity 0.3s ease-out'; setTimeout(() => { commentElement.remove(); const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList && commentsList.children.length === 0) { commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>'; } }, 300); }
                  const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1); }
-             } catch (error) { console.error("Error deleting comment:", error.message); alert("Could not delete comment."); buttonElement.disabled = false; }
+                  showToast("Comment deleted", "success"); // Success toast
+             } catch (error) { 
+                 console.error("Error deleting comment:", error.message); 
+                 showToast("Could not delete comment.", "error"); // Use toast
+                 buttonElement.disabled = false; 
+             }
         }
 
-        // --- 16. SHARE LOGIC --- (Keep existing function)
+        // --- 16. SHARE LOGIC --- (Keep existing function, but use toast for error)
         async function handleShare(postId) {
-            // ... (Your existing handleShare function) ...
-              const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); console.log('Post shared successfully'); } catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); alert(`Could not share: ${err.message}`); } else { console.log('Share cancelled by user.'); } } } else { console.log('Web Share API not supported, falling back to copy.'); fallbackCopyToClipboard(shareUrl); }
+             // ... (Keep existing handleShare function) ...
+              const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); console.log('Post shared successfully'); } catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); showToast(`Could not share: ${err.message}`, 'error'); } else { console.log('Share cancelled by user.'); } } } else { console.log('Web Share API not supported, falling back to copy.'); fallbackCopyToClipboard(shareUrl); }
         }
 
-        // --- 17. CLIPBOARD HELPER --- (Keep existing functions)
-        function fallbackCopyToClipboard(text) { /* ... */ copyToClipboard(text).then(() => { alert("Web Share not available.\nLink copied to clipboard!"); }).catch(err => { console.error('Failed to copy link: ', err); alert("Failed to copy link."); }); }
-        function copyToClipboard(text) { /* ... */ return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); }
+        // --- 17. CLIPBOARD HELPER --- (Keep existing functions, but use toast)
+        function fallbackCopyToClipboard(text) { 
+             copyToClipboard(text).then(() => { 
+                 showToast("Web Share not available. Link copied!", 'success'); // Use toast
+             }).catch(err => { 
+                 console.error('Failed to copy link: ', err); 
+                 showToast("Failed to copy link.", 'error'); // Use toast
+             }); 
+        }
+        function copyToClipboard(text) { 
+             // ... (Keep existing) ...
+              return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); 
+        }
 
         // --- 18. REALTIME POLL VOTE SUBSCRIPTION --- (Keep existing function)
         function subscribeToPollVoteChanges() { 
-            // ... (Your existing subscribeToPollVoteChanges function) ...
+            // ... (Keep existing) ...
              if (pollVotesSubscription) { _supabase.removeChannel(pollVotesSubscription); }
              pollVotesSubscription = _supabase.channel('public:poll_votes').on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, handleRealtimePollUpdate).subscribe(/* ... status handling ... */);
         }
 
         // --- 19. HANDLE REALTIME POLL VOTE UPDATE --- (Keep existing function)
         function handleRealtimePollUpdate(payload) { 
-            // ... (Your existing handleRealtimePollUpdate function) ...
+            // ... (Keep existing) ...
               console.log('Realtime poll vote event:', payload); const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'poll_votes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const optionsContainer = postElement.querySelector(`.poll-options-container[data-post-id="${postId}"]`); if (optionsContainer) { updatePollUI(postId, optionsContainer, null); console.log(`Realtime update triggered for poll ${postId}`); }
         }
 
         // --- 20. REALTIME COMMENTS SUBSCRIPTION --- (Keep existing function)
         function subscribeToCommentChanges() {
-            // ... (Your existing subscribeToCommentChanges function) ...
+            // ... (Keep existing) ...
              if (commentsSubscription) { _supabase.removeChannel(commentsSubscription); }
              commentsSubscription = _supabase.channel('public:comments')
                  .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, handleRealtimeCommentUpdate)
@@ -529,6 +556,7 @@
 
         // --- 21. HANDLE REALTIME COMMENT UPDATE --- (Keep existing function - updated fetch includes tick)
         function handleRealtimeCommentUpdate(payload) {
+             // ... (Keep existing) ...
              console.log('Realtime comment event:', payload);
              const { eventType, new: newRecord, old: oldRecord, table } = payload;
              if (table !== 'comments') return; 
@@ -595,90 +623,41 @@
              }
         }
 
-
-        // === NOTIFICATION FUNCTIONS ===
-
-        function setupNotificationListeners() {
-            if (!notificationBellBtn) return;
-            notificationBellBtn.addEventListener('click', toggleNotificationPanel);
-            closeNotificationPanelBtn.addEventListener('click', closePanel);
-            markAllReadBtn.addEventListener('click', markAllAsRead);
-            notificationBackdrop.addEventListener('click', closePanel);
-        }
-
-        function toggleNotificationPanel() {
-            const isHidden = notificationPanel.classList.contains('hidden');
-            if (isHidden) {
-                openPanel();
-                fetchNotifications();
-            } else {
-                closePanel();
-            }
-        }
-
-        function openPanel() {
-            notificationPanel.classList.remove('hidden');
-            notificationBackdrop.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                notificationPanel.classList.remove('translate-x-full');
-            });
-        }
-
-        function closePanel() {
-            notificationPanel.classList.add('translate-x-full');
-            notificationBackdrop.classList.add('hidden');
-            setTimeout(() => {
-                notificationPanel.classList.add('hidden');
-            }, 300); // Match transition duration
-        }
-
-        async function fetchUnreadCount() {
-            if (!currentAuthUser) return;
-            try {
-                const { data, error } = await _supabase.rpc('get_unread_notifications_count');
-                if (error) throw error;
-                updateBadge(data);
-            } catch (error) {
-                console.error("Error fetching unread count:", error.message);
-            }
-        }
-
-        async function fetchNotifications() {
-            if (!currentAuthUser) return;
-            notificationsLoading.style.display = 'block';
-            noNotifications.style.display = 'none';
-            notificationList.innerHTML = ''; // Clear previous
-
-            try {
-                const { data, error } = await _supabase.rpc('get_my_notifications');
-                if (error) throw error;
-
-                notificationsLoading.style.display = 'none';
-
-                if (!data || data.length === 0) {
-                    noNotifications.style.display = 'block';
-                } else {
-                    renderNotifications(data);
-                }
-            } catch (error) {
-                console.error("Error fetching notifications:", error.message);
-                notificationsLoading.style.display = 'none';
-                notificationList.innerHTML = '<p class="text-center text-red-500 py-4">Could not load notifications.</p>';
-            }
-        }
-
-        function renderNotifications(notifications) {
-            notificationList.innerHTML = ''; // Clear fully
+        // === NOTIFICATION FUNCTIONS (Keep existing) ===
+        function setupNotificationListeners() { /* ... */
+             if (!notificationBellBtn) return;
+             notificationBellBtn.addEventListener('click', toggleNotificationPanel);
+             closeNotificationPanelBtn.addEventListener('click', closePanel);
+             markAllReadBtn.addEventListener('click', markAllAsRead);
+             notificationBackdrop.addEventListener('click', closePanel);
+         }
+        function toggleNotificationPanel() { /* ... */
+             const isHidden = notificationPanel.classList.contains('hidden');
+             if (isHidden) { openPanel(); fetchNotifications(); } else { closePanel(); }
+         }
+        function openPanel() { /* ... */
+             notificationPanel.classList.remove('hidden'); notificationBackdrop.classList.remove('hidden'); requestAnimationFrame(() => { notificationPanel.classList.remove('translate-x-full'); });
+         }
+        function closePanel() { /* ... */
+             notificationPanel.classList.add('translate-x-full'); notificationBackdrop.classList.add('hidden'); setTimeout(() => { notificationPanel.classList.add('hidden'); }, 300);
+         }
+        async function fetchUnreadCount() { /* ... */
+             if (!currentAuthUser) return; try { const { data, error } = await _supabase.rpc('get_unread_notifications_count'); if (error) throw error; updateBadge(data); } catch (error) { console.error("Error fetching unread count:", error.message); }
+         }
+        async function fetchNotifications() { /* ... */
+             if (!currentAuthUser) return; notificationsLoading.style.display = 'block'; noNotifications.style.display = 'none'; notificationList.innerHTML = ''; try { const { data, error } = await _supabase.rpc('get_my_notifications'); if (error) throw error; notificationsLoading.style.display = 'none'; if (!data || data.length === 0) { noNotifications.style.display = 'block'; } else { renderNotifications(data); } } catch (error) { console.error("Error fetching notifications:", error.message); notificationsLoading.style.display = 'none'; notificationList.innerHTML = '<p class="text-center text-red-500 py-4">Could not load notifications.</p>'; }
+         }
+        function renderNotifications(notifications) { /* ... (Keep existing, already includes tick) ... */
+             notificationList.innerHTML = ''; // Clear fully
              const localTickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" }; // Ensure tickImages is available
 
             notifications.forEach(notif => {
                 const div = document.createElement('div');
-                // Added data-notification-id
                 div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors ${!notif.is_read ? 'bg-primary-50' : 'bg-white'} hover:bg-gray-100`;
                 div.dataset.notificationId = notif.id;
 
                 const senderAvatar = notif.sender_img
-                    ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">` // Added object-cover
+                    ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">`
                     : `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">?</div>`;
 
                  const tickType = notif.sender_tick?.toLowerCase();
@@ -696,12 +675,9 @@
                     <p class="text-xs text-gray-500 mt-0.5">${timeAgo}</p>
                 `;
                 
-                // Wrap in link ONLY if link exists and is not just the profile page (or adjust logic as needed)
-                // Example: Don't link friend requests if they are handled in a modal on myprofile.html
                 const isDirectLink = notif.link && !notif.link.includes('myprofile.html'); 
-                const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">'; // Make non-links clickable
+                const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">'; 
                 const linkWrapperEnd = isDirectLink ? '</a>' : '</div>';
-
 
                 div.innerHTML = `
                     ${senderAvatar}
@@ -711,191 +687,63 @@
                     ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
                 `;
 
-                // Add click listener to mark as read
                  div.addEventListener('click', (e) => {
-                     // If it's a link and wasn't the unread dot clicked, let the link navigate
                      if (isDirectLink && !e.target.closest('.w-2.h-2')) {
-                         markSingleAsRead(notif.id); // Mark as read but allow navigation
-                         // No e.preventDefault();
+                         markSingleAsRead(notif.id); 
                      } else {
-                          // If it's not a link OR the click was anywhere else, prevent default only if needed
-                          // and mark as read. If it's a friend request, maybe open the profile modal?
                           if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
-                              window.location.href = notif.link; // Navigate to profile to handle requests
+                               window.location.href = notif.link; // Navigate to profile to handle requests
                           }
                           if (!notif.is_read) {
                              markSingleAsRead(notif.id, div);
                           }
-                          // Add other actions here if needed (e.g., open a modal)
                      }
                  });
 
-
-                // Add animation class
                 div.classList.add('notification-item-enter');
                 notificationList.appendChild(div);
-                // Trigger animation
-                requestAnimationFrame(() => {
-                    div.classList.add('notification-item-enter-active');
-                });
+                requestAnimationFrame(() => { div.classList.add('notification-item-enter-active'); });
             });
             feather.replace();
-        }
-
-        async function markSingleAsRead(notificationId, elementToUpdate = null) {
-            if (!currentAuthUser) return;
-             // Find element if not passed
+         }
+        async function markSingleAsRead(notificationId, elementToUpdate = null) { /* ... */
+             if (!currentAuthUser) return;
              const notificationElement = elementToUpdate || notificationList.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
-
-             // Only proceed if it's currently marked as unread in the UI
              const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
-             if (!unreadDot) return; // Already marked as read or element not found
+             if (!unreadDot) return; 
 
             try {
-                const { error } = await _supabase.rpc('mark_notification_read', {
-                    notification_id_to_mark: notificationId
-                });
+                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
                 if (error) throw error;
-
-                // Optimistic UI Update
                 if (notificationElement) {
                     notificationElement.classList.remove('bg-primary-50');
                     notificationElement.classList.add('bg-white');
                     unreadDot.remove();
                 }
-                fetchUnreadCount(); // Recalculate badge count
+                fetchUnreadCount();
             } catch (error) {
                 console.error("Error marking notification read:", error.message);
                 showToast("Could not mark notification as read.", 'error');
             }
-        }
+         }
+        async function markAllAsRead() { /* ... */
+             if (!currentAuthUser) return; setButtonLoading(markAllReadBtn, true); try { const { error } = await _supabase.rpc('mark_all_notifications_read'); if (error) throw error; notificationList.querySelectorAll('.notification-item.bg-primary-50').forEach(el => { el.classList.remove('bg-primary-50'); el.classList.add('bg-white'); const unreadDot = el.querySelector('.w-2.h-2.bg-primary-500'); if (unreadDot) unreadDot.remove(); }); updateBadge(0); showToast("All notifications marked as read.", 'success'); } catch (error) { console.error("Error marking all notifications read:", error.message); showToast("Could not mark all as read.", 'error'); } finally { setButtonLoading(markAllReadBtn, false); }
+         }
+        function setupRealtimeNotifications() { /* ... */
+              if (!currentAuthUser) return; if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } notificationSubscription = _supabase .channel('public:notifications') .on( 'postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => { console.log('New notification received:', payload.new); fetchUnreadCount(); showToast(payload.new.content_preview || 'You have a new notification!', 'success'); if (!notificationPanel.classList.contains('hidden')) { fetchNotifications(); } } ) .subscribe((status, err) => { if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); } if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); } }); window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
+         }
+        function updateBadge(count) { /* ... */
+             if (!notificationBadge) return; if (count > 0) { notificationBadge.textContent = count > 9 ? '9+' : count; notificationBadge.classList.remove('hidden'); } else { notificationBadge.classList.add('hidden'); }
+         }
 
-        async function markAllAsRead() {
-            if (!currentAuthUser) return;
-            setButtonLoading(markAllReadBtn, true);
-            try {
-                const { error } = await _supabase.rpc('mark_all_notifications_read');
-                if (error) throw error;
+        // === Utility: Toast --- (Keep existing)
+         function showToast(message, type = 'success') { /* ... */
+            const toast = document.createElement('div'); const iconName = type === 'success' ? 'check-circle' : 'alert-circle'; toast.className = `toast toast-${type}`; toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`; toastContainer.appendChild(toast); feather.replace(); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 3000);
+         }
 
-                // Optimistic UI Update
-                notificationList.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
-                    el.classList.remove('bg-primary-50');
-                    el.classList.add('bg-white');
-                    const unreadDot = el.querySelector('.w-2.h-2.bg-primary-500');
-                    if (unreadDot) unreadDot.remove();
-                });
-                updateBadge(0);
-                showToast("All notifications marked as read.", 'success');
-
-            } catch (error) {
-                console.error("Error marking all notifications read:", error.message);
-                showToast("Could not mark all as read.", 'error');
-            } finally {
-                setButtonLoading(markAllReadBtn, false);
-            }
-        }
-
-        function setupRealtimeNotifications() {
-             if (!currentAuthUser) return;
-             if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } // Use removeChannel
-
-             notificationSubscription = _supabase
-                 .channel('public:notifications')
-                 .on(
-                     'postgres_changes',
-                     {
-                         event: 'INSERT',
-                         schema: 'public',
-                         table: 'notifications',
-                         filter: `recipient_user_id=eq.${currentAuthUser.id}`
-                     },
-                     (payload) => {
-                         console.log('New notification received:', payload.new);
-                         fetchUnreadCount();
-                         showToast(payload.new.content_preview || 'You have a new notification!', 'success');
-                         if (!notificationPanel.classList.contains('hidden')) {
-                             fetchNotifications(); // Refetch list if panel is open
-                         }
-                     }
-                 )
-                 .subscribe((status, err) => {
-                      if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
-                      if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
-                      // Handle other statuses as needed
-                 });
-
-                 window.addEventListener('beforeunload', () => {
-                     if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } // Use removeChannel
-                 });
-        }
-
-        function updateBadge(count) {
-            if (count > 0) {
-                notificationBadge.textContent = count > 9 ? '9+' : count;
-                notificationBadge.classList.remove('hidden');
-            } else {
-                notificationBadge.classList.add('hidden');
-            }
-        }
-
-         // === Utility: Toast ---
-         function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = `
-                <i data-feather="${iconName}" class="toast-icon"></i>
-                <span class="font-medium">${message}</span>
-            `;
-            toastContainer.appendChild(toast);
-            feather.replace(); 
-            setTimeout(() => { toast.classList.add('show'); }, 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-            }, 3000);
-        }
-
-         // === Utility: Button Loading ---
-         function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) {
-            // ... (Copy your existing setButtonLoading function here) ...
-             buttonEl.disabled = isLoading;
-             const textEl = buttonEl.querySelector('.button-text'); // Might not exist on all buttons
-             const spinnerEl = buttonEl.querySelector('.button-spinner'); // Might not exist on all buttons
-
-             if (isSmall) {
-                 const iconEl = buttonEl.querySelector('i[data-feather]');
-                 if (isLoading) {
-                     if (iconEl) iconEl.style.display = 'none';
-                     if (!spinnerEl) {
-                         const spinner = document.createElement('div');
-                         spinner.className = 'spinner button-spinner w-5 h-5'; // Ensure spinner class exists
-                         buttonEl.prepend(spinner);
-                     } else {
-                         spinnerEl.style.display = 'block';
-                     }
-                 } else {
-                     const existingSpinner = buttonEl.querySelector('.button-spinner');
-                     if (existingSpinner) existingSpinner.remove();
-                     if (iconEl) {
-                         iconEl.style.display = 'block';
-                     } else if (iconName) {
-                         buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`;
-                         feather.replace();
-                     }
-                 }
-             } else { // Handle larger buttons like 'Mark all as read'
-                 const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
-                  if (isLoading) {
-                     buttonEl.dataset.originalText = originalText; // Store original text
-                     buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>'; // Show only spinner
-                 } else {
-                     buttonEl.innerHTML = originalText; // Restore original text
-                     delete buttonEl.dataset.originalText; // Clean up dataset
-                     // Re-render feather icons if the original text included one
-                     feather.replace();
-                 }
-             }
+         // === Utility: Button Loading --- (Keep existing)
+         function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) { /* ... */
+              buttonEl.disabled = isLoading; const textEl = buttonEl.querySelector('.button-text'); const spinnerEl = buttonEl.querySelector('.button-spinner'); if (isSmall) { const iconEl = buttonEl.querySelector('i[data-feather]'); if (isLoading) { if (iconEl) iconEl.style.display = 'none'; if (!spinnerEl) { const spinner = document.createElement('div'); spinner.className = 'spinner button-spinner w-5 h-5'; buttonEl.prepend(spinner); } else { spinnerEl.style.display = 'block'; } } else { const existingSpinner = buttonEl.querySelector('.button-spinner'); if (existingSpinner) existingSpinner.remove(); if (iconEl) { iconEl.style.display = 'block'; } else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); } } } else { const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim(); if (isLoading) { buttonEl.dataset.originalText = originalText; buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>'; } else { buttonEl.innerHTML = originalText; delete buttonEl.dataset.originalText; feather.replace(); } }
         }
 
         // === END NOTIFICATION FUNCTIONS ===
