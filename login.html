@@ -8,18 +8,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
-
+  
   <style>
     :root {
       --primary-accent: #56ab2f;
       --primary-gradient: linear-gradient(90deg, #a8e063, #56ab2f);
-      --danger-color: #e53935; /* Using danger-600 */
-      --danger-bg: #ffebee; /* danger-50 */
-      --danger-text: #b71c1c; /* danger-900 */
-      --success-color: #458a26; /* primary-700 */
-      --success-bg: #eef8e9; /* primary-100 */
-      --success-text: #1a320f; /* primary-950 */
+      --danger-color: #e53935;
       --font-family: 'Inter', sans-serif;
       --bg-gradient-light: linear-gradient(180deg, #f5f5f7, #e9e9ed);
       --card-bg-light: rgba(255, 255, 255, 0.9);
@@ -60,11 +54,10 @@
       background: var(--bg-gradient);
       color: var(--text-primary);
       transition: background 0.4s ease, color 0.4s ease;
-      padding: 1rem; /* Add padding for smaller screens */
     }
     .login-card {
       background: var(--card-bg);
-      padding: 30px 25px; /* Adjust padding */
+      padding: 40px;
       border-radius: 16px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
@@ -74,9 +67,9 @@
       animation: fadeUp 0.5s ease;
     }
      @keyframes fadeUp {
-       from { transform: translateY(20px); opacity: 0; }
-       to { transform: translateY(0); opacity: 1; }
-     }
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
     .app-title {
       font-family: 'Pacifico', cursive;
       font-size: 32px;
@@ -98,14 +91,7 @@
       color: var(--text-primary);
       font-size: 16px;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      /* Improve number input appearance */
-      -moz-appearance: textfield;
     }
-     .input-field::-webkit-outer-spin-button,
-     .input-field::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-     }
     .input-field:focus {
       outline: none;
       border-color: var(--primary-accent);
@@ -121,130 +107,87 @@
       font-weight: 600;
       font-size: 16px;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease;
-      display: flex; /* For spinner alignment */
-      align-items: center;
-      justify-content: center;
-      min-height: 48px; /* Ensure consistent height with spinner */
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
-    .login-button:hover:not(:disabled) { /* Add :not(:disabled) */
+    .login-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(86, 171, 47, 0.3);
     }
     .login-button:disabled {
-      background: var(--text-secondary); /* Keep disabled style simple */
+      background: var(--text-secondary);
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
-      opacity: 0.7;
     }
-    .error-message { /* Combined with toast styling */
-      display: none; /* Hide original error div */
+    .error-message {
+      color: var(--danger-color);
+      margin-top: 15px;
+      min-height: 20px;
+      font-weight: 500;
+      font-size: 14px;
     }
-    .spinner { /* Spinner for login button */
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        border-top: 3px solid #ffffff;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    /* Toast Notifications */
-    #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
-    .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
-    .toast.toast-success { background-color: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-color);}
-    .toast.toast-error { background-color: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-color);}
-    .toast.show { opacity: 1; }
-    .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
-    @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    /* Feather Icons in Toasts */
-    .toast i[data-feather] { stroke-width: 2.5px; }
-    .toast.toast-success i[data-feather] { color: var(--success-color); }
-    .toast.toast-error i[data-feather] { color: var(--danger-color); }
-
   </style>
 </head>
-<body data-theme="light"> <div class="login-card">
+<body>
+
+  <div class="login-card">
     <h1 class="app-title">BirlaOne</h1>
     <p>Please sign in to your account.</p>
-
-    <input type="number" id="studentId" class="input-field" placeholder="Student ID" inputmode="numeric" />
+    
+    <input type="number" id="studentId" class="input-field" placeholder="Student ID" />
     <input type="password" id="password" class="input-field" placeholder="Password" />
     <button class="login-button" id="loginBtn" onclick="login()">Login</button>
-    <div id="error" class="error-message"></div> </div>
-
-  <div id="toast-container"></div>
+    <div id="error" class="error-message"></div>
+  </div>
 
 <script>
   const SUPABASE_URL = "https://eikriuddsuguybvvyzjl.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let oneSignalPlayerId = null; // Store Player ID globally
-
-  // === Median.co Integration: Get Player ID ===
-  function median_ready() {
-      console.log("Median bridge ready.");
-      // Check if OneSignal functions exist on the median object
-      if (window.median && window.median.onesignal && window.median.onesignal.getUserId) {
-          window.median.onesignal.getUserId(function(userId) {
-              if (userId) {
-                  console.log("OneSignal User ID:", userId);
-                  oneSignalPlayerId = userId;
-              } else {
-                  console.log("Could not get OneSignal User ID.");
-              }
-          });
-      } else {
-          console.warn("Median OneSignal bridge not available.");
-      }
-  }
-   document.addEventListener('median_ready', median_ready);
-  // === End Median Integration ===
-
   async function login() {
     const studentId = document.getElementById("studentId").value.trim();
     const password = document.getElementById("password").value.trim();
+    const errorDiv = document.getElementById("error");
     const loginBtn = document.getElementById("loginBtn");
-    const originalButtonText = "Login";
 
+    errorDiv.textContent = "";
     loginBtn.disabled = true;
-    loginBtn.innerHTML = '<div class="spinner"></div>';
+    loginBtn.textContent = "Logging in...";
 
     if (!studentId || !password) {
-      showToast("Please enter Student ID and Password.", "error"); // Use toast
+      errorDiv.textContent = "Please enter Student ID and Password.";
       loginBtn.disabled = false;
-      loginBtn.innerHTML = originalButtonText;
+      loginBtn.textContent = "Login";
       return;
     }
 
     try {
-      // 🔹 Step 1: Get email by student ID
-      const { data: emailData, error: rpcError } = await supabase
+      // 🔹 Step 1: Get email by student ID using an RPC call
+      const { data: email, error: rpcError } = await supabase
         .rpc("get_email_by_student_id", { p_id: parseInt(studentId, 10) });
 
-       const email = emailData;
-
       if (rpcError || !email) {
-        console.error("Email lookup failed:", rpcError || 'No email returned');
-        showToast("Student ID not found.", "error"); // Use toast
-        throw new Error("Student ID not found.");
+        console.error("Email lookup failed:", rpcError);
+        errorDiv.textContent = "Student ID not found.";
+        return;
       }
 
-      // 🔹 Step 2: Sign in
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      // 🔹 Step 2: Try to sign in with the retrieved email and password
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
       if (authError) {
         console.error("Auth error:", authError);
-        showToast("Invalid ID or Password.", "error"); // Use toast
-        throw new Error("Invalid credentials.");
+        errorDiv.textContent = "Invalid ID or Password.";
+        return;
       }
 
       const user = authData.user;
       if (user && user.id) {
-        // 🔹 Step 3: Update auth_id
+        // 🔹 Step 3: Update the auth_id in your public users table
         const { error: updateError } = await supabase
           .from("users")
           .update({ auth_id: user.id })
@@ -252,103 +195,38 @@
 
         if (updateError) {
           console.error("⚠️ Failed to update auth_id:", updateError);
-          // Non-critical, log it but proceed
+          // This is not a critical error for the user, so we don't show it.
         }
-
-        // 🔹 Step 3.5: Update OneSignal Player ID
-        if (oneSignalPlayerId) {
-            console.log("Attempting to update Player ID:", oneSignalPlayerId);
-            const { error: playerUpdateError } = await supabase.rpc('update_my_player_id', {
-                player_id: oneSignalPlayerId
-            });
-
-            if (playerUpdateError) {
-                 console.error("⚠️ Failed to update OneSignal Player ID via RPC:", playerUpdateError);
-                 showToast("Could not register device for notifications.", "error"); // Inform user
-            } else {
-                 console.log("✅ OneSignal Player ID updated successfully.");
-            }
-        } else {
-            console.log("No OneSignal Player ID available to update.");
-            // Optionally inform the user they won't get push notifications
-            // showToast("Could not get device ID for push notifications.", "error");
-        }
-      } else {
-          throw new Error("User data not found after authentication."); // Should not happen if signIn succeeded
       }
 
-      // 🔹 Step 4: Redirect
-      showToast("Login Successful!", "success");
-      setTimeout(() => {
-          window.location.href = "index.html";
-      }, 1000);
+      // 🔹 Step 4: Redirect to the main app page
+      window.location.href = "index.html";
 
     } catch (err) {
-      console.error("Login process error:", err);
-      // Avoid showing generic error if specific toast was already shown by earlier steps
-      if (!document.querySelector('#toast-container .toast.show')) {
-         showToast(err.message || "An unexpected error occurred. Please try again.", "error"); // Show specific or generic error
-      }
-      // Re-enable button only if we are *not* redirecting
-       loginBtn.disabled = false;
-       loginBtn.innerHTML = originalButtonText;
-
+      console.error("Unexpected error:", err);
+      errorDiv.textContent = "An unexpected error occurred. Please try again.";
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Login";
     }
-    // Removed the finally block as re-enabling should only happen on explicit error cases above
   }
 
   // Check if user is already logged in on page load
   document.addEventListener('DOMContentLoaded', async () => {
-     // Theme setup
-     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-     document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       console.log('Active session found. Redirecting to home page.');
       window.location.href = 'index.html';
-    } else {
-        feather.replace(); // Render icons immediately for login page
-        document.getElementById('studentId').focus();
     }
   });
 
-  // Add Enter key support
+  // Add Enter key support for a smoother experience
   document.getElementById('password').addEventListener('keypress', e => {
     if (e.key === 'Enter') login();
   });
   document.getElementById('studentId').addEventListener('keypress', e => {
     if (e.key === 'Enter') document.getElementById('password').focus();
   });
-
- // --- Toast Notification Function ---
- function showToast(message, type = 'success') {
-     const toastContainer = document.getElementById('toast-container');
-     if (!toastContainer) { // Add safety check
-         console.error("Toast container not found!");
-         alert(message); // Fallback to alert if container is missing
-         return;
-     }
-
-     const toast = document.createElement('div');
-     const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
-     toast.className = `toast toast-${type}`;
-     toast.innerHTML = `
-         <i data-feather="${iconName}" class="toast-icon"></i>
-         <span class="font-medium">${message}</span>
-     `;
-     toastContainer.appendChild(toast);
-     feather.replace();
-
-     requestAnimationFrame(() => {
-         toast.classList.add('show');
-     });
-
-     setTimeout(() => {
-         toast.classList.remove('show');
-         toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-     }, 3000);
- }
 </script>
 
 </body>
