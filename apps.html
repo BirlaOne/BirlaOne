@@ -1,22 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" class=""> <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BirlaOne - Mini Apps</title>
     
-    <!-- Tailwind CSS CDN --><script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Immediately apply theme from localStorage or OS preference to prevent FOUC
+        (function() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
     
-    <!-- Feather Icons Script --><script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Pacifico font for the logo --><link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     
-    <!-- Tailwind Config with NEW GREEN THEME --><script>
+    <script>
         tailwind.config = {
+            darkMode: 'class', // <-- ADDED FOR DARK MODE
             theme: {
                 extend: {
                     fontFamily: {
@@ -43,7 +54,7 @@
         };
     </script>
     
-    <!-- Custom Styles --><style>
+    <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc; /* bg-slate-50 */
@@ -86,109 +97,105 @@
              justify-content: center;
              margin-bottom: 0.75rem; /* mb-3 */
              background-color: transparent; /* No background color on the container */
+         }
+         .app-icon-container img {
+             width: 100%;
+             height: 100%;
+             object-fit: contain; 
+         }
+
+        /* --- Dark Mode Styles --- */
+        :root { color-scheme: light; }
+        :root.dark { color-scheme: dark; }
+        
+        .dark body { background-color: #111827; }
+        .dark .bg-white { background-color: #1f2937; }
+        .dark .text-gray-900 { color: #f9fafb; }
+        .dark .text-gray-500 { color: #9ca3af; }
+        .dark .border-gray-200 { border-color: #374151; }
+        .dark .bg-gray-50 { background-color: #374151; }
+
+        /* App Grid Dark */
+        .dark .hover\:border-primary-600:hover { border-color: #a6d98e; }
+        .dark .bg-primary-100 { background-color: #396f21; }
+        .dark .text-primary-600 { color: #a6d98e; }
+
+        /* Nav Dark */
+        .dark .bottom-nav-shadow { 
+            box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); 
+            border-top: 1px solid #374151;
+            background-color: rgba(31, 41, 55, 0.95); /* from bg-white/95 */
         }
-        .app-icon-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Use 'contain' to ensure the full logo is visible, or 'cover' to fill the space */
-        }
+        .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
+        .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
+
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- App Container --><div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-gray-800">
 
-        <!-- Main Content - Mini Apps --><main class="pt-6 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
+        <main class="pt-6 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
             
-            <!-- Page Header --><div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-gray-900">Mini Apps</h1>
-                <!-- Optional: Add a back button or other header element if needed --></div>
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Mini Apps</h1>
+                </div>
 
-            <!-- Apps Grid --><div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4">
 
-                <!-- ClassCount --><a href="https://birlaone.github.io/ClassCount/index.html" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <!-- Updated container for the logo --><div class="app-icon-container">
+                <a href="https://birlaone.github.io/ClassCount/index.html" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95 dark:bg-gray-700 dark:border-gray-600 dark:hover:border-primary-400">
+                    <div class="app-icon-container">
                         <img src="https://i.ibb.co/Hf1GdYTZ/C-1.png" alt="ClassCount Logo">
                     </div>
-                    <p class="font-semibold text-gray-900">ClassCount</p>
-                    <p class="text-xs text-gray-500">Attendance Tracker</p>
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">ClassCount</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Attendance Tracker</p>
                 </a>
 
-                <!-- EcoPoints --><a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
+                <a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95 dark:bg-gray-700 dark:border-gray-600 dark:hover:border-primary-400">
+                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3 dark:bg-primary-900 dark:text-primary-400">
                         <i data-feather="refresh-ccw" class="w-8 h-8"></i>
                     </div>
-                    <p class="font-semibold text-gray-900">EcoPoints</p>
-                    <p class="text-xs text-gray-500">Recycling Rewards</p>
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">EcoPoints</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Recycling Rewards</p>
                 </a>
 
-                <!-- BeAware --><a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
+                <a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95 dark:bg-gray-700 dark:border-gray-600 dark:hover:border-primary-400">
+                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3 dark:bg-primary-900 dark:text-primary-400">
                         <i data-feather="bar-chart-2" class="w-8 h-8"></i>
                     </div>
-                    <p class="font-semibold text-gray-900">BeAware</p>
-                    <p class="text-xs text-gray-500">Ingredient Scanner</p>
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">BeAware</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Ingredient Scanner</p>
                 </a>
 
-                <!-- Campus Friends --><a href="search.html" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
-                        <i data-feather="users" class="w-8 h-8"></i>
-                    </div>
-                    <p class="font-semibold text-gray-900">Campus Friends</p>
-                    <p class="text-xs text-gray-500">Find Friends</p>
-                </a>
-
-                <!-- Campus Events --><a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
-                        <i data-feather="calendar" class="w-8 h-8"></i>
-                    </div>
-                    <p class="font-semibold text-gray-900">Campus Events</p>
-                    <p class="text-xs text-gray-500">Upcoming Activities</p>
-                </a>
-
-                <!-- Bus Tracker --><a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
-                        <i data-feather="truck" class="w-8 h-8"></i>
-                    </div>
-                    <p class="font-semibold text-gray-900">Bus Tracker</p>
-                    <p class="text-xs text-gray-500">Shuttle Timings</p>
-                </a>
-
-                <!-- Lost & Found --><a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
+    
+                <a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95 dark:bg-gray-700 dark:border-gray-600 dark:hover:border-primary-400">
+                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3 dark:bg-primary-900 dark:text-primary-400">
                         <i data-feather="archive" class="w-8 h-8"></i>
                     </div>
-                    <p class="font-semibold text-gray-900">Lost & Found</p>
-                    <p class="text-xs text-gray-500">Report & Find Items</p>
+                    <p class="font-semibold text-gray-900 dark:text-gray-100">Lost & Found</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Report & Find Items</p>
                 </a>
 
-                <!-- Campus Eats --><a href="#" class="flex flex-col items-center justify-center text-center p-4 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:border-primary-600 hover:shadow-md active:scale-95">
-                    <div class="w-16 h-16 rounded-2xl bg-primary-100 text-primary-600 flex items-center justify-center mb-3">
-                        <i data-feather="shopping-cart" class="w-8 h-8"></i>
-                    </div>
-                    <p class="font-semibold text-gray-900">Campus Eats</p>
-                    <p class="text-xs text-gray-500">Order Canteen Food</p>
-                </a>
+            
 
             </div>
 
         </main>
 
-        <!-- Bottom Navigation --><nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
-            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
-            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
-            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"> <i data-feather="search"></i> </a>
-            <!-- Active Mini Apps Link --><a href="apps.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Mini Apps"> <i data-feather="grid" class="stroke-[2.5px]"></i> </a>
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20 dark:bg-gray-800/95 dark:border-t dark:border-gray-700">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Feed"> <i data-feather="file-text"></i> </a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Search"> <i data-feather="search"></i> </a>
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon dark:text-primary-400" aria-label="Mini Apps"> <i data-feather="grid" class="stroke-[2.5px]"></i> </a>
         </nav>
 
     </div>
 
-    <!-- JavaScript --><script>
+    <script>
         // Render Feather Icons
         feather.replace();
     </script>
 
 </body>
 </html>
-
