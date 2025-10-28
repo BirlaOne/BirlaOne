@@ -106,16 +106,24 @@
             font-weight: 500;
             transition: background-color 0.2s;
         }
+        .sidebar-menu-item span {
+    letter-spacing: 0.2px;
+}
+
+.dark .sidebar-menu-item i[data-feather] {
+    color: #9ca3af;
+}
+
         .sidebar-menu-item:hover {
             background-color: #f3f4f6;
         }
         .sidebar-menu-item i[data-feather] {
-            width: 20px;
-            height: 20px;
-            /* REQUEST: Increased space */
-            margin-right: 1.25rem; /* mr-5 */
-            color: #4b5563;
-        }
+    width: 20px;
+    height: 20px;
+    margin-right: 1.75rem; /* Increased from 1.25rem → 1.75rem */
+    color: #4b5563;
+}
+
         .sidebar-menu-item-arrow {
             margin-left: auto;
             color: #9ca3af;
