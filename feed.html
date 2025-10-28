@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Web App Manifest (for PWA-like features) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
@@ -95,7 +94,6 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        /* Dark mode shimmer */
         .dark .shimmer-wrapper {
             background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
             background-size: 200% 100%;
@@ -107,10 +105,31 @@
         .sidebar-menu-item span { letter-spacing: 0.2px; }
         .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
         .sidebar-menu-item:hover { background-color: #f3f4f6; }
-        .sidebar-menu-item i[data-feather] { width: 20px; height: 20px; margin-right: 1.75rem; color: #4b5563; }
+        
+        /* ### FIX 1: Icon Spacing ### */
+        /* Base style for icons in menu items */
+        .sidebar-menu-item i[data-feather] {
+            width: 20px;
+            height: 20px;
+            color: #4b5563;
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+        /* Add margin ONLY to the first icon (e.g., user, lock) and NOT the arrow icon */
+        .sidebar-menu-item i[data-feather]:first-child {
+            margin-right: 1.75rem; 
+        }
+        
         .sidebar-menu-item-arrow { margin-left: auto; color: #9ca3af; }
         #sidebar-qr-code-img { background: white; padding: 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
-        #sidebar-qr-code-img img { width: 100% !important; height: auto !important; border-radius: 6px; }
+        
+        /* ### FIX 2: QR Code Aspect Ratio ### */
+        /* Force generated QR (img or canvas) to fill the square container */
+        #sidebar-qr-code-img img,
+        #sidebar-qr-code-img canvas {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 6px;
+        }
 
         /* --- Dark Mode Styles --- */
         :root { color-scheme: light; }
@@ -145,13 +164,13 @@
         .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
         .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
         .dark #sidebar-user-avatar { border-color: #374151; }
-        #sidebar-qr-code-img { background: white; } /* Always white */
+        #sidebar-qr-code-img { background: white; }
         .dark .sidebar-menu-item-arrow { color: #6b7280; }
         .dark .text-danger-600 { color: #ef5350; }
         .dark .hover\:\!bg-danger-50:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
         .dark .sidebar-menu-item i.text-danger-600 { color: #ef5350 !important; }
         /* Feed Dark */
-        .dark .bg-gray-800 { background-color: #374151; } /* Anonymous post header */
+        .dark .bg-gray-800 { background-color: #374151; }
         .dark .text-white { color: #f9fafb; }
         .dark .comment-item .bg-gray-100 { background-color: #374151; }
         .dark input[type="text"].bg-gray-100 { background-color: #4b5563; }
@@ -163,7 +182,7 @@
         .dark .poll-option-button.border-primary-600 { border-color: #56ab2f; }
         /* Notification Dark */
         .dark #notification-panel { background-color: #1f2937; border-color: #374151; }
-        .dark .bg-primary-50 { background-color: #374151; }
+        .dark .bg-primary-50 { background-color: #374150; }
         .dark .hover\:bg-primary-50:hover { background-color: #374151; }
         .dark .text-primary-600.font-medium { color: #a6d98e; }
         /* Toast Dark */
@@ -175,7 +194,7 @@
 
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-slate-50">
 
-        <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
+        <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
             <button id="sidebar-toggle-btn" class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
                 <i data-feather="menu" class="text-gray-700"></i>
             </button>
@@ -196,15 +215,12 @@
                 <div class="p-2 text-gray-500"><i data-feather="image"></i></div>
             </div>
 
-            <!-- Feed container will be populated by JS -->
-            <!-- Shimmers will be injected here if loading -->
             <div id="feed-posts-container" class="space-y-6">
-                <!-- Removed static loading div -->
-            </div>
+                </div>
 
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+        <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
             <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"><i data-feather="layout"></i></a>
             <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Feed"><i data-feather="file-text" class="stroke-[2.5px]"></i></a>
             <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"><i data-feather="plus-circle"></i></a>
@@ -212,7 +228,6 @@
             <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"><i data-feather="grid"></i></a>
         </nav>
 
-        <!-- Notification Panel (Unchanged) -->
         <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl border-l border-gray-200 z-50 flex flex-col transform translate-x-full">
             <div class="flex justify-between items-center p-3 border-b border-gray-200">
                 <h3 class="font-semibold text-lg text-gray-900">Notifications</h3>
@@ -231,7 +246,6 @@
             </div>
         </div>
         
-        <!-- Sidebar (Unchanged) -->
         <nav id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 bg-white shadow-xl border-r border-gray-200 flex flex-col transform -translate-x-full p-4 space-y-6 overflow-y-auto no-scrollbar">
             
             <div class="profile-qr-card p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-4">
@@ -304,11 +318,9 @@
             </div>
         </nav>
 
-        <!-- Backdrops (Unchanged) -->
         <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
         <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
 
-        <!-- Toast Container (Unchanged) -->
         <div id="toast-container"></div>
     </div>
 
@@ -326,11 +338,10 @@
         let pollVotesSubscription = null; 
         let commentsSubscription = null;
         const feedContainer = document.getElementById('feed-posts-container');
-        // feedLoading is removed
         const userAvatarPostBar = document.getElementById('user-avatar-post-bar');
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
-        const CACHE_TTL_MINUTES = 15; // Cache feed for 15 minutes
-        let currentFeedData = null; // Store stringified feed data to check for updates
+        const CACHE_TTL_MINUTES = 15;
+        let currentFeedData = null;
 
         // === NOTIFICATION GLOBALS ===
         const notificationBellBtn = document.getElementById('notification-bell-btn');
@@ -356,7 +367,6 @@
         document.addEventListener('DOMContentLoaded', async () => { 
              initializeTheme();
 
-             // --- Service Worker Registration ---
              if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
@@ -370,10 +380,7 @@
              if (error || !session) { window.location.href = 'login.html'; return; }
              currentAuthUser = session.user;
 
-             // Fetch profile *first* to get currentUserProfile.id for delete check
              await fetchUserProfile(currentAuthUser.id);
-             
-             // --- Modified to fetch posts *after* profile ---
              await fetchPosts();
 
              feather.replace(); 
@@ -390,7 +397,6 @@
         });
 
         // --- 3. FETCH USER PROFILE ---
-        // (Unchanged)
         async function fetchUserProfile(authId) { 
              if (!authId) return; 
              const { data, error } = await _supabase.from('users').select('id, name, img, tick, auth_id').eq('auth_id', authId).single(); 
@@ -406,7 +412,6 @@
         }
 
         // --- 4. SETUP EVENT LISTENERS ---
-        // (Unchanged)
         function setupEventListeners() { 
              document.getElementById('create-post-bar').addEventListener('click', () => { window.location.href = 'create.html'; });
              feedContainer.addEventListener('click', (event) => {
@@ -433,7 +438,6 @@
                 console.error("Error setting cache:", e);
             }
         }
-
         function getCache(key) {
             try {
                 const itemStr = localStorage.getItem(key);
@@ -454,7 +458,6 @@
         function renderShimmers(container, count = 3) {
             container.innerHTML = Array(count).fill(createPostShimmerHTML()).join('');
         }
-
         function createPostShimmerHTML() {
             return `
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -474,7 +477,7 @@
             `;
         }
 
-        // --- 5. FETCH POSTS (MODIFIED with Caching & Shimmers) ---
+        // --- 5. FETCH POSTS (with Caching & Shimmers) ---
         async function fetchPosts() { 
              if (!currentAuthUser) return; 
              
@@ -485,17 +488,14 @@
              if (cachedData) {
                  console.log("Loading feed from cache.");
                  const processedPosts = cachedData.posts;
-                 currentFeedData = JSON.stringify(processedPosts); // Store for comparison
+                 currentFeedData = JSON.stringify(processedPosts);
                  renderPosts(processedPosts); 
                  isCacheRendered = true;
              } else {
-                 // No cache, show shimmers
                  renderShimmers(feedContainer, 3);
              }
 
              try {
-                 // Fetch fresh data regardless of cache (stale-while-revalidate)
-                 // Query is already well-optimized
                  const { data: posts, error } = await _supabase
                      .from('posts')
                      .select(`
@@ -514,7 +514,6 @@
                  
                  const newDataString = JSON.stringify(processedPosts);
                  
-                 // Only re-render if data is new or if we haven't rendered from cache
                  if (!isCacheRendered || newDataString !== currentFeedData) {
                      console.log("Rendering fresh data from Supabase.");
                      currentFeedData = newDataString;
@@ -527,15 +526,13 @@
              } catch (error) { 
                  console.error("Error fetching posts:", error.message); 
                  if (!isCacheRendered) {
-                     // Only show error if we couldn't even show cache
                      feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading posts.</p>`; 
                  }
              }
         }
 
-        // --- 6. RENDER POSTS (MODIFIED with Animations) ---
+        // --- 6. RENDER POSTS (with Animations) ---
         function renderPosts(posts) { 
-             // feedLoading.style.display = 'none'; // No longer needed
              if (!posts || posts.length === 0) { 
                  feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet.</p>`; 
                  return; 
@@ -543,20 +540,19 @@
              const postsHtml = posts.map(post => createPostHTML(post)).join(''); 
              feedContainer.innerHTML = postsHtml; 
 
-             // --- Animate posts in ---
              const postElements = feedContainer.querySelectorAll('.post-item-enter');
              postElements.forEach((post, index) => {
                 setTimeout(() => {
                      requestAnimationFrame(() => {
                          post.classList.add('post-item-enter-active');
                      });
-                }, index * 50); // Stagger animation
+                }, index * 50);
              });
              
              feather.replace(); 
         }
 
-        // --- 7. CREATE POST HTML (MODIFIED with Animation Class) ---
+        // --- 7. CREATE POST HTML (with Animation Class) ---
         function createPostHTML(post) { 
              const authorName = post.is_anonymous ? 'Campus Confession' : (post.users?.name || 'Unknown User'); 
              const postTimestamp = formatTimeAgo(post.created_at); 
@@ -630,7 +626,6 @@
              const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; 
              const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500'; 
              
-             // --- Added .post-item-enter class for animation ---
              return ` 
              <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden post-item-enter" id="post-${post.id}"> 
                  <div class="flex items-center space-x-3 p-4 ${headerClass}"> 
@@ -671,7 +666,7 @@
              `;
         }
 
-        // --- 8. LIKE/UNLIKE LOGIC --- (No changes)
+        // --- 8. LIKE/UNLIKE LOGIC ---
         async function toggleLike(postId, isLiked, buttonElement) { 
              if (!currentAuthUser || buttonElement.disabled) return; 
              buttonElement.disabled = true; 
@@ -688,12 +683,12 @@
              } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); }
         }
 
-        // --- 9. HELPER: Time Ago --- (No changes)
+        // --- 9. HELPER: Time Ago ---
         function formatTimeAgo(dateString) { 
               const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
 
-        // --- 10 & 11. REALTIME LIKE --- (No changes)
+        // --- 10 & 11. REALTIME LIKE ---
         function subscribeToLikeChanges() { 
              if (likesSubscription) { _supabase.removeChannel(likesSubscription); }
              likesSubscription = _supabase.channel('public:likes').on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, handleRealtimeLikeUpdate).subscribe();
@@ -703,7 +698,7 @@
               (async () => { try { const { data, error } = await _supabase.from('posts').select('like_count').eq('id', postId).single(); if (error) throw error; if (data) { countSpan.textContent = data.like_count; } if (userId === currentAuthUser?.id) { const isNowLiked = eventType === 'INSERT'; likeButton.dataset.liked = isNowLiked.toString(); likeButton.classList.toggle('liked', isNowLiked); likeButton.classList.toggle('text-red-500', isNowLiked); likeButton.classList.toggle('text-gray-600', !isNowLiked); likeIcon.style.fill = isNowLiked ? 'currentColor' : 'none'; } } catch(err) { console.error("Error fetching updated like count:", err); } })();
         }
 
-        // --- 12 & 13. POLL VOTE LOGIC --- (No changes)
+        // --- 12 & 13. POLL VOTE LOGIC ---
         async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { 
              if (!currentAuthUser) return;
              const isCurrentlySelected = clickedButton.classList.contains('border-primary-600');
@@ -730,7 +725,7 @@
               if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = false; button.classList.add('hover:bg-gray-100', 'cursor-pointer'); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Error updating poll UI for post ${postId}:`, error.message); }
         }
 
-        // --- 14. COMMENTS LOGIC --- (No changes)
+        // --- 14. COMMENTS LOGIC ---
         async function toggleCommentsSection(postId) { 
               const commentsSection = document.getElementById(`comments-section-${postId}`); const commentsList = document.getElementById(`comments-list-${postId}`); if (!commentsSection || !commentsList) return; const isHidden = commentsSection.classList.contains('hidden'); if (isHidden) { commentsSection.classList.remove('hidden'); commentsList.innerHTML = '<p class="text-sm text-gray-500">Loading comments...</p>'; feather.replace(); try { const { data: comments, error } = await _supabase.from('comments').select(`id, content, created_at, user_id, users:user_id (name, img, tick)`).eq('post_id', postId).is('parent_comment_id', null).order('created_at', { ascending: true }); if (error) throw error; renderComments(postId, comments); } catch (error) { console.error("Error fetching comments:", error.message); commentsList.innerHTML = '<p class="text-sm text-red-500">Error loading comments.</p>'; } } else { commentsSection.classList.add('hidden'); }
         }
@@ -746,13 +741,11 @@
                  const commenterAvatar = comment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; 
                  const commentTime = formatTimeAgo(comment.created_at); 
                  const deleteButtonHtml = (comment.user_id === currentUserProfile?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${comment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : ''; 
-                 
-                   let commenterTickHtml = ''; 
-                   const commenterTickType = comment.users?.tick?.toLowerCase(); 
-                   if (commenterTickType && tickImages[commenterTickType]) { 
-                       commenterTickHtml = `<img src="${tickImages[commenterTickType]}" alt="${commenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
-                   }
-
+                 let commenterTickHtml = ''; 
+                 const commenterTickType = comment.users?.tick?.toLowerCase(); 
+                 if (commenterTickType && tickImages[commenterTickType]) { 
+                     commenterTickHtml = `<img src="${tickImages[commenterTickType]}" alt="${commenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
+                 }
                  return ` 
                    <div class="comment-item flex items-start space-x-2" data-comment-id="${comment.id}"> 
                        <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> 
@@ -776,7 +769,6 @@
                    if (newCommenterTickType && tickImages[newCommenterTickType]) { 
                        newCommenterTickHtml = `<img src="${tickImages[newCommenterTickType]}" alt="${newCommenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
                    }
-                   
                   const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${newCommenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; commentsList.insertAdjacentHTML('beforeend', newCommentHtml); commentsList.scrollTop = commentsList.scrollHeight; feather.replace(); } input.value = ''; const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = parseInt(countSpan.textContent) + 1; } } catch (error) { console.error("Error submitting comment:", error.message); showToast("Could not post comment.", "error"); } finally { submitButton.disabled = false; submitButton.innerHTML = originalIconHTML; const restoredIcon = submitButton.querySelector('i[data-feather="send"]'); if(restoredIcon) feather.replace({ 'data-feather': 'send'}); }
         }
         async function handleDeleteComment(commentId, postId, buttonElement) {
@@ -794,7 +786,7 @@
              }
         }
 
-        // --- 15. DELETE POST LOGIC --- (No changes)
+        // --- 15. DELETE POST LOGIC ---
         async function handleDeletePost(postId, buttonElement) {
             if (!currentAuthUser) return;
             if (!confirm("Are you sure you want to delete this post? This action cannot be undone.")) return;
@@ -825,7 +817,7 @@
             }
         }
 
-        // --- 16 & 17. SHARE LOGIC --- (No changes)
+        // --- 16 & 17. SHARE LOGIC ---
         async function handleShare(postId) {
               const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800, div.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); }
         }
@@ -841,7 +833,7 @@
               return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); 
         }
 
-        // --- 18 & 19. REALTIME POLL VOTE --- (No changes)
+        // --- 18 & 19. REALTIME POLL VOTE ---
         function subscribeToPollVoteChanges() { 
              if (pollVotesSubscription) { _supabase.removeChannel(pollVotesSubscription); }
              pollVotesSubscription = _supabase.channel('public:poll_votes').on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, handleRealtimePollUpdate).subscribe();
@@ -850,7 +842,7 @@
               const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'poll_votes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const optionsContainer = postElement.querySelector(`.poll-options-container[data-post-id="${postId}"]`); if (optionsContainer) { updatePollUI(postId, optionsContainer, null); }
         }
 
-        // --- 20 & 21. REALTIME COMMENTS --- (No changes)
+        // --- 20 & 21. REALTIME COMMENTS ---
         function subscribeToCommentChanges() {
              if (commentsSubscription) { _supabase.removeChannel(commentsSubscription); }
              commentsSubscription = _supabase.channel('public:comments')
@@ -891,7 +883,7 @@
                              if (commenterTickType && tickImages[commenterTickType]) { 
                                  commenterTickHtml = `<img src="${tickImages[commenterTickType]}" alt="${commenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
                              }
-                             const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${commenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; 
+                             const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${newCommenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; 
                              commentsList.insertAdjacentHTML('beforeend', newCommentHtml); 
                              commentsList.scrollTop = commentsList.scrollHeight; 
                              feather.replace();
@@ -910,7 +902,7 @@
              }
         }
 
-        // --- SIDEBAR FUNCTIONS --- (No changes)
+        // --- SIDEBAR FUNCTIONS ---
         function setupSidebarListeners() {
             if (!sidebarToggleBtn) return;
             sidebarToggleBtn.addEventListener('click', openSidebar);
@@ -942,10 +934,8 @@
                 showToast(error.message, 'error');
             } else {
                 localStorage.removeItem('theme');
-                // --- Clear Caches on Logout ---
                 localStorage.removeItem('birlaone_feed');
                 localStorage.removeItem('birlaone_popular');
-                // Clear any search caches
                 Object.keys(localStorage).forEach(key => {
                     if (key.startsWith('birlaone_search_')) {
                         localStorage.removeItem(key);
@@ -968,9 +958,11 @@
             const qrContainer = document.getElementById('sidebar-qr-code-img');
             qrContainer.innerHTML = '';
             if (profileData.id) { 
+                // The qrcode.js library will generate a <canvas> and <img>
+                // The new CSS will ensure they fill the `aspect-square` container
                 new QRCode(qrContainer, {
                     text: String(profileData.id),
-                    width: 256,
+                    width: 256, // The library uses this for density
                     height: 256,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
@@ -981,14 +973,14 @@
             }
         }
 
-        // --- THEME TOGGLE FUNCTIONS --- (No changes)
+        // --- THEME TOGGLE FUNCTIONS ---
         function initializeTheme() {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
-                themeToggle.checked = true;
+                if (themeToggle) themeToggle.checked = true;
             } else {
                 document.documentElement.classList.remove('dark');
-                themeToggle.checked = false;
+                if (themeToggle) themeToggle.checked = false;
             }
         }
         function handleThemeToggle(e) {
@@ -1001,7 +993,7 @@
             }
         }
 
-        // --- NOTIFICATION FUNCTIONS --- (Modified for fluid animation)
+        // --- NOTIFICATION FUNCTIONS ---
         function setupNotificationListeners() {
              if (!notificationBellBtn) return;
              notificationBellBtn.addEventListener('click', toggleNotificationPanel);
@@ -1034,10 +1026,8 @@
         function renderNotifications(notifications) {
              notificationList.innerHTML = '';
              const localTickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
-
              notifications.forEach((notif, index) => {
                  const div = document.createElement('div');
-                 // --- Added .notification-item-enter class ---
                  div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors notification-item-enter ${!notif.is_read ? 'bg-primary-50' : 'bg-white'} hover:bg-gray-100`;
                  div.dataset.notificationId = notif.id;
                  const senderAvatar = notif.sender_img
@@ -1077,15 +1067,12 @@
                           }
                      }
                  });
-                 // div.classList.add('notification-item-enter'); // Already added
                  notificationList.appendChild(div);
-                 
-                 // --- Trigger animation ---
                  setTimeout(() => {
                     requestAnimationFrame(() => { 
                         div.classList.add('notification-item-enter-active'); 
                     });
-                 }, index * 30); // Stagger animation
+                 }, index * 30);
              });
              feather.replace();
         }
@@ -1118,12 +1105,12 @@
              if (!notificationBadge) return; if (count > 0) { notificationBadge.textContent = count > 9 ? '9+' : count; notificationBadge.classList.remove('hidden'); } else { notificationBadge.classList.add('hidden'); }
         }
 
-        // --- Utility: Toast --- (No changes)
+        // --- Utility: Toast ---
          function showToast(message, type = 'success') {
              const toast = document.createElement('div'); const iconName = type === 'success' ? 'check-circle' : 'alert-circle'; toast.className = `toast toast-${type}`; toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`; toastContainer.appendChild(toast); feather.replace(); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 3000);
          }
 
-         // --- Utility: Button Loading --- (No changes)
+         // --- Utility: Button Loading ---
          function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) {
               buttonEl.disabled = isLoading; const textEl = buttonEl.querySelector('.button-text'); const spinnerEl = buttonEl.querySelector('.button-spinner'); if (isSmall) { const iconEl = buttonEl.querySelector('i[data-feather]'); if (isLoading) { if (iconEl) iconEl.style.display = 'none'; if (!spinnerEl) { const spinner = document.createElement('div'); spinner.className = 'spinner button-spinner w-5 h-5'; buttonEl.prepend(spinner); } else { spinnerEl.style.display = 'block'; } } else { const existingSpinner = buttonEl.querySelector('.button-spinner'); if (existingSpinner) existingSpinner.remove(); if (iconEl) { iconEl.style.display = 'block'; } else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); } } } else { const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim(); if (isLoading) { buttonEl.dataset.originalText = originalText; buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>'; } else { buttonEl.innerHTML = originalText; delete buttonEl.dataset.originalText; feather.replace(); } }
         }
