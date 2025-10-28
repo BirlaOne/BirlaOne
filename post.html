@@ -711,7 +711,8 @@
             const commenterAvatar = comment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; 
             const commentTime = formatTimeAgo(comment.created_at); 
             
-            const isCommentOwner = currentUserProfile && comment.users?.id === currentUserProfile.id;
+            // Use auth_id (UUID) from session for comparison
+            const isCommentOwner = currentAuthUser && comment.user_id === currentAuthUser.id;
             const deleteButtonHtml = isCommentOwner ? `<button class="delete-comment-button ml-2 text-gray-400 hover:text-danger-600" data-comment-id="${comment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : ''; 
              
             let commenterTickHtml = ''; 
@@ -757,8 +758,8 @@
                   id: tempCommentId,
                   content: content,
                   created_at: new Date().toISOString(),
-                  user_id: currentUserProfile.id,
-                  users: currentUserProfile // Use the loaded profile
+                  user_id: currentAuthUser.id, // Use the auth user's UUID
+                  users: currentUserProfile // Use the loaded profile for UI
               };
 
               // Clear "no comments" message if present
@@ -775,7 +776,7 @@
               // 2. DB Sync
               try { 
                   const { data: newComment, error } = await _supabase.from('comments')
-                      .insert({ post_id: postId, user_id: currentUserProfile.id, content: content })
+                      .insert({ post_id: postId, user_id: currentAuthUser.id, content: content }) // <-- FIX: Use currentAuthUser.id
                       .select(`*, users:user_id (id, name, img, tick)`)
                       .single(); 
                   
@@ -829,7 +830,7 @@
              commentElement.style.opacity = '0.5'; // Optimistic delete UI
             
              try { 
-                 const { error } = await _supabase.from('comments').delete().match({ id: commentId, user_id: currentUserProfile.id }); 
+                 const { error } = await _supabase.from('comments').delete().match({ id: commentId, user_id: currentAuthUser.id }); // <-- FIX: Use currentAuthUser.id
                  if (error) throw error;
                  
                  // Full removal on success
