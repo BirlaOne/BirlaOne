@@ -2,9 +2,9 @@
 <html lang="en" class="">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
+    <title>My Profile</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -12,29 +12,24 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script>
+        // Tailwind Config
         tailwind.config = {
-            // REQUEST: Enable dark mode
+             // REQUEST: Enable dark mode
             darkMode: 'class',
             theme: {
                 extend: { 
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        'primary': { // Green Theme
-                            '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3',
-                            '400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26',
-                            '800': '#396f21','900': '#305b1c','950': '#1a320f',
-                        },
-                         'danger': {
-                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a',
-                            '300': '#e57373', '400': '#ef5350', '500': '#f44336',
-                            '600': '#e53935', '700': '#d32f2f', '800': '#c62828',
-                            '900': '#b71c1c', '950': '#8d1111',
-                        }
+                        'primary': { '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3','400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26','800': '#396f21','900': '#305b1c','950': '#1a320f' },
+                        'danger': { '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a','300': '#e57373', '400': '#ef5350', '500': '#f44336','600': '#e53935', '700': '#d32f2f', '800': '#c62828','900': '#b71c1c', '950': '#8d1111' }
                     }
                 },
             },
@@ -42,7 +37,7 @@
     </script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; /* bg-slate-50 */ }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
@@ -64,9 +59,6 @@
         .poll-bar-fg { height: 100%; transition: width 0.3s ease-in-out; }
         .action-button-icon { width: 20px; height: 20px; }
 
-        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
-        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
-
         /* Toast Notifications */
         #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
         .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
@@ -76,46 +68,61 @@
         .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- REQUEST: Dark Mode Styles --- */
-        :root { color-scheme: light; }
-        :root.dark { color-scheme: dark; }
-        .dark body { background-color: #111827; }
-        .dark .bg-slate-50 { background-color: #111827; }
-        .dark .bg-white { background-color: #1f2937; }
-        .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
-        .dark .text-gray-900 { color: #f9fafb; }
-        .dark .text-gray-800 { color: #f3f4f6; }
-        .dark .text-gray-700 { color: #d1d5db; }
-        .dark .text-gray-600 { color: #9ca3af; }
-        .dark .text-gray-500 { color: #6b7280; }
-        .dark .text-gray-400 { color: #9ca3af; }
-        .dark .border-gray-100 { border-color: #374151; }
-        .dark .border-gray-200 { border-color: #374151; }
-        .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
-        .dark .bg-gray-50 { background-color: #374151; }
-        .dark .bg-gray-100 { background-color: #374151; }
-        .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
-        .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
-        .dark .bg-white\/50 { background-color: rgba(31, 41, 55, 0.7); }
-        .dark .hover\:bg-white\/90:hover { background-color: rgba(31, 41, 55, 0.9); }
-        .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
-        .dark .bg-black\/50 { background-color: rgba(0, 0, 0, 0.7); }
-        .dark .text-primary-600 { color: #a6d98e; }
-        .dark .border-primary-600 { border-color: #56ab2f; } /* Profile pic border */
-        .dark .text-blue-600 { color: #60a5fa; } /* LinkedIn link */
-        .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
-        /* Modal Dark */
-        .dark .modal-content { background-color: #1f2937; }
-        .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
-        /* Feed Dark */
-        .dark .bg-gray-800 { background-color: #374151; }
-        .dark .text-white { color: #f9fafb; }
-        .dark .liked { color: #f44336; }
-        .dark .liked svg.feather-heart { fill: #f44336; color: #f44336; }
-        .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
-        .dark .poll-option-button { border-color: #4b5563; }
-        .dark .poll-option-button.bg-primary-100 { background-color: #396f21; }
-        .dark .poll-option-button.border-primary-600 { border-color: #56ab2f; }
+        /* Cropper.js container */
+        #cropper-container { width: 100%; max-height: 400px; overflow: hidden; }
+        #cropper-container img { max-width: 100%; }
+        #image-upload-modal { z-index: 51; }
+
+        /* Bottom Nav Styles */
+        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
+        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
+
+         /* --- REQUEST: Dark Mode Styles --- */
+         :root { color-scheme: light; }
+         :root.dark { color-scheme: dark; }
+         .dark body { background-color: #111827; }
+         .dark .bg-slate-50 { background-color: #111827; }
+         .dark .bg-white { background-color: #1f2937; }
+         .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
+         .dark .text-gray-900 { color: #f9fafb; }
+         .dark .text-gray-800 { color: #f3f4f6; }
+         .dark .text-gray-700 { color: #d1d5db; }
+         .dark .text-gray-600 { color: #9ca3af; }
+         .dark .text-gray-500 { color: #6b7280; }
+         .dark .text-gray-400 { color: #9ca3af; }
+         .dark .border-gray-100 { border-color: #374151; }
+         .dark .border-gray-200 { border-color: #374151; }
+         .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+         .dark .bg-gray-50 { background-color: #374151; }
+         .dark .bg-gray-100 { background-color: #374151; }
+         .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
+         .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
+         .dark .bg-white\/50 { background-color: rgba(31, 41, 55, 0.7); }
+         .dark .hover\:bg-white\/90:hover { background-color: rgba(31, 41, 55, 0.9); }
+         .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
+         .dark .bg-black\/50 { background-color: rgba(0, 0, 0, 0.7); }
+         .dark .text-primary-600 { color: #a6d98e; }
+         .dark .border-primary-600 { border-color: #56ab2f; }
+         .dark .text-blue-600 { color: #60a5fa; }
+         .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
+         /* Modal Dark */
+         .dark .modal-content { background-color: #1f2937; }
+         .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
+         .dark input.border-gray-300, .dark textarea.border-gray-300 { border-color: #4b5563; background-color: #374151; color: #f3f4f6;}
+         .dark label.text-gray-700 { color: #d1d5db; }
+         .dark button.border-gray-300 { border-color: #4b5563; color: #d1d5db; }
+         /* Feed Dark */
+         .dark .bg-gray-800 { background-color: #374151; }
+         .dark .text-white { color: #f9fafb; }
+         .dark .liked { color: #f44336; }
+         .dark .liked svg.feather-heart { fill: #f44336; color: #f44336; }
+         .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
+         .dark .poll-option-button { border-color: #4b5563; }
+         .dark .poll-option-button.bg-primary-100 { background-color: #396f21; }
+         .dark .poll-option-button.border-primary-600 { border-color: #56ab2f; }
+         /* Cropper Dark */
+         .dark .cropper-bg { background-color: #1f2937 !important; }
+         .dark .cropper-modal { background-color: rgba(31, 41, 55, 0.7) !important; }
     </style>
 </head>
 <body class="antialiased bg-slate-50">
@@ -126,27 +133,34 @@
             <a href="javascript:history.back()" class="p-2 rounded-full transition-all bg-white/50 hover:bg-white/90 active:scale-90 backdrop-blur-sm shadow-md">
                 <i data-feather="arrow-left" class="text-gray-900"></i>
             </a>
-            <button id="more-options-btn" class="p-2 rounded-full transition-all bg-white/50 hover:bg-white/90 active:scale-90 backdrop-blur-sm shadow-md">
-                <i data-feather="more-vertical" class="text-gray-900"></i>
+            <button id="edit-profile-btn" class="p-2 px-3 rounded-full transition-all bg-white/50 hover:bg-white/90 active:scale-90 backdrop-blur-sm shadow-md flex items-center space-x-2 text-gray-900 font-semibold">
+                <i data-feather="edit-2" class="w-5 h-5"></i>
+                <span>Edit Profile</span>
             </button>
         </header>
 
-        <div id="more-options-menu" class="hidden absolute top-16 right-4 z-50 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
-             <a href="#" id="share-profile-link" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors"> <i data-feather="share-2" class="w-5 h-5"></i> <span>Share Profile</span> </a>
-             <a href="#" id="report-profile-link" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"> <i data-feather="flag" class="w-5 h-5"></i> <span>Report Profile</span> </a>
-        </div>
-
-        <main id="main-content" class="px-6 pb-28 overflow-y-auto h-screen no-scrollbar pt-16"> 
+        <main id="main-content" class="px-6 space-y-6 pb-28 overflow-y-auto h-screen no-scrollbar pt-16"> 
             
              <div id="profile-loading" class="text-center py-10 text-gray-500">
                  <div class="spinner mx-auto mb-2"></div>
                  <p>Loading profile...</p>
              </div>
+            
+             <div id="login-prompt" class="hidden text-center py-10 text-gray-700 space-y-4">
+                 <i data-feather="alert-circle" class="w-12 h-12 text-danger-500 mx-auto"></i>
+                 <h2 class="text-xl font-bold">Not Logged In</h2>
+                 <p class="text-gray-500">You must be logged in to view your profile.</p>
+             </div>
 
             <div id="profile-content" class="hidden space-y-6">
 
                 <div class="flex flex-col items-center"> 
-                    <img id="profile-picture" src="https://placehold.co/100x100/A8E063/305B1C?text=?" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-primary-600 bg-gray-200 object-cover">
+                    <button id="profile-picture-btn" class="relative group" title="Click to change profile picture">
+                        <img id="profile-picture" src="https://placehold.co/100x100/A8E063/305B1C?text=?" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-primary-600 bg-gray-200 object-cover">
+                        <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i data-feather="camera" class="w-8 h-8"></i>
+                        </div>
+                    </button>
                     <div class="flex items-center space-x-1.5 mt-4">
                         <h2 id="profile-name" class="text-2xl font-bold text-gray-900">User Name</h2>
                         <img id="profile-tick" src="" alt="Verification Tick" class="tick-mark hidden">
@@ -156,41 +170,40 @@
                 </div>
 
                 <div class="flex justify-center items-center divide-x divide-gray-200 w-full bg-gray-50 py-4 rounded-2xl border border-gray-200">
-                    <div class="flex flex-col items-center w-1/2 cursor-pointer" id="friends-count-button">
-                        <span id="profile-friend-count" class="text-2xl font-bold text-gray-900">0</span>
+                    <div class="flex flex-col items-center w-1/2 cursor-pointer hover:opacity-80 transition-opacity" id="profile-friends-count-btn">
+                        <span id="profile-friend-count-box" class="text-2xl font-bold text-gray-900">0</span>
                         <span class="text-sm text-gray-500">Friends</span>
                     </div>
                     <div class="flex flex-col items-center text-center w-1/2">
-                        <span id="profile-course" class="text-2xl font-bold text-gray-900 uppercase">-</span> 
+                        <span id="profile-course-box" class="text-2xl font-bold text-gray-900 uppercase">-</span> 
                         <span class="text-sm text-gray-500">Course</span>
                     </div>
                 </div>
-
-                <div id="action-buttons-container" class="flex items-center space-x-4">
-                    <button id="friends-list-button" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-gray-50 active:scale-95"> 
-                        <i data-feather="users" class="action-button-icon"></i> 
-                        <span class="font-semibold text-lg">Friends</span> 
+                 <div id="friend-requests-container">
+                    <button id="friend-requests-btn" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95">
+                        <i data-feather="user-check" class="action-button-icon"></i>
+                        <span class="font-semibold text-lg">View Friend Requests</span>
+                        <span id="friend-requests-count" class="hidden items-center justify-center w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full ml-2">0</span>
                     </button>
-                    
-                    <div id="friendship-action-area" class="w-1/2">
-                        <button id="add-friend-button" class="hidden w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> <i data-feather="user-plus" class="action-button-icon"></i> <span class="font-semibold text-lg">Add Friend</span> </button>
-                        
-                        <button id="request-sent-button" class="hidden w-full bg-gray-200 text-gray-600 p-4 rounded-xl flex justify-center items-center space-x-2 cursor-not-allowed"> <i data-feather="check" class="action-button-icon"></i> <span class="font-semibold text-lg">Requested</span> </button> 
-                        
-                         <div id="accept-decline-buttons" class="hidden w-full flex items-center space-x-2">
-                             <button id="accept-request-button" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-green-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95"> 
-                                 <i data-feather="user-check" class="action-button-icon"></i> 
-                                 <span class="font-semibold text-base">Accept</span>
-                            </button>
-                            <button id="decline-request-button" class="flex-shrink-0 bg-white border border-danger-500 text-danger-500 p-4 rounded-xl flex justify-center items-center shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> 
-                                 <i data-feather="x" class="action-button-icon"></i> 
-                            </button> 
-                        </div>
+                </div>
 
-                        <button id="remove-friend-button" class="hidden w-full bg-white border border-danger-500 text-danger-600 p-4 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-danger-50 active:scale-95"> 
-                            <i data-feather="user-minus" class="action-button-icon"></i> 
-                            <span class="font-semibold text-lg">Remove</span> 
-                        </button>
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900">Personal Info</h2>
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-700">Student ID</span>
+                        <span id="profile-student-id" class="font-medium text-gray-900"></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-700">Course</span>
+                        <span id="profile-course" class="font-medium text-gray-900 uppercase"></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-700">Mobile</span>
+                        <span id="profile-mobile" class="font-medium text-gray-900"></span>
+                    </div>
+                     <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-700">Email</span>
+                        <span id="profile-email" class="font-medium text-gray-900"></span>
                     </div>
                 </div>
 
@@ -198,16 +211,75 @@
 
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4"> <h2 class="text-xl font-bold text-gray-900">Social Links</h2> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="instagram" class="h-5 w-5"></i> <span class="font-medium">Instagram</span> </div> <span id="profile-instagram" class="font-medium text-gray-900 italic"></span> </div> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="linkedin" class="h-5 w-5"></i> <span class="font-medium">LinkedIn</span> </div> <span id="profile-linkedin" class="font-medium text-gray-900 italic"></span> </div> </div>
 
-                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> </div> </div>
+                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">My Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> </div> </div>
 
-            </div></main>
+             </div>
+        </main>
 
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"> <i data-feather="search"></i> </a>
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"> <i data-feather="grid"></i> </a>
+        </nav>
+        </div>
+
+    <div id="edit-profile-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Edit Profile</h2>
+                <button id="close-edit-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button>
+            </div>
+            <div class="p-4 space-y-4 overflow-y-auto">
+                <div>
+                    <label for="edit-bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                    <textarea id="edit-bio" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" placeholder="Tell everyone a bit about yourself..."></textarea>
+                </div>
+                <div>
+                    <label for="edit-instagram" class="block text-sm font-medium text-gray-700 mb-1">Instagram Handle</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="instagram" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <input type="text" id="edit-instagram" class="w-full p-2 pl-10 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" placeholder="your_username">
+                    </div>
+                </div>
+                <div>
+                    <label for="edit-linkedin" class="block text-sm font-medium text-gray-700 mb-1">LinkedIn Handle</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="linkedin" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <input type="text" id="edit-linkedin" class="w-full p-2 pl-10 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" placeholder="your-handle">
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex items-center space-x-4">
+                <button id="cancel-edit-btn" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-3 rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
+                <button id="save-profile-btn" class="w-1/2 bg-primary-600 text-white p-3 rounded-xl font-semibold hover:bg-primary-700 flex items-center justify-center space-x-2">
+                    <span class="button-text">Save</span>
+                    <div class="spinner button-spinner hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="friend-requests-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
+        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col"> 
+            <div class="flex justify-between items-center p-4 border-b border-gray-200"> 
+                <h2 class="text-lg font-semibold text-gray-900">Friend Requests</h2> 
+                <button id="close-requests-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button> 
+            </div> 
+            <div id="requests-modal-body" class="p-4 overflow-y-auto"> 
+            </div> 
+        </div> 
     </div>
 
     <div id="friends-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col"> 
             <div class="flex justify-between items-center p-4 border-b border-gray-200"> 
-                <h2 class="text-lg font-semibold text-gray-900">Friends List</h2> 
+                <h2 class="text-lg font-semibold text-gray-900">My Friends</h2> 
                 <button id="close-friends-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button> 
             </div> 
             <div id="friends-modal-body" class="p-4 overflow-y-auto"> 
@@ -215,6 +287,29 @@
             </div> 
         </div> 
     </div>
+
+    <div id="image-upload-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Update Profile Picture</h2>
+                <button id="close-upload-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <input type="file" id="image-upload-input" accept="image/png, image/jpeg" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"/>
+                <div id="cropper-container" class="hidden">
+                    <img id="cropper-image" src="">
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex items-center space-x-4">
+                <button id="cancel-upload-btn" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-3 rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
+                <button id="save-image-btn" class="w-1/2 bg-primary-600 text-white p-3 rounded-xl font-semibold hover:bg-primary-700 flex items-center justify-center space-x-2" disabled>
+                    <span class="button-text">Upload</span>
+                    <div class="spinner button-spinner hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="confirm-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
@@ -235,14 +330,6 @@
 
     <div id="toast-container"></div>
 
-    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-        <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
-        <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
-        <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
-        <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"> <i data-feather="search"></i> </a>
-        <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"> <i data-feather="grid"></i> </a>
-    </nav>
-
 
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
@@ -253,21 +340,18 @@
 
         // --- Global variables ---
         let currentAuthUser = null; 
-        let currentUserOwnProfile = null; 
-        let viewedUserProfile = null; 
-        let viewedUserId = null; 
-        let currentFriendRequest = null; 
+        let currentUserProfile = null; 
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
+        let cropper = null; 
         
         // DOM Elements
         const profileLoading = document.getElementById('profile-loading');
+        const loginPrompt = document.getElementById('login-prompt');
         const profileContent = document.getElementById('profile-content');
         const userPostsContainer = document.getElementById('user-posts-container');
         const postsLoading = document.getElementById('posts-loading');
         
         // Modals & Toasts
-        const friendsModal = document.getElementById('friends-modal');
-        const friendsModalBody = document.getElementById('friends-modal-body');
         const confirmModal = document.getElementById('confirm-modal');
         const confirmTitle = document.getElementById('confirm-title');
         const confirmMessage = document.getElementById('confirm-message');
@@ -275,169 +359,141 @@
         const confirmBtnNo = document.getElementById('confirm-btn-no');
         const toastContainer = document.getElementById('toast-container');
         
-        // Action Buttons
-        const addFriendButton = document.getElementById('add-friend-button');
-        const requestSentButton = document.getElementById('request-sent-button');
-        const acceptDeclineButtons = document.getElementById('accept-decline-buttons'); 
-        const acceptRequestButton = document.getElementById('accept-request-button'); 
-        const declineRequestButton = document.getElementById('decline-request-button'); 
-        const removeFriendButton = document.getElementById('remove-friend-button');
+        // Edit Profile Modal
+        const editProfileModal = document.getElementById('edit-profile-modal');
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+
+        // Friend Requests Modal
+        const friendRequestsModal = document.getElementById('friend-requests-modal');
+        const friendRequestsBtn = document.getElementById('friend-requests-btn');
+        const friendRequestsCount = document.getElementById('friend-requests-count');
+        const requestsModalBody = document.getElementById('requests-modal-body');
+
+        // REQUEST: Friends List Modal Globals
+        const friendsModal = document.getElementById('friends-modal');
+        const friendsModalBody = document.getElementById('friends-modal-body');
+        const profileFriendsCountBtn = document.getElementById('profile-friends-count-btn'); // Button in header
+
+        // Image Upload Modal
+        const imageUploadModal = document.getElementById('image-upload-modal');
+        const imageUploadInput = document.getElementById('image-upload-input');
+        const cropperContainer = document.getElementById('cropper-container');
+        const cropperImage = document.getElementById('cropper-image');
+        const saveImageBtn = document.getElementById('save-image-btn');
 
         // --- 2. INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
             // REQUEST: Initialize Theme
             initializeTheme();
 
-            const urlParams = new URLSearchParams(window.location.search);
-            viewedUserId = urlParams.get('id'); 
-            if (!viewedUserId || isNaN(parseInt(viewedUserId))) { showError("Invalid user ID."); return; }
-            viewedUserId = parseInt(viewedUserId); 
-
             const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
-            if (sessionError) console.error("Session Error:", sessionError);
+            if (sessionError) { console.error("Session Error:", sessionError); showError("Error loading session."); return; }
             
             if (session) {
                 currentAuthUser = session.user;
-                await fetchCurrentUserOwnProfile(currentAuthUser.id); 
-                if (currentUserOwnProfile && currentUserOwnProfile.id === viewedUserId) { window.location.replace('myprofile.html'); return; }
+                await loadProfileData(currentAuthUser.id);
+                await loadMyPosts(currentAuthUser.id);
+                await loadFriendRequestsCount(currentAuthUser.id);
+                setupEventListeners();
+                feather.replace(); 
+            } else {
+                profileLoading.style.display = 'none';
+                loginPrompt.style.display = 'block';
+                feather.replace();
             }
-
-            await loadProfileData(viewedUserId);
-            if (viewedUserProfile?.auth_id) { await loadUserPosts(viewedUserProfile.auth_id); } 
-            else if (!profileLoading.textContent.includes("Error")) { postsLoading.innerHTML = `<p class="text-center text-gray-500">Could not load posts.</p>`; }
-
-            setupEventListeners();
-            feather.replace(); 
         });
 
         // --- 3. UI HELPER FUNCTIONS (TOAST & CONFIRM) ---
         function showToast(message, type = 'success') { /* ... (keep existing) ... */ 
-            const toast = document.createElement('div');
-            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`;
-            toastContainer.appendChild(toast);
-            feather.replace();
-            setTimeout(() => { toast.classList.add('show'); }, 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-            }, 3000);
+            const toast = document.createElement('div'); const iconName = type === 'success' ? 'check-circle' : 'alert-circle'; toast.className = `toast toast-${type}`; toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`; toastContainer.appendChild(toast); feather.replace(); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 3000);
         }
         function showConfirm(title, message, confirmText = 'Confirm', isDanger = true) { /* ... (keep existing) ... */ 
-            confirmTitle.textContent = title;
-            confirmMessage.textContent = message;
-            confirmBtnYes.textContent = confirmText;
-            confirmBtnYes.classList.toggle('bg-danger-600', isDanger);
-            confirmBtnYes.classList.toggle('shadow-danger-500/30', isDanger);
-            confirmBtnYes.classList.toggle('hover:bg-danger-700', isDanger);
-            confirmBtnYes.classList.toggle('bg-primary-600', !isDanger);
-            confirmBtnYes.classList.toggle('shadow-primary-500/30', !isDanger);
-            confirmBtnYes.classList.toggle('hover:bg-primary-700', !isDanger);
-            confirmBtnYes.innerHTML = `<i data-feather="${isDanger ? 'check' : 'check'}" class="w-5 h-5"></i><span class="font-semibold">${confirmText}</span>`;
-            confirmBtnNo.innerHTML = `<i data-feather="x" class="w-5 h-5"></i><span class="font-semibold">Cancel</span>`;
-            feather.replace();
-            confirmModal.classList.add('active');
-            return new Promise((resolve) => {
-                const onYes = () => { cleanup(); resolve(true); };
-                const onNo = () => { cleanup(); resolve(false); };
-                const cleanup = () => {
-                    confirmModal.classList.remove('active');
-                    confirmBtnYes.removeEventListener('click', onYes);
-                    confirmBtnNo.removeEventListener('click', onNo);
-                };
-                confirmBtnYes.addEventListener('click', onYes, { once: true });
-                confirmBtnNo.addEventListener('click', onNo, { once: true });
-            });
+            confirmTitle.textContent = title; confirmMessage.textContent = message; confirmBtnYes.textContent = confirmText; confirmBtnYes.classList.toggle('bg-danger-600', isDanger); confirmBtnYes.classList.toggle('shadow-danger-500/30', isDanger); confirmBtnYes.classList.toggle('hover:bg-danger-700', isDanger); confirmBtnYes.classList.toggle('bg-primary-600', !isDanger); confirmBtnYes.classList.toggle('shadow-primary-500/30', !isDanger); confirmBtnYes.classList.toggle('hover:bg-primary-700', !isDanger); confirmBtnYes.innerHTML = `<i data-feather="${isDanger ? 'check' : 'check'}" class="w-5 h-5"></i><span class="font-semibold">${confirmText}</span>`; confirmBtnNo.innerHTML = `<i data-feather="x" class="w-5 h-5"></i><span class="font-semibold">Cancel</span>`; feather.replace(); confirmModal.classList.add('active'); return new Promise((resolve) => { const onYes = () => { cleanup(); resolve(true); }; const onNo = () => { cleanup(); resolve(false); }; const cleanup = () => { confirmModal.classList.remove('active'); confirmBtnYes.removeEventListener('click', onYes); confirmBtnNo.removeEventListener('click', onNo); }; confirmBtnYes.addEventListener('click', onYes, { once: true }); confirmBtnNo.addEventListener('click', onNo, { once: true }); });
         }
-
-        // --- 4. FETCH CURRENT USER'S OWN PROFILE ---
-         async function fetchCurrentUserOwnProfile(authId) { /* ... (keep existing) ... */ 
-             if (!authId) return; try { const { data, error } = await _supabase.from('users').select('id, auth_id').eq('auth_id', authId).single(); if (error) throw error; currentUserOwnProfile = data; } catch (error) { console.error("Error fetching current user's own profile:", error.message); }
-         }
-
-        // --- 5. LOAD PROFILE DATA ---
-        function extractSocialId(value, platformBase) { /* ... (keep existing) ... */ 
-             if (!value || value === 'EMPTY') return null;
-             try {
-                 if (value.includes(platformBase)) {
-                     const url = new URL(value.startsWith('http') ? value : `https://${value}`);
-                     let path = url.pathname;
-                     path = path.replace(/^\/|\/$/g, ''); 
-                     const base = platformBase.replace(/\/$/g, ''); 
-                     if (path.startsWith(base)) { path = path.substring(base.length); }
-                     return path.replace(/^\/|\/$/g, '').split('/').pop();
-                 }
-             } catch (e) { console.warn("Could not parse social URL:", value); }
-             return value.replace(/^@/, '');
-         }
-        async function loadProfileData(userId) { /* ... (keep existing) ... */ 
-             profileLoading.style.display = 'block'; profileContent.classList.add('hidden');
-             try {
-                 const { data, error } = await _supabase.from('users').select('id, auth_id, name, img, course, bio, friend_count, tick, instagram, linkedin, role').eq('id', userId).single();
-                 if (error) { if (error.code === 'PGRST116') throw new Error(`User profile not found.`); throw error; }
-                 if (!data) throw new Error(`User profile not found.`);
-                 viewedUserProfile = data; 
-                 document.title = data.name || 'User Profile';
-                 document.getElementById('profile-picture').src = data.img || `https://placehold.co/100x100/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : '?'}`;
-                 document.getElementById('profile-name').textContent = data.name || 'Campus User';
-                 document.getElementById('profile-role').textContent = data.role || 'Role Not Set';
-                 document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
-                 document.getElementById('profile-friend-count').textContent = data.friend_count ?? 0; 
-                 document.getElementById('profile-course').textContent = data.course?.toUpperCase() || '-'; 
-                 const tickElement = document.getElementById('profile-tick');
-                 if (data.tick && tickImages[data.tick.toLowerCase()]) { tickElement.src = tickImages[data.tick.toLowerCase()]; tickElement.alt = `${data.tick} Tick`; tickElement.classList.remove('hidden'); } 
-                 else { tickElement.classList.add('hidden'); }
-                 const instaSpan = document.getElementById('profile-instagram');
-                 const instaUsername = extractSocialId(data.instagram, 'instagram.com');
-                 if (instaUsername) { instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">${instaUsername}</a>`; instaSpan.className = 'font-medium text-primary-600'; } 
-                 else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
-                 const linkedSpan = document.getElementById('profile-linkedin');
-                 const linkedHandle = extractSocialId(data.linkedin, 'linkedin.com/in/'); 
-                 if (linkedHandle) { const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; linkedSpan.className = 'font-medium text-blue-600'; } 
-                 else { linkedSpan.textContent = 'Not Set'; linkedSpan.className = 'font-medium text-gray-400 italic'; }
-                 profileLoading.style.display = 'none';
-                 profileContent.classList.remove('hidden');
-                 if (currentAuthUser) { await checkFriendshipStatus(); } 
-                 else { updateFriendButtonState('logged_out'); } 
-             } catch (error) { showError(`Error loading profile: ${error.message}`); }
+        
+        // --- 4. DATA LOADING FUNCTIONS ---
+        async function loadProfileData(authId) { /* ... (keep existing) ... */ 
+            profileLoading.style.display = 'block'; profileContent.classList.add('hidden');
+            try {
+                const { data, error } = await _supabase.from('users').select('id, auth_id, name, img, course, bio, friend_count, tick, instagram, linkedin, role, mob, email').eq('auth_id', authId).single();
+                if (error) throw error; 
+                if (!data) throw new Error(`User profile not found.`);
+                currentUserProfile = data; 
+                document.title = data.name || 'My Profile';
+                document.getElementById('profile-picture').src = data.img || `https://placehold.co/100x100/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : '?'}`;
+                document.getElementById('profile-name').textContent = data.name || 'Campus User';
+                document.getElementById('profile-role').textContent = data.role || 'Role Not Set';
+                document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
+                document.getElementById('profile-friend-count-box').textContent = data.friend_count ?? 0;
+                document.getElementById('profile-course-box').textContent = data.course?.toUpperCase() || '-';
+                document.getElementById('profile-student-id').textContent = data.id || 'Not Set';
+                document.getElementById('profile-course').textContent = data.course?.toUpperCase() || 'Not Set';
+                document.getElementById('profile-mobile').textContent = data.mob || 'Not Set';
+                document.getElementById('profile-email').textContent = data.email || 'Not Set';
+                const tickElement = document.getElementById('profile-tick');
+                if (data.tick && tickImages[data.tick.toLowerCase()]) { tickElement.src = tickImages[data.tick.toLowerCase()]; tickElement.alt = `${data.tick} Tick`; tickElement.classList.remove('hidden'); } 
+                else { tickElement.classList.add('hidden'); }
+                const instaSpan = document.getElementById('profile-instagram');
+                const instaUsername = extractSocialId(data.instagram, 'instagram.com');
+                if (instaUsername) { instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">${instaUsername}</a>`; instaSpan.className = 'font-medium text-primary-600'; } 
+                else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
+                const linkedSpan = document.getElementById('profile-linkedin');
+                const linkedHandle = extractSocialId(data.linkedin, 'linkedin.com/in/'); 
+                if (linkedHandle) { const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; linkedSpan.className = 'font-medium text-blue-600'; } 
+                else { linkedSpan.textContent = 'Not Set'; linkedSpan.className = 'font-medium text-gray-400 italic'; }
+                profileLoading.style.display = 'none';
+                profileContent.classList.remove('hidden');
+            } catch (error) { showError(`Error loading profile: ${error.message}`); }
         }
-
-        // --- 6. LOAD USER POSTS ---
-        async function loadUserPosts(userAuthId) { /* ... (keep existing) ... */ 
+        async function loadMyPosts(userAuthId) { /* ... (keep existing, ensure media_url is selected) ... */ 
              postsLoading.style.display = 'block'; userPostsContainer.innerHTML = ''; 
              try { 
-                 let query = _supabase.from('posts').select(`id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, users:user_id (name, img, tick) `) 
-                         .eq('user_id', userAuthId)
-                         .eq('is_anonymous', false); 
-                 if(currentAuthUser) {
-                      query = query.select(`*, users:user_id (name, img, tick), likes!left(user_id), poll_votes!left(user_id, selected_option_index) `) 
-                             .eq('likes.user_id', currentAuthUser.id)
-                             .eq('poll_votes.user_id', currentAuthUser.id);
-                 }
-                 const { data: posts, error } = await query.order('created_at', { ascending: false });
+                 const { data: posts, error } = await _supabase.from('posts')
+                     .select(`*, users:user_id (name, img, tick), likes!left(user_id), poll_votes!left(user_id, selected_option_index)`) // Select media_url implicitly with *
+                     .eq('user_id', userAuthId)
+                     .eq('likes.user_id', userAuthId)
+                     .eq('poll_votes.user_id', userAuthId)
+                     .order('created_at', { ascending: false });
                  if (error) throw error; 
                  postsLoading.style.display = 'none'; 
-                 if (posts.length === 0) { userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">This user hasn't posted yet.</p>`; } 
+                 if (posts.length === 0) { userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">You haven't posted yet.</p>`; } 
                  else { 
-                      const processedPosts = posts.map(post => ({
-                          ...post,
-                          currentUserLiked: currentAuthUser ? (post.likes?.length > 0) : false,
-                          currentUserPollVote: currentAuthUser ? (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null) : null
-                      }));
-                     const postsHtml = processedPosts.map(post => createFullPostHTML(post)).join(''); 
+                     const processedPosts = posts.map(post => ({
+                         ...post,
+                         currentUserLiked: (post.likes?.length > 0),
+                         currentUserPollVote: (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null)
+                     }));
+                     // REQUEST: Pass true for isOwnPost
+                     const postsHtml = processedPosts.map(post => createFullPostHTML(post, true)).join(''); 
                      userPostsContainer.innerHTML = postsHtml; 
                      feather.replace(); 
                  } 
              } catch (error) { console.error("Error fetching user posts:", error); postsLoading.innerHTML = `<p class="text-center text-red-500">Could not load posts.</p>`; }
         }
+        async function loadFriendRequestsCount(userAuthId) { /* ... (keep existing) ... */ 
+            try { const { count, error } = await _supabase.from('friend_requests').select('*', { count: 'exact', head: true }).eq('receiver_id', userAuthId).eq('status', 'pending'); if (error) throw error; if (count > 0) { friendRequestsCount.textContent = count; friendRequestsCount.classList.remove('hidden'); friendRequestsCount.classList.add('flex'); } else { friendRequestsCount.classList.add('hidden'); friendRequestsCount.classList.remove('flex'); } } catch (error) { console.error("Error fetching friend request count:", error.message); }
+        }
+        function extractSocialId(value, platformBase) { /* ... (keep existing) ... */ 
+            if (!value || value === 'EMPTY') return null; try { if (value.includes(platformBase)) { const url = new URL(value.startsWith('http') ? value : `https://${value}`); let path = url.pathname.replace(/^\/|\/$/g, ''); const base = platformBase.replace(/\/$/g, ''); if (path.startsWith(base)) { path = path.substring(base.length); } return path.replace(/^\/|\/$/g, '').split('/').pop(); } } catch (e) { console.warn("Could not parse social URL:", value); } return value.replace(/^@/, '');
+        }
 
-        // --- 7. CREATE FULL POST HTML ---
-        function createFullPostHTML(post) { 
-             const authorName = post.users?.name || 'Unknown User'; // Anonymous posts filtered out
-             const authorAvatar = `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0">`; 
-             let tickHtml = ''; const tickType = post.users?.tick?.toLowerCase(); if (tickType && tickImages[tickType]) { tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; }
+        // --- 5. POST HTML & ACTIONS ---
+        function createFullPostHTML(post, isOwnPost = false) { 
+             const authorName = post.is_anonymous ? 'Campus Confession' : (post.users?.name || 'Unknown User'); 
+             const authorAvatar = post.is_anonymous ? `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>` : `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0">`; 
+             let tickHtml = ''; const tickType = post.users?.tick?.toLowerCase(); if (!post.is_anonymous && tickType && tickImages[tickType]) { tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; }
              const postTimestamp = formatTimeAgo(post.created_at); 
+             
+             // REQUEST: Always include delete button if isOwnPost is true
+             const deleteButtonHtml = isOwnPost ? `
+                <button class="delete-post-btn p-1 rounded-full text-gray-500 hover:text-danger-600 hover:bg-danger-50 dark:text-gray-400 dark:hover:text-danger-500 dark:hover:bg-danger-900/20" 
+                        data-post-id="${post.id}" 
+                        data-media-url="${post.media_url || ''}"
+                        title="Delete post">
+                    <i data-feather="trash-2" class="w-5 h-5"></i>
+                </button>
+             ` : '';
+
              const isLikedByViewer = post.currentUserLiked; 
              const likeClass = isLikedByViewer ? 'liked text-red-500' : 'text-gray-600'; 
              const viewerVotedIndex = post.currentUserPollVote; 
@@ -458,210 +514,277 @@
                      break; 
                  case 'poll': 
                      const pollOptionsHtml = (post.poll_options || []).map((option, index) => { 
-                         const isDisabled = !currentAuthUser; 
-                         return ` <button class="poll-option-button w-full text-left rounded-xl p-3 font-medium text-gray-900 relative transition-colors border border-gray-300 hover:bg-gray-100 cursor-pointer ${isDisabled ? 'opacity-70 !cursor-not-allowed !hover:bg-transparent' : ''}" data-post-id="${post.id}" data-option-index="${index}" ${isDisabled ? 'disabled' : ''} > <div class="absolute inset-0 bg-primary-300/50 rounded-lg poll-bar-fg" style="width: 0%;"></div> <span class="relative z-10">${option.option} (0%)</span> </button> `; 
+                         const isDisabled = false; // Polls always votable on own profile
+                         return ` <button class="poll-option-button w-full text-left rounded-xl p-3 font-medium text-gray-900 relative transition-colors border border-gray-300 hover:bg-gray-100 cursor-pointer" data-post-id="${post.id}" data-option-index="${index}" > <div class="absolute inset-0 bg-primary-300/50 rounded-lg poll-bar-fg" style="width: 0%;"></div> <span class="relative z-10">${option.option} (0%)</span> </button> `; 
                      }).join(''); 
                      postBody = ` <div class="px-4 pb-3 font-semibold text-lg text-gray-900">${displayContent}</div> <div class="px-4 pb-4 space-y-3 poll-options-container" data-post-id="${post.id}">${pollOptionsHtml}</div> `; 
                      setTimeout(() => { const container = userPostsContainer.querySelector(`.poll-options-container[data-post-id="${post.id}"]`); if(container) updatePollUI(post.id, container, viewerVotedIndex); }, 0); 
                      break; 
                  case 'text': 
+                 case 'anonymous': // Show anonymous posts on own profile too
                  default: 
                      postBody = `<div class="px-4 py-2 pb-4 text-gray-800 text-base">${displayContent}</div>`; 
                      break;
              } 
-             const likeButtonHtml = currentAuthUser ? `<button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLikedByViewer}"> <i data-feather="heart" class="engagement-icon ${isLikedByViewer ? 'fill-current' : ''}"></i> <span class="like-count text-sm font-medium">${post.like_count}</span> </button>` : `<div class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-500"> <i data-feather="heart" class="engagement-icon"></i> <span class="like-count text-sm font-medium">${post.like_count}</span> </div>`;
+             const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; 
+             const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900'; 
+             const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500'; 
+             const likeButtonHtml = `<button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLikedByViewer}"> <i data-feather="heart" class="engagement-icon ${isLikedByViewer ? 'fill-current' : ''}"></i> <span class="like-count text-sm font-medium">${post.like_count}</span> </button>`;
              const commentButtonHtml = `<a href="post.html?id=${post.id}#comments-section-wrapper" class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors"> <i data-feather="message-square" class="engagement-icon"></i> <span class="comment-count text-sm font-medium">${post.comment_count}</span> </a>`;
              const shareButtonHtml = `<button class="share-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> <i data-feather="share-2" class="engagement-icon"></i> <span class="text-sm font-medium">Share</span> </button>`;
-             return ` <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" id="post-${post.id}"> <div class="flex items-center space-x-3 p-4 bg-white"> ${authorAvatar} <div class="flex-1"> <p class="font-semibold text-gray-900 inline">${authorName}</p> ${tickHtml} <p class="text-xs text-gray-500">${postTimestamp}</p> </div> </div> ${postBody} <div class="flex justify-around border-t border-gray-100"> ${likeButtonHtml} ${commentButtonHtml} ${shareButtonHtml} </div> </div> `;
+             
+             return ` <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" id="post-${post.id}"> <div class="flex items-center space-x-3 p-4 ${headerClass}"> ${authorAvatar} <div class="flex-1"> <p class="font-semibold ${headerText} inline">${authorName}</p> ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> </div> ${deleteButtonHtml} </div> ${postBody} <div class="flex justify-around border-t border-gray-100"> ${likeButtonHtml} ${commentButtonHtml} ${shareButtonHtml} </div> </div> `;
         }
-
-        // --- 8. EVENT LISTENERS ---
-        function setupEventListeners() { /* ... (keep existing) ... */ 
-             const moreOptionsBtn = document.getElementById('more-options-btn'); const moreOptionsMenu = document.getElementById('more-options-menu'); moreOptionsBtn.addEventListener('click', (event) => { event.stopPropagation(); moreOptionsMenu.classList.toggle('hidden'); if (!moreOptionsMenu.classList.contains('hidden')) feather.replace(); }); window.addEventListener('click', (event) => { if (!moreOptionsMenu.classList.contains('hidden') && !moreOptionsMenu.contains(event.target) && !moreOptionsBtn.contains(event.target)) { moreOptionsMenu.classList.add('hidden'); } }); document.getElementById('share-profile-link').addEventListener('click', (e) => { e.preventDefault(); showToast('Sharing... (Not implemented)', 'success'); moreOptionsMenu.classList.add('hidden'); }); document.getElementById('report-profile-link').addEventListener('click', (e) => { e.preventDefault(); showToast('Reporting... (Not implemented)', 'error'); moreOptionsMenu.classList.add('hidden'); }); const friendsListButton = document.getElementById('friends-list-button'); const friendsCountButton = document.getElementById('friends-count-button'); const closeFriendsModalButton = document.getElementById('close-friends-modal'); friendsListButton.addEventListener('click', openFriendsModal); friendsCountButton.addEventListener('click', openFriendsModal); closeFriendsModalButton.addEventListener('click', closeFriendsModal); friendsModal.addEventListener('click', (event) => { if (event.target === friendsModal) closeFriendsModal(); }); 
-             addFriendButton.addEventListener('click', sendFriendRequest); 
-             acceptRequestButton.addEventListener('click', acceptFriendRequest); 
-             declineRequestButton.addEventListener('click', declineFriendRequest); 
-             removeFriendButton.addEventListener('click', removeFriend); 
-              userPostsContainer.addEventListener('click', (event) => { const likeButton = event.target.closest('.like-button'); if (likeButton) { if (!currentAuthUser) { showToast("Please log in to like posts.", 'error'); return; } toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; } const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { if (!currentAuthUser) { showToast("Please log in to vote.", 'error'); return; } handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; } const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } });
+        async function handleDeletePost(postId, mediaUrl) { /* ... (keep existing) ... */ 
+            const didConfirm = await showConfirm("Delete Post?", "Are you sure you want to permanently delete this post?", "Delete");
+            if (!didConfirm) return;
+            const postElement = document.getElementById(`post-${postId}`);
+            postElement.style.opacity = '0.5';
+            try {
+                const { error: deletePostError } = await _supabase.from('posts').delete().match({ id: postId }).eq('user_id', currentAuthUser.id); // Ensure user_id matches
+                if (deletePostError) throw deletePostError;
+                if (mediaUrl && !mediaUrl.startsWith('https://res.cloudinary')) { // Only delete from Supabase storage if not Cloudinary
+                    const url = new URL(mediaUrl);
+                    const path = url.pathname.split('/public/posts_media/')[1]; // Adjusted bucket name
+                    if (path) {
+                        const { error: deleteStorageError } = await _supabase.storage.from('posts_media').remove([path]); // Adjusted bucket name
+                        if (deleteStorageError) { console.error("Could not delete file from storage:", deleteStorageError.message); showToast("Post deleted, but media file cleanup failed.", 'error'); }
+                    }
+                } else if (mediaUrl && mediaUrl.startsWith('https://res.cloudinary')) {
+                    console.log("Skipping Cloudinary media deletion from frontend.");
+                }
+                postElement.remove();
+                showToast("Post deleted", 'success');
+                if (userPostsContainer.querySelectorAll('div[id^="post-"]').length === 0) {
+                     userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">You haven't posted yet.</p>`;
+                }
+            } catch (error) {
+                console.error("Error deleting post:", error.message);
+                showToast("Could not delete post.", 'error');
+                postElement.style.opacity = '1';
+            }
         }
+        
+        // --- 6. EVENT LISTENERS ---
+        function setupEventListeners() { /* ... (Updated) ... */ 
+            document.getElementById('edit-profile-btn').addEventListener('click', openEditProfileModal);
+            document.getElementById('profile-picture-btn').addEventListener('click', openImageUploadModal);
+            friendRequestsBtn.addEventListener('click', openFriendRequestsModal);
+            document.getElementById('close-requests-modal').addEventListener('click', () => friendRequestsModal.classList.remove('active'));
+            friendRequestsModal.addEventListener('click', (e) => { if (e.target === friendRequestsModal) friendRequestsModal.classList.remove('active'); });
+            document.getElementById('close-edit-modal').addEventListener('click', () => editProfileModal.classList.remove('active'));
+            document.getElementById('cancel-edit-btn').addEventListener('click', () => editProfileModal.classList.remove('active'));
+            saveProfileBtn.addEventListener('click', saveProfile);
+            document.getElementById('close-upload-modal').addEventListener('click', closeImageUploadModal);
+            document.getElementById('cancel-upload-btn').addEventListener('click', closeImageUploadModal);
+            imageUploadInput.addEventListener('change', initCropper);
+            saveImageBtn.addEventListener('click', uploadCroppedImage);
+            
+            // REQUEST: Add listener for friends count button
+            profileFriendsCountBtn.addEventListener('click', openFriendsModal);
+            document.getElementById('close-friends-modal').addEventListener('click', closeFriendsModal);
+            friendsModal.addEventListener('click', (e) => { if (e.target === friendsModal) closeFriendsModal(); });
 
-         // --- 9. FRIENDS LIST MODAL ---
-         async function openFriendsModal() { /* ... (keep existing) ... */ 
-             if (!viewedUserProfile || !viewedUserProfile.auth_id) { showToast("Cannot load friends list.", 'error'); return; } 
-             friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading...</p>'; 
-             friendsModal.classList.add('active'); 
-             feather.replace(); 
+            userPostsContainer.addEventListener('click', (event) => { 
+                 const likeButton = event.target.closest('.like-button'); if (likeButton) { toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; } 
+                 const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; } 
+                 const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; }
+                 // REQUEST: Add listener for delete post button
+                 const deleteButton = event.target.closest('.delete-post-btn'); if (deleteButton) { handleDeletePost(deleteButton.dataset.postId, deleteButton.dataset.mediaUrl); return; }
+            });
+        }
+        
+        // --- 7. EDIT PROFILE MODAL ---
+        function openEditProfileModal() { /* ... (keep existing) ... */ 
+             if (!currentUserProfile) return;
+             document.getElementById('edit-bio').value = currentUserProfile.bio || '';
+             document.getElementById('edit-instagram').value = extractSocialId(currentUserProfile.instagram, 'instagram.com') || '';
+             document.getElementById('edit-linkedin').value = extractSocialId(currentUserProfile.linkedin, 'linkedin.com/in/') || '';
+             editProfileModal.classList.add('active');
+             feather.replace();
+        }
+        async function saveProfile() { /* ... (keep existing) ... */ 
+            const bio = document.getElementById('edit-bio').value;
+            const instagram = document.getElementById('edit-instagram').value;
+            const linkedin = document.getElementById('edit-linkedin').value;
+            setButtonLoading(saveProfileBtn, true);
+            try {
+                const { data, error } = await _supabase.from('users')
+                    .update({
+                        bio: bio,
+                        instagram: instagram ? `https://www.instagram.com/${instagram.replace(/^@/, '')}` : 'EMPTY',
+                        linkedin: linkedin ? `https://www.linkedin.com/in/${linkedin}` : 'EMPTY'
+                    })
+                    .eq('auth_id', currentAuthUser.id)
+                    .select().single();
+                if (error) throw error;
+                currentUserProfile = data;
+                document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
+                const instaSpan = document.getElementById('profile-instagram');
+                const instaUsername = extractSocialId(data.instagram, 'instagram.com');
+                if (instaUsername) { instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">${instaUsername}</a>`; instaSpan.className = 'font-medium text-primary-600'; } 
+                else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
+                const linkedSpan = document.getElementById('profile-linkedin');
+                const linkedHandle = extractSocialId(data.linkedin, 'linkedin.com/in/'); 
+                if (linkedHandle) { const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; linkedSpan.className = 'font-medium text-blue-600'; } 
+                else { linkedSpan.textContent = 'Not Set'; linkedSpan.className = 'font-medium text-gray-400 italic'; }
+                showToast("Profile updated!", 'success');
+                editProfileModal.classList.remove('active');
+            } catch (error) { console.error("Error saving profile:", error.message); showToast("Could not save profile.", 'error'); } 
+            finally { setButtonLoading(saveProfileBtn, false); }
+        }
+        
+        // --- 8. FRIEND REQUESTS MODAL ---
+        async function openFriendRequestsModal() { /* ... (keep existing) ... */ 
+            requestsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading requests...</p>';
+            friendRequestsModal.classList.add('active');
+            try {
+                const { data: requests, error } = await _supabase.from('friend_requests')
+                    .select('id, sender_id, users:sender_id (id, auth_id, name, img, tick)')
+                    .eq('receiver_id', currentAuthUser.id).eq('status', 'pending');
+                if (error) throw error;
+                if (requests.length === 0) { requestsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No pending friend requests.</p>'; return; }
+                requestsModalBody.innerHTML = requests.map(req => {
+                    const sender = req.users; if (!sender) return ''; 
+                    const tickType = sender.tick?.toLowerCase();
+                    const tickHtml = (tickType && tickImages[tickType]) ? `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1.5">` : '';
+                    return `
+                      <div class="flex items-center space-x-3 p-2" id="request-row-${req.id}">
+                          <img src="${sender.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${sender.name ? sender.name.charAt(0) : '?'}`}" alt="${sender.name}" class="w-10 h-10 rounded-full bg-gray-200">
+                          <div class="flex-1 flex items-center">
+                              <span class="font-medium text-gray-800">${sender.name || 'User'}</span>
+                              ${tickHtml}
+                          </div>
+                          <div class="flex space-x-2">
+                              <button class="decline-request-btn p-2 bg-white border border-danger-500 text-danger-500 rounded-lg hover:bg-danger-50" data-request-id="${req.id}"><i data-feather="x" class="w-5 h-5"></i></button>
+                              <button class="accept-request-btn p-2 bg-green-500 text-white rounded-lg hover:bg-green-600" data-request-id="${req.id}"><i data-feather="check" class="w-5 h-5"></i></button>
+                          </div>
+                      </div>`;
+                }).join('');
+                requestsModalBody.querySelectorAll('.accept-request-btn').forEach(btn => { btn.addEventListener('click', (e) => acceptRequestInModal(e.currentTarget.dataset.requestId, e.currentTarget)); });
+                requestsModalBody.querySelectorAll('.decline-request-btn').forEach(btn => { btn.addEventListener('click', (e) => declineRequestInModal(e.currentTarget.dataset.requestId, e.currentTarget)); });
+                feather.replace();
+            } catch (error) { console.error("Error fetching requests:", error.message); requestsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading requests.</p>'; }
+        }
+        async function acceptRequestInModal(requestId, buttonEl) { /* ... (keep existing) ... */ 
+             setButtonLoading(buttonEl, true, true);
+             try {
+                 const { error } = await _supabase.rpc('accept_and_create_friendship', { request_id_to_accept: requestId });
+                 if (error) throw error; 
+                 showToast("Friend added!", 'success');
+                 document.getElementById(`request-row-${requestId}`).remove();
+                 await loadFriendRequestsCount(currentAuthUser.id);
+                 // Reload profile data to update friend count
+                 await loadProfileData(currentAuthUser.id);
+             } catch(error) { console.error("Error accepting request:", error.message); showToast("Could not accept request.", 'error'); setButtonLoading(buttonEl, false, true, 'check'); }
+        }
+        async function declineRequestInModal(requestId, buttonEl) { /* ... (keep existing) ... */ 
+             setButtonLoading(buttonEl, true, true);
              try { 
+                 const { error } = await _supabase.from('friend_requests').delete().eq('id', requestId).eq('receiver_id', currentAuthUser.id);
+                 if (error) throw error; 
+                 showToast("Request declined", 'success'); 
+                 document.getElementById(`request-row-${requestId}`).remove();
+                 await loadFriendRequestsCount(currentAuthUser.id);
+             } catch(error) { console.error("Error declining request:", error.message); showToast("Could not decline request.", 'error'); setButtonLoading(buttonEl, false, true, 'x'); } 
+        }
+
+        // --- REQUEST: Friends List Modal Functions ---
+        async function openFriendsModal() {
+             if (!currentUserProfile) return;
+             friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading...</p>';
+             friendsModal.classList.add('active');
+             feather.replace();
+
+             try {
                  const { data: friendships, error: friendsError } = await _supabase.from('friendships')
                      .select(` u1:user1_id (id, auth_id, name, img, tick), u2:user2_id (id, auth_id, name, img, tick) `)
-                     .or(`user1_id.eq.${viewedUserProfile.auth_id},user2_id.eq.${viewedUserProfile.auth_id}`); 
-                 if (friendsError) throw friendsError; 
-                 if (friendships.length === 0) { friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No friends yet.</p>'; return; } 
-                 const friends = friendships.map(f => f.u1.auth_id === viewedUserProfile.auth_id ? f.u2 : f.u1); 
-                 friends.sort((a, b) => {
-                     if (currentAuthUser) {
-                         if (a.auth_id === currentAuthUser.id) return -1;
-                         if (b.auth_id === currentAuthUser.id) return 1;
-                     }
-                     return (a.name || '').localeCompare(b.name || '');
-                 });
+                     .or(`user1_id.eq.${currentAuthUser.id},user2_id.eq.${currentAuthUser.id}`) // Use current user's auth_id
+                     .eq('status', 'accepted'); // Ensure they are accepted friends
+
+                 if (friendsError) throw friendsError;
+
+                 if (friendships.length === 0) {
+                     friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">You have no friends yet.</p>';
+                     return;
+                 }
+
+                 const friends = friendships.map(f => f.u1.auth_id === currentAuthUser.id ? f.u2 : f.u1);
+
+                 friends.sort((a, b) => (a.name || '').localeCompare(b.name || '')); // Alphabetical sort
+
                  friendsModalBody.innerHTML = friends.map(friend => {
                      const tickType = friend.tick?.toLowerCase();
                      const tickHtml = (tickType && tickImages[tickType]) 
                          ? `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1.5">` 
                          : '';
-                     const isCurrentUser = currentAuthUser && friend.auth_id === currentAuthUser.id;
-                     const profileLink = isCurrentUser ? 'myprofile.html' : `profile.html?id=${friend.id}`;
+                     
+                     // Link to their profile using their public ID
+                     const profileLink = `profile.html?id=${friend.id}`; 
+
                      return `
-                       <a href="${profileLink}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded-lg">
+                       <a href="${profileLink}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                            <img src="${friend.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${friend.name ? friend.name.charAt(0) : '?'}`}" alt="${friend.name}" class="w-10 h-10 rounded-full bg-gray-200">
                            <div class="flex-1 flex items-center">
-                               <span class="font-medium text-gray-800">${friend.name || 'User'}</span>
+                               <span class="font-medium text-gray-800 dark:text-gray-200">${friend.name || 'User'}</span>
                                ${tickHtml}
                            </div>
-                           ${isCurrentUser ? '<span class="text-sm font-medium text-primary-600">(You)</span>' : ''}
                        </a> 
                      `;
                  }).join('');
-                 feather.replace(); 
-             } catch (error) { console.error("Error fetching friends:", error); friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading.</p>'; } 
-         }
-         function closeFriendsModal() { friendsModal.classList.remove('active'); friendsModalBody.innerHTML = ''; }
 
-         // --- 10 - 14. FRIENDSHIP ACTIONS ---
-         async function sendFriendRequest() { /* ... (keep existing) ... */ 
-             if (!currentAuthUser || !currentUserOwnProfile || !viewedUserProfile || !viewedUserProfile.auth_id || currentAuthUser.id === viewedUserProfile.auth_id) { showToast("Cannot send request.", 'error'); return; } 
-             addFriendButton.disabled = true; addFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; 
-             try { 
-                 const { error: insertError } = await _supabase.from('friend_requests').insert({ sender_id: currentAuthUser.id, receiver_id: viewedUserProfile.auth_id, status: 'pending' }); 
-                 if (insertError) { if (insertError.code === '23505') { showToast("Request already pending.", 'error'); updateFriendButtonState('pending_sent'); } else { throw insertError; } } 
-                 else { showToast("Friend request sent!", 'success'); updateFriendButtonState('pending_sent'); } 
-             } catch (error) { console.error("Error sending request:", error); showToast("Could not send request.", 'error'); updateFriendButtonState('none'); } 
-         }
-         async function checkFriendshipStatus() { /* ... (keep existing) ... */ 
-             if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { updateFriendButtonState('hidden'); return; } 
-             currentFriendRequest = null; 
-             try { 
-                 const user1_uuid = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; 
-                 const user2_uuid = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; 
-                 const { data: friendship, error: friendError } = await _supabase.from('friendships').select('id').eq('user1_id', user1_uuid).eq('user2_id', user2_uuid).maybeSingle(); 
-                 if (friendError) throw friendError; 
-                 if (friendship) { updateFriendButtonState('friends'); return; }
-                 const { data: request, error: reqError } = await _supabase.from('friend_requests')
-                     .select('id, status, sender_id, receiver_id')
-                     .or(`and(sender_id.eq.${currentAuthUser.id},receiver_id.eq.${viewedUserProfile.auth_id}),and(sender_id.eq.${viewedUserProfile.auth_id},receiver_id.eq.${currentAuthUser.id})`)
-                     .eq('status', 'pending') 
-                     .maybeSingle(); 
-                 if (reqError) throw reqError; 
-                 if (request) {
-                     currentFriendRequest = request;
-                     if (request.sender_id === currentAuthUser.id) { updateFriendButtonState('pending_sent'); } 
-                     else { updateFriendButtonState('pending_received'); }
-                     return;
-                 }
-                 updateFriendButtonState('none'); 
-             } catch (error) { console.error("Error checking status:", error); updateFriendButtonState('none'); } 
-         }
-         function updateFriendButtonState(status) { /* ... (keep existing) ... */ 
-             addFriendButton.classList.add('hidden'); requestSentButton.classList.add('hidden'); acceptDeclineButtons.classList.add('hidden'); removeFriendButton.classList.add('hidden'); 
-             if (status === 'pending_sent') { requestSentButton.classList.remove('hidden'); } 
-             else if (status === 'pending_received') { acceptDeclineButtons.classList.remove('hidden'); feather.replace(); } 
-             else if (status === 'friends') { removeFriendButton.classList.remove('hidden'); feather.replace(); } 
-             else if (status === 'none') { addFriendButton.classList.remove('hidden'); addFriendButton.disabled = false; addFriendButton.innerHTML = `<i data-feather="user-plus" class="action-button-icon"></i> <span class="font-semibold text-lg">Add Friend</span>`; feather.replace(); } 
-             else if (status === 'logged_out' || status === 'hidden') { /* All hidden */ } 
-         }
-         async function acceptFriendRequest() { /* ... (keep existing) ... */ 
-             if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot accept."); return; } 
-             acceptRequestButton.disabled = true; declineRequestButton.disabled = true; acceptRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto"></div>`; 
-             try { 
-                 const { error } = await _supabase.rpc('accept_and_create_friendship', { request_id_to_accept: currentFriendRequest.id });
-                 if (error) throw error; 
-                 showToast("Friend added!", 'success');
-                 updateFriendButtonState('friends'); 
-                 const friendCountEl = document.getElementById('profile-friend-count'); 
-                 if (friendCountEl) friendCountEl.textContent = parseInt(friendCountEl.textContent) + 1; 
-             } catch(error) { 
-                 console.error("Error accepting request:", error); showToast("Could not accept request.", 'error'); 
-                 acceptRequestButton.disabled = false; declineRequestButton.disabled = false;
-                 acceptRequestButton.innerHTML = `<i data-feather="user-check" class="action-button-icon"></i> <span class="font-semibold text-base">Accept</span>`; 
-                 feather.replace(); 
-             } 
-         }
-         async function declineFriendRequest() { /* ... (keep existing) ... */ 
-             if (!currentAuthUser || !currentFriendRequest || currentFriendRequest.status !== 'pending' || currentFriendRequest.receiver_id !== currentAuthUser.id) { console.error("Cannot decline."); return; } 
-             const didConfirm = await showConfirm("Decline Request?", "Are you sure you want to decline this friend request?", "Decline");
-             if (!didConfirm) return; 
-             acceptRequestButton.disabled = true; declineRequestButton.disabled = true; declineRequestButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-red-500 border-l-transparent"></div>`; 
-             try { 
-                 const { error } = await _supabase.from('friend_requests').delete().eq('id', currentFriendRequest.id);
-                 if (error) throw error; 
-                 showToast("Request declined", 'success'); 
-                 updateFriendButtonState('none'); 
-             } catch(error) { 
-                 console.error("Error declining request:", error); showToast("Could not decline request.", 'error'); 
-                 acceptRequestButton.disabled = false; declineRequestButton.disabled = false; 
-                 declineRequestButton.innerHTML = `<i data-feather="x" class="action-button-icon"></i>`; 
-                 feather.replace(); 
-             } 
-         }
-         async function removeFriend() { /* ... (keep existing) ... */ 
-             if (!currentAuthUser || !viewedUserProfile || currentAuthUser.id === viewedUserProfile.auth_id) { console.error("Cannot remove friend."); return; } 
-             const didConfirm = await showConfirm("Remove Friend?", `Are you sure you want to remove ${viewedUserProfile.name} as a friend?`, "Remove");
-             if (!didConfirm) return;
-             removeFriendButton.disabled = true; removeFriendButton.innerHTML = `<div class="spinner w-5 h-5 mx-auto border-danger-500 border-l-transparent"></div>`; 
-             try { 
-                 const user1_uuid = currentAuthUser.id < viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; 
-                 const user2_uuid = currentAuthUser.id > viewedUserProfile.auth_id ? currentAuthUser.id : viewedUserProfile.auth_id; 
-                 const { error: deleteError } = await _supabase.from('friendships').delete().match({ user1_id: user1_uuid, user2_id: user2_uuid }); 
-                 if (deleteError) throw deleteError; 
-                 showToast("Friend removed", 'success'); 
-                 updateFriendButtonState('none'); 
-                 const friendCountEl = document.getElementById('profile-friend-count'); 
-                 if (friendCountEl) friendCountEl.textContent = Math.max(0, parseInt(friendCountEl.textContent) - 1); 
-             } catch(error) { 
-                 console.error("Error removing friend:", error); showToast("Could not remove friend.", 'error'); 
-                 updateFriendButtonState('friends'); 
-             } finally { 
-                 if (!removeFriendButton.classList.contains('hidden')) { 
-                     removeFriendButton.disabled = false; 
-                     if(removeFriendButton.querySelector('.spinner')){ 
-                         removeFriendButton.innerHTML = `<i data-feather="user-minus" class="action-button-icon"></i> <span class="font-semibold text-lg">Remove</span>`; 
-                         feather.replace();
-                     } 
-                 } 
-             } 
-         }
+                 feather.replace();
 
-        // --- 15. LIKE/UNLIKE LOGIC --- (No changes)
-        async function toggleLike(postId, isLiked, buttonElement) { /* ... (keep existing) ... */ 
-            if (!currentAuthUser || buttonElement.disabled) return; buttonElement.disabled = true; const likeIcon = buttonElement.querySelector('svg.feather-heart'); const countSpan = buttonElement.querySelector('.like-count'); let currentCount = parseInt(countSpan.textContent); if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; } try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; } } catch (error) { console.error("Like Error:", error.message); if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; } } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); } 
+             } catch (error) { 
+                 console.error("Error fetching friends:", error); 
+                 friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading friends.</p>'; 
+             } 
+        }
+        function closeFriendsModal() { friendsModal.classList.remove('active'); friendsModalBody.innerHTML = ''; }
+
+        // --- 9. IMAGE UPLOAD & CROP ---
+        function openImageUploadModal() { /* ... (keep existing) ... */ 
+            imageUploadModal.classList.add('active'); feather.replace();
+        }
+        function closeImageUploadModal() { /* ... (keep existing) ... */ 
+            if (cropper) { cropper.destroy(); cropper = null; } cropperContainer.style.display = 'none'; cropperImage.src = ''; imageUploadInput.value = ''; saveImageBtn.disabled = true; imageUploadModal.classList.remove('active');
+        }
+        function initCropper(e) { /* ... (keep existing) ... */ 
+            const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { cropperImage.src = event.target.result; cropperContainer.style.display = 'block'; if (cropper) { cropper.destroy(); } cropper = new Cropper(cropperImage, { aspectRatio: 1, viewMode: 1, background: false, autoCropArea: 0.8, responsive: true, checkOrientation: false }); saveImageBtn.disabled = false; }; reader.readAsDataURL(file);
+        }
+        async function uploadCroppedImage() { /* ... (keep existing) ... */ 
+             if (!cropper || !currentUserProfile) return; setButtonLoading(saveImageBtn, true); cropper.getCroppedCanvas({ width: 512, height: 512, imageSmoothingQuality: 'high' }).toBlob(async (blob) => { if (!blob) { showToast("Error processing image.", 'error'); setButtonLoading(saveImageBtn, false); return; } const filePath = `public/${currentAuthUser.id}/${Date.now()}.png`; try { const { data: uploadData, error: uploadError } = await _supabase.storage.from('avatars').upload(filePath, blob, { cacheControl: '3600', upsert: false }); if (uploadError) throw uploadError; const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(uploadData.path); if (!urlData.publicUrl) { throw new Error("Could not get public URL."); } const { error: updateUserError } = await _supabase.from('users').update({ img: urlData.publicUrl }).eq('auth_id', currentAuthUser.id); if (updateUserError) throw updateUserError; document.getElementById('profile-picture').src = urlData.publicUrl; currentUserProfile.img = urlData.publicUrl; showToast("Profile picture updated!", 'success'); closeImageUploadModal(); } catch (error) { console.error("Error uploading image:", error.message); showToast(`Upload failed: ${error.message}`, 'error'); } finally { setButtonLoading(saveImageBtn, false); } }, 'image/png');
         }
 
-        // --- 16 & 17. POLL VOTE LOGIC --- (No changes)
+        // --- 10. POST ACTIONS (Like, Poll, Share) ---
+        async function toggleLike(postId, isLiked, buttonElement) { /* ... (keep existing) ... */ 
+             if (!currentAuthUser || buttonElement.disabled) return; buttonElement.disabled = true; const likeIcon = buttonElement.querySelector('svg.feather-heart'); const countSpan = buttonElement.querySelector('.like-count'); let currentCount = parseInt(countSpan.textContent); if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; } try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; } } catch (error) { console.error("Like Error:", error.message); if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; } } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); } 
+        }
         async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { /* ... (keep existing) ... */ 
-            if (!currentAuthUser) return; const isCurrentlySelected = clickedButton.classList.contains('border-primary-600'); let operation = 'upsert'; if (isCurrentlySelected) { operation = 'delete'; } optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true); try { if (operation === 'delete') { const { error: deleteError } = await _supabase.from('poll_votes').delete().match({ post_id: postId, user_id: currentAuthUser.id }); if (deleteError) throw deleteError; await updatePollUI(postId, optionsContainer, null); } else { const { error: upsertError } = await _supabase.from('poll_votes').upsert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex }, { onConflict: 'post_id, user_id' }); if (upsertError) throw upsertError; await updatePollUI(postId, optionsContainer, optionIndex); } } catch (error) { console.error(`Poll Vote Error (${operation}):`, error.message); showToast(`Could not ${operation === 'delete' ? 'remove' : 'record'} vote.`, 'error'); await updatePollUI(postId, optionsContainer, null); } 
+             if (!currentAuthUser) return; const isCurrentlySelected = clickedButton.classList.contains('border-primary-600'); let operation = 'upsert'; if (isCurrentlySelected) { operation = 'delete'; } optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true); try { if (operation === 'delete') { const { error: deleteError } = await _supabase.from('poll_votes').delete().match({ post_id: postId, user_id: currentAuthUser.id }); if (deleteError) throw deleteError; await updatePollUI(postId, optionsContainer, null); } else { const { error: upsertError } = await _supabase.from('poll_votes').upsert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex }, { onConflict: 'post_id, user_id' }); if (upsertError) throw upsertError; await updatePollUI(postId, optionsContainer, optionIndex); } } catch (error) { console.error(`Poll Vote Error (${operation}):`, error.message); showToast(`Could not ${operation === 'delete' ? 'remove' : 'record'} vote.`, 'error'); await updatePollUI(postId, optionsContainer, null); } 
         }
         async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { /* ... (keep existing) ... */ 
-            if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = !currentAuthUser; button.classList.toggle('hover:bg-gray-100', !!currentAuthUser); button.classList.toggle('cursor-pointer', !!currentAuthUser); button.classList.toggle('opacity-70', !currentAuthUser); button.classList.toggle('!cursor-not-allowed', !currentAuthUser); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Poll UI Update Error (${postId}):`, error.message); } 
+             if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = !currentAuthUser; button.classList.toggle('hover:bg-gray-100', !!currentAuthUser); button.classList.toggle('cursor-pointer', !!currentAuthUser); button.classList.toggle('opacity-70', !currentAuthUser); button.classList.toggle('!cursor-not-allowed', !currentAuthUser); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Poll UI Update Error (${postId}):`, error.message); } 
         }
-
-        // --- 18 & 19. SHARE LOGIC --- (No changes)
         async function handleShare(postId) { /* ... (keep existing) ... */ 
-            const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800, div.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Share Error:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); } 
+             const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentEl = postElement.querySelector('.text-gray-800'); if (contentEl && contentEl.textContent.trim().length > 0) { shareText = contentEl.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Share Error:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); } 
         }
         function fallbackCopyToClipboard(text) { /* ... (keep existing) ... */ 
-            copyToClipboard(text).then(() => { showToast("Web Share not available. Link copied!", 'success'); }).catch(err => { console.error('Copy Error:', err); showToast("Failed to copy link.", 'error'); }); 
+             copyToClipboard(text).then(() => { showToast("Web Share not available. Link copied!", 'success'); }).catch(err => { console.error('Copy Error:', err); showToast("Failed to copy link.", 'error'); }); 
         }
         function copyToClipboard(text) { /* ... (keep existing) ... */ 
-            return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); 
+             return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); 
         }
         
-        // --- 20. HELPERS ---
+        // --- 11. GENERAL HELPERS ---
         function showError(message) { /* ... (keep existing) ... */ 
-            profileLoading.innerHTML = `<p class="text-center text-red-500 font-semibold pt-16">${message}</p>`; profileLoading.style.display = 'block'; profileContent.classList.add('hidden'); postsLoading.innerHTML = ''; 
+             profileLoading.innerHTML = `<p class="text-center text-red-500 font-semibold pt-16">${message}</p>`; profileLoading.style.display = 'block'; profileContent.classList.add('hidden'); loginPrompt.style.display = 'none'; postsLoading.innerHTML = ''; 
         }
         function formatTimeAgo(dateString) { /* ... (keep existing) ... */ 
-            const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
+             const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
+        }
+        function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) { /* ... (keep existing) ... */ 
+            buttonEl.disabled = isLoading; const textEl = buttonEl.querySelector('.button-text'); const spinnerEl = buttonEl.querySelector('.button-spinner'); if (isSmall) { const iconEl = buttonEl.querySelector('i[data-feather]'); if (isLoading) { if (iconEl) iconEl.style.display = 'none'; if (!spinnerEl) { const spinner = document.createElement('div'); spinner.className = 'spinner button-spinner w-5 h-5'; buttonEl.prepend(spinner); } else { spinnerEl.style.display = 'block'; } } else { const existingSpinner = buttonEl.querySelector('.button-spinner'); if (existingSpinner) existingSpinner.remove(); if (iconEl) { iconEl.style.display = 'block'; } else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); } } } else { if (textEl) textEl.style.display = isLoading ? 'none' : 'block'; if (spinnerEl) spinnerEl.style.display = isLoading ? 'block' : 'none'; }
         }
 
         // --- REQUEST: THEME FUNCTION ---
@@ -671,7 +794,7 @@
             } else {
                 document.documentElement.classList.remove('dark');
             }
-            // No toggle button on this page, just apply theme
+            // Note: The toggle button itself is handled in feed.html's sidebar
         }
 
     </script>
