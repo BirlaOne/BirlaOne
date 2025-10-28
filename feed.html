@@ -819,7 +819,7 @@
 
         // --- 16 & 17. SHARE LOGIC ---
         async function handleShare(postId) {
-              const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800, div.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); }
+              const shareUrl = `${location.origin}/BirlaOne/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800, div.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); }
         }
         function fallbackCopyToClipboard(text) { 
              copyToClipboard(text).then(() => { 
