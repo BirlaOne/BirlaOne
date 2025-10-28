@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Added class="" to allow JS to add 'dark' class -->
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Web App Manifest (for PWA-like features) -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff">
+    <!-- Set color scheme to match theme -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
     <title>BirlaOne Search</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +21,8 @@
     
     <script>
         tailwind.config = {
+            // --- Added darkMode: 'class' ---
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -45,7 +48,7 @@
         .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
         .tick-mark-search { width: 1rem; height: 1rem; vertical-align: middle; margin-left: 4px; display: inline-block; }
         .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(300deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* --- Shimmer Loader Styles --- */
@@ -58,6 +61,11 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
+        /* Dark mode shimmer */
+        .dark .shimmer-wrapper {
+            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
 
         /* --- Toast Notifications --- */
         #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
@@ -67,6 +75,41 @@
         .toast.show { opacity: 1; }
         .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Dark mode toast */
+        .dark .toast.toast-success { background-color: #a6d98e; color: #1a320f; }
+        .dark .toast.toast-error { background-color: #ef9a9a; color: #8d1111; }
+
+        /* --- Dark Mode Styles (Copied from feed.html) --- */
+        :root {
+            color-scheme: light;
+        }
+        :root.dark {
+            color-scheme: dark;
+        }
+        .dark body { background-color: #111827; }
+        .dark .bg-slate-50 { background-color: #111827; } /* Main page bg */
+        .dark .bg-white { background-color: #1f2937; } /* Card/Nav bg */
+        .dark .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(255, 255, 255, 0.03); border-bottom: 1px solid #374151; }
+        .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
+        .dark .text-gray-900 { color: #f9fafb; } /* Headings */
+        .dark .text-gray-800 { color: #f3f4f6; }
+        .dark .text-gray-700 { color: #d1d5db; } /* Subheadings */
+        .dark .text-gray-600 { color: #9ca3af; }
+        .dark .text-gray-500 { color: #6b7280; } /* Placeholder text, no-results */
+        .dark .text-gray-400 { color: #9ca3af; } /* Nav icons */
+        .dark .border-gray-200 { border-color: #374151; } /* Search input border */
+        .dark .bg-gray-50 { background-color: #374151; } /* User list item bg */
+        .dark .bg-gray-100 { background-color: #374151; } /* Search input bg */
+        .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
+        .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); } /* Nav backdrop blur */
+        .dark .text-primary-600 { color: #a6d98e; } /* Active nav icon */
+        .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
+        .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
+        .dark .bg-primary-100 { background-color: #396f21; } /* Add friend button */
+        .dark .text-primary-600 { color: #a6d98e; }
+        .dark .hover\:bg-primary-200:hover { background-color: #396f21; opacity: 0.8; }
+        .dark .text-primary-700 { color: #eef8e9; }
+        .dark .bg-gray-200 { background-color: #4b5563; } /* Pending friend button */
     </style>
 </head>
 <body class="antialiased">
@@ -138,13 +181,23 @@
         const toastContainer = document.getElementById('toast-container');
 
 
+        // --- THEME TOGGLE FUNCTION (from feed.html) ---
+        function initializeTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', async () => {
+            // --- Initialize theme first to prevent flash ---
+            initializeTheme();
+
             feather.replace(); // Initial icon render
 
             // --- Service Worker Registration ---
-            // Note: This requires a 'sw.js' file in your root directory.
-            // I can help generate that file in a follow-up.
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
@@ -322,7 +375,6 @@
                 console.error("Error searching users:", error);
                 searchResultsList.innerHTML = '<p class="text-center text-red-500">Error performing search.</p>';
             }
-            // 'finally' block removed as shimmers are replaced by content or error
         }
 
 
@@ -382,7 +434,6 @@
         }
         
         // --- Create Single User Item HTML ---
-        // (This function remains unchanged, as its logic is core to the app)
         function createUserItemHTML(user, status) {
             const isCurrentUser = user.auth_id === currentAuthUser.id;
             
@@ -431,7 +482,6 @@
         }
 
         // --- Friendship Status Checking ---
-        // (This function is already well-optimized by using .in.() and remains unchanged)
         async function checkMultipleFriendshipStatuses(targetUserIds) {
             if (!currentAuthUser || targetUserIds.length === 0) return {};
 
@@ -476,7 +526,6 @@
 
 
         // --- Send Friend Request ---
-        // (This function remains unchanged, as its logic is core to the app)
         async function sendFriendRequest(targetAuthId, buttonElement) {
             if (!currentAuthUser || !targetAuthId) return;
 
@@ -522,7 +571,6 @@
         }
 
         // --- Toast Notification ---
-        // (This function remains unchanged)
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
@@ -544,3 +592,4 @@
 
 </body>
 </html>
+
