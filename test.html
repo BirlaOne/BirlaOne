@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +20,6 @@
     
     <script>
         tailwind.config = {
-            // REQUEST: Enable class-based dark mode
             darkMode: 'class',
             theme: {
                 extend: { 
@@ -113,19 +112,19 @@
         .sidebar-menu-item i[data-feather] {
             width: 20px;
             height: 20px;
-            /* REQUEST: Added more space */
-            margin-right: 1rem; /* mr-4 */
+            /* REQUEST: Increased space */
+            margin-right: 1.25rem; /* mr-5 */
             color: #4b5563;
         }
         .sidebar-menu-item-arrow {
             margin-left: auto;
             color: #9ca3af;
         }
+        /* REQUEST: Enhanced QR Card */
         #sidebar-qr-code-img {
-            padding: 10px;
             background: white;
+            padding: 10px;
             border-radius: 12px;
-            border: 1px solid #e5e7eb;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -136,7 +135,7 @@
             border-radius: 6px;
         }
 
-        /* --- REQUEST: Dark Mode Styles --- */
+        /* --- Dark Mode Styles --- */
         :root {
             color-scheme: light;
         }
@@ -171,9 +170,10 @@
         .dark .sidebar-menu-item { color: #d1d5db; }
         .dark .sidebar-menu-item:hover { background-color: #374151; }
         .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
-        .dark #sidebar-qr-code-img { background: #f9fafb; border-color: #4b5563; }
-        /* Invert QR code for dark bg */
-        /* .dark #sidebar-qr-code-img img { filter: invert(0.9); } */ /* Keep QR black on white bg */
+        /* REQUEST: Profile card dark theme */
+        .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
+        .dark #sidebar-user-avatar { border-color: #374151; }
+        #sidebar-qr-code-img { background: white; } /* Always white */
         .dark .sidebar-menu-item-arrow { color: #6b7280; }
         .dark .text-danger-600 { color: #ef5350; }
         .dark .hover\:\!bg-danger-50:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
@@ -254,17 +254,15 @@
         </div>
         
         <nav id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 bg-white shadow-xl border-r border-gray-200 flex flex-col transform -translate-x-full p-4 space-y-6 overflow-y-auto no-scrollbar">
-            <div class="flex items-center space-x-3">
-                <img id="sidebar-user-avatar" src="https://placehold.co/48x48/A8E063/305B1C?text=U" alt="Your Profile" class="w-12 h-12 rounded-full bg-gray-200">
-                <div>
-                    <h2 class="font-bold text-lg text-gray-900 leading-tight">
+            
+            <div class="profile-qr-card p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-4">
+                <div class="flex flex-col items-center space-y-2">
+                    <img id="sidebar-user-avatar" src="https://placehold.co/64x64/A8E063/305B1C?text=U" alt="Your Profile" class="w-16 h-16 rounded-full bg-gray-200 border-2 border-white">
+                    <h2 class="font-bold text-lg text-gray-900 leading-tight text-center">
                         <span id="sidebar-user-name">Loading...</span>
                         <span id="sidebar-user-tick-container" class="inline-block"></span>
                     </h2>
                 </div>
-            </div>
-
-            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-200">
                 <div id="sidebar-qr-code-img" class="w-full h-auto aspect-square">
                     <div class="spinner"></div>
                 </div>
@@ -369,19 +367,19 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarBackdrop = document.getElementById('sidebar-backdrop');
         const logoutBtn = document.getElementById('logout-btn');
-        // REQUEST: Theme toggle global
         const themeToggle = document.getElementById('theme-toggle');
 
         // --- 2. AUTH & INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => { 
-             // REQUEST: Initialize theme first
              initializeTheme();
 
              const { data: { session }, error } = await _supabase.auth.getSession();
              if (error || !session) { window.location.href = 'login.html'; return; }
              currentAuthUser = session.user;
 
-             await Promise.all([ fetchUserProfile(currentAuthUser.id), fetchPosts() ]);
+             // Fetch profile *first* to get currentUserProfile.id for delete check
+             await fetchUserProfile(currentAuthUser.id);
+             await fetchPosts();
 
              feather.replace(); 
              setupEventListeners(); 
@@ -399,20 +397,15 @@
         // --- 3. FETCH USER PROFILE ---
         async function fetchUserProfile(authId) { 
              if (!authId) return; 
-             // REQUEST: Fetch 'id' (public) instead of 'student_id'
-             const { data, error } = await _supabase.from('users').select('name, img, tick, id').eq('auth_id', authId).single(); 
+             // Fetch 'id' (public) and 'auth_id' (UUID)
+             const { data, error } = await _supabase.from('users').select('id, name, img, tick, auth_id').eq('auth_id', authId).single(); 
              if (error) { 
                 console.error("Error fetching user profile:", error.message); 
-                // This is likely the error from the image
-                if (error.message.includes("does not exist")) {
-                    showToast("DB Error: Please check column names.", "error");
-                }
              } 
              else if (data) { 
-                 currentUserProfile = data; 
+                 currentUserProfile = data; // This now contains .id (int) and .auth_id (uuid)
                  const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : 'U'}`; 
                  userAvatarPostBar.src = userAvatar; 
-                 
                  populateSidebar(data);
              }
         }
@@ -426,19 +419,21 @@
                  const toggleButton = event.target.closest('.toggle-comments-button'); if (toggleButton) { toggleCommentsSection(toggleButton.dataset.postId); return; }
                  const submitButton = event.target.closest('.comment-submit-button'); if (submitButton) { handleCommentSubmit(submitButton.dataset.postId); return; }
                  const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } 
-                 const deleteButton = event.target.closest('.delete-comment-button'); if (deleteButton) { handleDeleteComment(deleteButton.dataset.commentId, deleteButton.dataset.postId, deleteButton); return; }
+                 const deleteCommentButton = event.target.closest('.delete-comment-button'); if (deleteCommentButton) { handleDeleteComment(deleteCommentButton.dataset.commentId, deleteCommentButton.dataset.postId, deleteCommentButton); return; }
+                 // REQUEST: Add listener for delete post button
+                 const deletePostButton = event.target.closest('.delete-post-button'); if (deletePostButton) { handleDeletePost(deletePostButton.dataset.postId, deletePostButton); return; }
              });
         }
 
         // --- 5. FETCH POSTS ---
         async function fetchPosts() { 
              if (!currentAuthUser) return; feedLoading.style.display = 'block'; try {
-                 // REQUEST: Fetch 'id' (public) from users table for profile links
+                 // REQUEST: Fetch 'id' (for profile link) AND 'auth_id' (for delete check)
                  const { data: posts, error } = await _supabase
                      .from('posts')
                      .select(`
                          id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, 
-                         users:user_id (name, img, tick, id), 
+                         users:user_id (id, name, img, tick, auth_id), 
                          likes!left (user_id), 
                          poll_votes!left (user_id, selected_option_index) 
                      `)
@@ -481,15 +476,15 @@
                  tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; 
              }
              
-             // REQUEST: Use public 'id' for profile links
-             const authorId = post.users?.id;
+             const authorId = post.users?.id; // Public integer ID
+             const authorAuthId = post.users?.auth_id; // UUID
              let authorAvatar = '';
              let authorNameHtml = '';
 
              if (post.is_anonymous) {
                 authorAvatar = `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>`;
                 authorNameHtml = `<p class="font-semibold text-white inline">${authorName}</p>`;
-             } else if (authorId) {
+             } else if (authorId) { // Use public ID for link
                 const avatarImg = `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 transition-transform hover:scale-105">`;
                 authorAvatar = `<a href="profile.html?user_id=${authorId}">${avatarImg}</a>`;
                 authorNameHtml = `<a href="profile.html?user_id=${authorId}" class="font-semibold text-gray-900 inline hover:underline">${authorName}</a>`;
@@ -498,15 +493,26 @@
                 authorNameHtml = `<p class="font-semibold text-gray-900 inline">${authorName}</p>`;
              }
 
+             // REQUEST: Add delete button if post is by current user
+             let deleteButtonHtml = '';
+             if (!post.is_anonymous && authorAuthId === currentAuthUser?.id) {
+                 deleteButtonHtml = `
+                 <button class="delete-post-button ml-2 p-2 text-gray-400 hover:text-danger-600 dark:text-gray-500 dark:hover:text-danger-500 transition-colors" 
+                         data-post-id="${post.id}" 
+                         title="Delete post">
+                     <i data-feather="trash-2" class="w-5 h-5"></i>
+                 </button>
+                 `;
+             }
+
              let postBody = ''; 
-             // REQUEST: Render all formatting
              let displayContent = post.content || '';
              displayContent = displayContent
-                 .replace(/__(.*?)__/g, '<u>$1</u>')           // Underline
-                 .replace(/~~(.*?)~~/g, '<s>$1</s>')         // Strikethrough
-                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-                 .replace(/\*(.*?)\*/g, '<em>$1</em>')         // Italic
-                 .replace(/\n/g, '<br>'); // Newlines
+                 .replace(/__(.*?)__/g, '<u>$1</u>')
+                 .replace(/~~(.*?)~~/g, '<s>$1</s>')
+                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                 .replace(/\n/g, '<br>');
 
              switch(post.post_type) { 
                  case 'photo': 
@@ -539,7 +545,7 @@
                          ${authorNameHtml} 
                          ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> 
                      </div> 
-                 </div> 
+                     ${deleteButtonHtml} </div> 
                  ${postBody} 
                  <div class="flex justify-around border-t border-gray-100"> 
                      <button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLiked}"> 
@@ -645,7 +651,7 @@
                  const commenterName = comment.users?.name || 'Unknown User'; 
                  const commenterAvatar = comment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; 
                  const commentTime = formatTimeAgo(comment.created_at); 
-                 const deleteButtonHtml = (comment.user_id === currentAuthUser?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${comment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : ''; 
+                 const deleteButtonHtml = (comment.user_id === currentUserProfile?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${comment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : ''; 
                  
                    let commenterTickHtml = ''; 
                    const commenterTickType = comment.users?.tick?.toLowerCase(); 
@@ -670,7 +676,7 @@
              feather.replace();
         }
         async function handleCommentSubmit(postId) { 
-              if (!currentAuthUser) return; const input = document.getElementById(`comment-input-${postId}`); const content = input.value.trim(); if (!content) return; const submitButton = document.querySelector(`.comment-submit-button[data-post-id="${postId}"]`); submitButton.disabled = true; const originalIconHTML = submitButton.innerHTML; submitButton.innerHTML = '<div class="spinner w-5 h-5 border-t-primary-600"></div>'; try { const { data: newComment, error } = await _supabase.from('comments').insert({ post_id: postId, user_id: currentAuthUser.id, content: content }).select(`*, users:user_id (name, img, tick)`).single(); if (error) throw error; const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList) { const noComments = commentsList.querySelector('p'); if (noComments && commentsList.children.length <= 1) { commentsList.innerHTML = ''; } const commenterName = newComment.users?.name || 'Unknown User'; const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; const commentTime = formatTimeAgo(newComment.created_at); const deleteButtonHtml = `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>`; 
+              if (!currentAuthUser) return; const input = document.getElementById(`comment-input-${postId}`); const content = input.value.trim(); if (!content) return; const submitButton = document.querySelector(`.comment-submit-button[data-post-id="${postId}"]`); submitButton.disabled = true; const originalIconHTML = submitButton.innerHTML; submitButton.innerHTML = '<div class="spinner w-5 h-5 border-t-primary-600"></div>'; try { const { data: newComment, error } = await _supabase.from('comments').insert({ post_id: postId, user_id: currentUserProfile.id, content: content }).select(`*, users:user_id (name, img, tick)`).single(); if (error) throw error; const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList) { const noComments = commentsList.querySelector('p'); if (noComments && commentsList.children.length <= 1) { commentsList.innerHTML = ''; } const commenterName = newComment.users?.name || 'Unknown User'; const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; const commentTime = formatTimeAgo(newComment.created_at); const deleteButtonHtml = `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>`; 
                    let newCommenterTickHtml = ''; 
                    const newCommenterTickType = newComment.users?.tick?.toLowerCase(); 
                    if (newCommenterTickType && tickImages[newCommenterTickType]) { 
@@ -683,7 +689,7 @@
              if (!currentAuthUser) return;
              if (!confirm("Are you sure you want to delete this comment?")) return; 
              buttonElement.disabled = true; const commentElement = buttonElement.closest('.comment-item'); 
-             try { const { error } = await _supabase.from('comments').delete().match({ id: commentId, user_id: currentAuthUser.id }); if (error) throw error;
+             try { const { error } = await _supabase.from('comments').delete().match({ id: commentId, user_id: currentUserProfile.id }); if (error) throw error;
                  if (commentElement) { commentElement.style.opacity = '0'; commentElement.style.transition = 'opacity 0.3s ease-out'; setTimeout(() => { commentElement.remove(); const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList && commentsList.children.length === 0) { commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>'; } }, 300); }
                  const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1); }
                   showToast("Comment deleted", "success");
@@ -693,6 +699,49 @@
                  buttonElement.disabled = false; 
              }
         }
+
+        // --- REQUEST: New Function to Delete Post ---
+        async function handleDeletePost(postId, buttonElement) {
+            if (!currentAuthUser) return;
+            if (!confirm("Are you sure you want to delete this post? This action cannot be undone.")) return;
+
+            buttonElement.disabled = true;
+            const postElement = document.getElementById(`post-${postId}`);
+
+            try {
+                // RLS (Row Level Security) is set up in Supabase to only allow
+                // a user to delete a post if their auth.uid() matches the
+                // auth_id of the user who created the post.
+                // So, we just need to send the delete request for the post id.
+                const { error } = await _supabase
+                    .from('posts')
+                    .delete()
+                    .match({ id: postId });
+
+                if (error) throw error;
+
+                // Success
+                showToast("Post deleted successfully.", "success");
+                if (postElement) {
+                    postElement.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                    postElement.style.opacity = '0';
+                    postElement.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        postElement.remove();
+                        // Check if feed is now empty
+                        if (feedContainer.querySelectorAll('div[id^="post-"]').length === 0) {
+                            feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet.</p>`;
+                        }
+                    }, 300);
+                }
+
+            } catch (error) {
+                console.error("Error deleting post:", error.message);
+                showToast(`Error: ${error.message}`, 'error');
+                buttonElement.disabled = false;
+            }
+        }
+
 
         // --- 16 & 17. SHARE LOGIC --- (No changes)
         async function handleShare(postId) {
@@ -759,7 +808,7 @@
                              const commenterName = newComment.users?.name || 'Unknown User'; 
                              const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`;
                              const commentTime = formatTimeAgo(newComment.created_at);
-                             const deleteButtonHtml = (newComment.user_id === currentAuthUser?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : '';
+                             const deleteButtonHtml = (newComment.user_id === currentUserProfile?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : '';
                              let commenterTickHtml = ''; 
                              const commenterTickType = newComment.users?.tick?.toLowerCase(); 
                              if (commenterTickType && tickImages[commenterTickType]) { 
@@ -791,18 +840,17 @@
             sidebarToggleBtn.addEventListener('click', openSidebar);
             sidebarBackdrop.addEventListener('click', closeSidebar);
             logoutBtn.addEventListener('click', handleLogout);
-            // REQUEST: Add theme toggle listener
             themeToggle.addEventListener('change', handleThemeToggle);
         }
 
         function openSidebar() {
-            closeNotificationPanel(); // Close notifications if open
+            closeNotificationPanel();
             sidebar.classList.remove('hidden');
             sidebarBackdrop.classList.remove('hidden');
             requestAnimationFrame(() => {
                 sidebar.classList.remove('-translate-x-full');
             });
-            feather.replace(); // Ensure icons are rendered
+            feather.replace();
         }
 
         function closeSidebar() {
@@ -820,7 +868,7 @@
                 console.error('Error logging out:', error.message);
                 showToast(error.message, 'error');
             } else {
-                localStorage.removeItem('theme'); // Clear theme on logout
+                localStorage.removeItem('theme');
                 window.location.href = 'login.html';
             }
         }
@@ -828,8 +876,7 @@
         function populateSidebar(profileData) {
             if (!profileData) return;
 
-            document.getElementById('sidebar-user-avatar').src = profileData.img || `https://placehold.co/48x48/A8E063/305B1C?text=${profileData.name ? profileData.name.charAt(0) : 'U'}`;
-            // REQUEST: Target new span for name
+            document.getElementById('sidebar-user-avatar').src = profileData.img || `https://placehold.co/64x64/A8E063/305B1C?text=${profileData.name ? profileData.name.charAt(0) : 'U'}`;
             document.getElementById('sidebar-user-name').textContent = profileData.name || 'Campus User';
 
             const tickContainer = document.getElementById('sidebar-user-tick-container');
@@ -840,12 +887,11 @@
                 tickContainer.innerHTML = tickHtml;
             }
 
-            // REQUEST: Generate QR Code from 'id'
             const qrContainer = document.getElementById('sidebar-qr-code-img');
             qrContainer.innerHTML = '';
-            if (profileData.id) {
+            if (profileData.id) { // Use public integer ID
                 new QRCode(qrContainer, {
-                    text: String(profileData.id), // Ensure it's a string
+                    text: String(profileData.id),
                     width: 256,
                     height: 256,
                     colorDark : "#000000",
@@ -857,7 +903,7 @@
             }
         }
 
-        // --- REQUEST: THEME TOGGLE FUNCTIONS ---
+        // --- THEME TOGGLE FUNCTIONS ---
         function initializeTheme() {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
@@ -889,7 +935,7 @@
         function toggleNotificationPanel() {
              const isHidden = notificationPanel.classList.contains('hidden');
              if (isHidden) { 
-                closeSidebar(); // Close sidebar if open
+                closeSidebar();
                 openNotificationPanel(); 
                 fetchNotifications(); 
             } else { 
