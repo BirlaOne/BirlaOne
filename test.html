@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" class=""> <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#56ab2f"> <title>BirlaOne - Create Post</title>
+    <meta name="theme-color" content="#56ab2f">
+    <title>BirlaOne - Create Post</title>
+    
+    <script>
+        // Immediately apply theme from localStorage or OS preference to prevent FOUC
+        (function() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
@@ -17,6 +28,7 @@
     
     <script>
         tailwind.config = {
+            darkMode: 'class', // <-- ADDED FOR DARK MODE
             theme: {
                 extend: {
                     fontFamily: {
@@ -41,14 +53,13 @@
     </script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; /* Changed to f9fafb */ }
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
         .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
         .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
         
-        /* Non-blocking spinner for buttons */
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #ffffff; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -57,8 +68,6 @@
         #file-upload-label { cursor: pointer; }
 
         /* --- NEW & ENHANCED STYLES --- */
-        
-        /* Shimmer Loader for Profile */
         @keyframes shimmer {
             0% { background-position: -468px 0; }
             100% { background-position: 468px 0; }
@@ -69,10 +78,9 @@
             background-size: 800px 104px;
         }
 
-        /* Editable Div Styling */
         .editable-content {
             min-height: 160px; height: auto; border: 1px solid #e5e7eb; border-radius: 0.75rem; 
-            padding: 1rem; background-color: white; /* Changed from bg-gray-50 */ color: #111827; line-height: 1.5;
+            padding: 1rem; background-color: white; color: #111827; line-height: 1.5;
             transition: box-shadow 0.2s;
         }
         .editable-content:focus {
@@ -82,7 +90,6 @@
             content: attr(placeholder); color: #6b7280; pointer-events: none; display: block;
         }
 
-        /* Toolbar Styling */
         .format-toolbar {
             display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; padding: 0.5rem;
             background-color: #f3f4f6; border-radius: 0.5rem; border: 1px solid #e5e7eb;
@@ -93,25 +100,19 @@
             transition: all 0.2s;
         }
         .format-toolbar button:hover { background-color: #f9fafb; }
-        /* Enhanced Active State */
         .format-toolbar button.active {
-             background-color: #eef8e9; /* primary-100 */
-             color: #458a26; /* primary-700 */
-             border-color: #a6d98e; /* primary-400 */
-             box-shadow: 0 0 0 1px #a6d98e;
+             background-color: #eef8e9; color: #458a26; border-color: #a6d98e; box-shadow: 0 0 0 1px #a6d98e;
         }
         .format-toolbar button i[data-feather] { width: 18px; height: 18px; }
 
-        /* Enhanced Toast Notifications (Centered) */
         #toast-container { 
-            position: fixed; bottom: 4rem; /* Above bottom nav */ left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 4rem; left: 50%; transform: translateX(-50%);
             z-index: 100; display: flex; flex-direction: column; align-items: center; 
             gap: 0.75rem; pointer-events: none; width: 100%; max-width: 380px; padding: 0 1rem;
         }
         .toast { 
             display: flex; align-items: center; width: 100%; padding: 0.75rem 1rem; 
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1); /* shadow-lg */
+            border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
             animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all;
             border: 1px solid rgba(0,0,0,0.05);
         }
@@ -124,28 +125,21 @@
         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes toast-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
-        /* Tab Panel Transitions */
         .tab-panel {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
         .tab-panel.hidden {
-            opacity: 0;
-            transform: translateY(10px);
-            display: none; /* JS will toggle this, but opacity handles anim */
+            opacity: 0; transform: translateY(10px); display: none;
         }
 
-        /* Autosave Indicator */
         .autosave-indicator {
             font-size: 0.875rem; color: #6b7280; text-align: right; height: 1.25rem;
             transition: opacity 0.3s; opacity: 0;
         }
         .autosave-indicator.show { opacity: 1; }
         
-        /* Dark Anonymous Panel */
         #panel-anonymous.dark-panel {
-            background-color: #1f2937; /* gray-800 */
-            border-radius: 0.75rem;
-            padding: 1rem;
+            background-color: #1f2937; border-radius: 0.75rem; padding: 1rem;
         }
         .dark-panel .editable-content { background-color: #374151; color: #e5e7eb; border-color: #4b5563; }
         .dark-panel .editable-content:focus { box-shadow: 0 0 0 2px #56ab2f; }
@@ -156,15 +150,11 @@
         .dark-panel .format-toolbar button.active { background-color: #eef8e9; color: #458a26; border-color: #a6d98e; }
         .dark-panel .autosave-indicator { color: #9ca3af; }
 
-        /* Accessibility Focus */
         :focus-visible {
-            outline: 2px solid #56ab2f !important;
-            outline-offset: 2px;
-            border-radius: 0.375rem;
+            outline: 2px solid #56ab2f !important; outline-offset: 2px; border-radius: 0.375rem;
         }
-        .editable-content:focus-visible { outline: none !important; } /* Handled by box-shadow */
+        .editable-content:focus-visible { outline: none !important; }
         
-        /* Upload Progress Bar */
         #upload-progress-container {
              background-color: #e5e7eb; border-radius: 9999px; height: 0.75rem;
              overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
@@ -173,17 +163,96 @@
             background-color: #56ab2f; height: 0.75rem; border-radius: 9999px;
             transition: width 0.3s ease-out;
         }
-
-        /* Sidebar Icon Spacing Fix (Goal 8) */
+        
+        /* --- Sidebar Icon Spacing Fix (Goal 8) --- */
         .sidebar-menu-item i[data-feather] {
-          margin-right: 1.25rem; /* Space between icon and text */
-          vertical-align: middle;
+          margin-right: 1.25rem; vertical-align: middle;
         }
+
+        /* --- Dark Mode Styles --- */
+        :root { color-scheme: light; }
+        :root.dark { color-scheme: dark; }
+
+        .dark body { background-color: #111827; }
+        .dark .bg-white { background-color: #1f2937; }
+        .dark .text-gray-900 { color: #f9fafb; }
+        .dark .text-gray-700 { color: #d1d5db; }
+        .dark .text-gray-600 { color: #9ca3af; }
+        .dark .text-gray-500 { color: #6b7280; }
+        .dark .border-gray-200 { border-color: #374151; }
+        .dark .border-gray-100 { border-color: #374151; }
+        .dark .bg-gray-50 { background-color: #374151; }
+        .dark .bg-gray-100 { background-color: #374151; }
+        .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
+        .dark .hover\:bg-gray-200:hover { background-color: #4b5563; }
+        .dark .hover\:bg-primary-50:hover { background-color: #374151; }
+        .dark .text-primary-600 { color: #a6d98e; }
+        .dark .text-primary-700 { color: #a6d98e; }
+        .dark .border-primary-200 { border-color: #458a26; }
+        .dark .bg-primary-50 { background-color: #396f21; }
+
+        /* Shimmer Dark */
+        .dark .shimmer-bg {
+            background: linear-gradient(to right, #2d3748 4%, #374151 25%, #2d3748 36%);
+            background-size: 800px 104px;
+        }
+
+        /* Editor Dark */
+        .dark .editable-content {
+            background-color: #374151; color: #e5e7eb; border-color: #4b5563;
+        }
+        .dark .editable-content[placeholder]:empty:before { color: #9ca3af; }
+        .dark .format-toolbar {
+            background-color: #374151; border-color: #4b5563;
+        }
+        .dark .format-toolbar button {
+            background-color: #4b5563; border-color: #6b7280; color: #f3f4f6;
+        }
+        .dark .format-toolbar button:hover { background-color: #525c6a; }
+        .dark .format-toolbar button.active {
+             background-color: #eef8e9; color: #305b1c; border-color: #a6d98e;
+        }
+        .dark .autosave-indicator { color: #9ca3af; }
+        
+        /* Anonymous Panel Dark (overrides dark-panel defaults if needed) */
+        .dark .dark-panel .editable-content { background-color: #374151; }
+        .dark .dark-panel .format-toolbar { background-color: #374151; }
+
+        /* Nav Dark */
+        .dark .bottom-nav-shadow { 
+            box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); 
+            border-top: 1px solid #374151;
+            background-color: rgba(31, 41, 55, 0.95); /* from bg-white/95 */
+        }
+        .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
+        .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
+        
+        /* Toast Dark */
+        .dark .toast.toast-info { 
+            background-color: #1f2937; color: #e5e7eb; border-color: #374151;
+        }
+
+        /* Other Inputs Dark */
+        .dark textarea, .dark input[type="text"] {
+             background-color: #374151;
+             border-color: #4b5563;
+             color: #e5e7eb;
+        }
+        .dark textarea::placeholder, .dark input::placeholder {
+            color: #9ca3af;
+        }
+        .dark #file-upload-label {
+            background-color: #374151; border-color: #4b5563; color: #9ca3af;
+        }
+        .dark #file-upload-label:hover {
+            border-color: #a6d98e; color: #a6d98e; background-color: #396f21;
+        }
+
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased dark:bg-gray-900">
 
-    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-gray-800">
 
         <div id="offline-banner" class="hidden fixed top-0 left-0 right-0 z-50 md:max-w-md md:mx-auto bg-danger-800 text-white p-3 text-center text-sm font-medium shadow-lg">
             📴 You’re offline. Posts will be saved locally and uploaded when you're back.
@@ -192,17 +261,17 @@
         <main class="pt-6 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
             
             <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-gray-900">Create Post</h1>
-                <a href="feed.html" class="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all focus-visible:ring-primary-600" aria-label="Close create post">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Create Post</h1>
+                <a href="feed.html" class="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all focus-visible:ring-primary-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" aria-label="Close create post">
                     <i data-feather="x" class="w-7 h-7"></i>
                 </a>
             </div>
 
-            <div class="flex border-b border-gray-200">
-                <button id="tab-text" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all focus-visible:ring-primary-600" aria-label="Create Text Post">Text</button>
-                <button id="tab-photo" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600" aria-label="Create Photo/Video Post">Photo/Video</button>
-                <button id="tab-poll" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600" aria-label="Create Poll Post">Poll</button>
-                <button id="tab-anonymous" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600" aria-label="Create Anonymous Post">Anonymous</button>
+            <div class="flex border-b border-gray-200 dark:border-gray-700">
+                <button id="tab-text" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all focus-visible:ring-primary-600 dark:text-primary-400 dark:border-primary-400" aria-label="Create Text Post">Text</button>
+                <button id="tab-photo" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600 dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700" aria-label="Create Photo/Video Post">Photo/Video</button>
+                <button id="tab-poll" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600 dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700" aria-label="Create Poll Post">Poll</button>
+                <button id="tab-anonymous" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600 dark:text-gray-400 dark:hover:text-primary-400 dark:hover:bg-gray-700" aria-label="Create Anonymous Post">Anonymous</button>
             </div>
 
             <div>
@@ -213,9 +282,9 @@
                         <div>
                             <div id="user-name-text-shimmer" class="h-5 w-32 rounded shimmer-bg"></div>
                             <a href="myprofile.html" class="flex items-center hidden" id="user-name-text-container">
-                                <span id="user-name-text" class="font-semibold text-gray-900 hover:underline"></span>
+                                <span id="user-name-text" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline"></span>
                             </a>
-                            <p class="text-sm text-gray-500">Posting publicly</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Posting publicly</p>
                         </div>
                     </div>
                     <div class="format-toolbar">
@@ -236,16 +305,16 @@
                         <div>
                             <div id="user-name-photo-shimmer" class="h-5 w-32 rounded shimmer-bg"></div>
                             <a href="myprofile.html" class="flex items-center hidden" id="user-name-photo-container">
-                                <span id="user-name-photo" class="font-semibold text-gray-900 hover:underline"></span>
+                                <span id="user-name-photo" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline"></span>
                             </a>
-                            <p class="text-sm text-gray-500">Posting publicly</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea id="photo-post-caption" class="w-full h-24 bg-white border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Write a caption..."></textarea>
+                    <textarea id="photo-post-caption" class="w-full h-24 bg-white border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400" placeholder="Write a caption..."></textarea>
                     
                     <input type="file" id="file-upload-input" accept="image/*,video/*" aria-label="Upload photo or video file">
                     
-                    <label id="file-upload-label" for="file-upload-input" class="border border-gray-200 bg-gray-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center text-gray-600 transition-all hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 shadow-sm hover:shadow-md">
+                    <label id="file-upload-label" for="file-upload-input" class="border border-gray-200 bg-gray-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center text-gray-600 transition-all hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 shadow-sm hover:shadow-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400 dark:hover:border-primary-500 dark:hover:text-primary-400 dark:hover:bg-gray-600">
                         <i data-feather="upload-cloud" class="w-12 h-12"></i>
                         <p id="file-upload-text" class="font-semibold mt-2">Click to upload</p>
                         <p class="text-sm">PNG, JPG, MP4 (Max 50MB)</p>
@@ -254,10 +323,10 @@
                     <div id="file-preview-container" class="mt-4 space-y-3"></div>
                     <div id="upload-progress-container" class="hidden w-full space-y-2">
                         <div class="flex justify-between mb-1">
-                             <span id="upload-progress-filename" class="text-sm font-medium text-gray-700">Uploading...</span>
-                             <span id="upload-progress-text" class="text-sm font-medium text-primary-700">0%</span>
+                             <span id="upload-progress-filename" class="text-sm font-medium text-gray-700 dark:text-gray-300">Uploading...</span>
+                             <span id="upload-progress-text" class="text-sm font-medium text-primary-700 dark:text-primary-400">0%</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-600">
                             <div id="upload-progress-bar" class="bg-primary-600 h-2.5 rounded-full" style="width: 0%"></div>
                         </div>
                     </div>
@@ -273,18 +342,18 @@
                         <div>
                             <div id="user-name-poll-shimmer" class="h-5 w-32 rounded shimmer-bg"></div>
                             <a href="myprofile.html" class="flex items-center hidden" id="user-name-poll-container">
-                                <span id="user-name-poll" class="font-semibold text-gray-900 hover:underline"></span>
+                                <span id="user-name-poll" class="font-semibold text-gray-900 dark:text-gray-100 hover:underline"></span>
                             </a>
-                            <p class="text-sm text-gray-500">Posting publicly</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea id="poll-question" class="w-full h-24 bg-white border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Ask a question..."></textarea>
+                    <textarea id="poll-question" class="w-full h-24 bg-white border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400" placeholder="Ask a question..."></textarea>
                     <div id="poll-options-container" class="space-y-3">
-                        <h3 class="font-semibold text-gray-700">Options</h3>
-                        <input type="text" placeholder="Option 1" class="poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
-                        <input type="text" placeholder="Option 2" class="poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        <h3 class="font-semibold text-gray-700 dark:text-gray-300">Options</h3>
+                        <input type="text" placeholder="Option 1" class="poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400">
+                        <input type="text" placeholder="Option 2" class="poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400">
                     </div>
-                    <button id="add-poll-option" class="w-full flex items-center justify-center space-x-2 bg-primary-50 text-primary-700 font-semibold py-3 rounded-xl hover:bg-primary-100 transition-colors border border-primary-200" aria-label="Add another poll option">
+                    <button id="add-poll-option" class="w-full flex items-center justify-center space-x-2 bg-primary-50 text-primary-700 font-semibold py-3 rounded-xl hover:bg-primary-100 transition-colors border border-primary-200 dark:bg-primary-900 dark:text-primary-300 dark:border-primary-700 dark:hover:bg-primary-800" aria-label="Add another poll option">
                         <i data-feather="plus" class="w-5 h-5"></i>
                         <span>Add Option</span>
                     </button>
@@ -315,12 +384,12 @@
 
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"><i data-feather="layout"></i></a>
-            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"><i data-feather="file-text"></i></a>
-            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Create Post"><i data-feather="plus-circle" class="stroke-[2.5px]"></i></a>
-            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"><i data-feather="search"></i></a>
-            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"><i data-feather="grid"></i></a>
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20 dark:bg-gray-800/95 dark:border-t dark:border-gray-700">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Dashboard"><i data-feather="layout"></i></a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Feed"><i data-feather="file-text"></i></a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon dark:text-primary-400" aria-label="Create Post"><i data-feather="plus-circle" class="stroke-[2.5px]"></i></a>
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Search"><i data-feather="search"></i></a>
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon dark:text-gray-500 dark:hover:text-primary-400" aria-label="Mini Apps"><i data-feather="grid"></i></a>
         </nav>
 
         <div id="toast-container" aria-live="polite" role="status"></div>
@@ -380,6 +449,8 @@
          * Orchestrates the setup of the entire page
          */
         async function initCreatePage() {
+            // NOTE: Theme is initialized by a blocking script in the <head>
+
             // Render initial icons
             feather.replace();
 
@@ -627,8 +698,8 @@
 
                 if (tab === activeTab) {
                     // Activate Tab
-                    tabButton.classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
-                    tabButton.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+                    tabButton.classList.add('border-primary-600', 'text-primary-600', 'font-semibold', 'dark:text-primary-400', 'dark:border-primary-400');
+                    tabButton.classList.remove('border-transparent', 'text-gray-500', 'font-medium', 'dark:text-gray-400');
                     // Show Panel
                     panel.classList.remove('hidden');
                     setTimeout(() => { // Allow display:block to register before changing opacity
@@ -637,8 +708,8 @@
                     }, 10);
                 } else {
                     // Deactivate Tab
-                    tabButton.classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
-                    tabButton.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+                    tabButton.classList.remove('border-primary-600', 'text-primary-600', 'font-semibold', 'dark:text-primary-400', 'dark:border-primary-400');
+                    tabButton.classList.add('border-transparent', 'text-gray-500', 'font-medium', 'dark:text-gray-400');
                     // Hide Panel
                     panel.style.opacity = '0';
                     panel.style.transform = 'translateY(10px)';
@@ -887,8 +958,6 @@
             // For photos, we must store the file data
             if (type === 'photo' && selectedFile) {
                 // Cannot store file object. Must read as Base64.
-                // Note: This can be large and may fail if localStorage quota is exceeded.
-                // IndexedDB is a better long-term solution, but this fulfills the prompt.
                 try {
                     const fileData = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -1033,12 +1102,12 @@
                 if (selectedFile.type.startsWith('image/')) {
                     previewElement = document.createElement('img');
                     previewElement.src = e.target.result;
-                    previewElement.className = 'w-full rounded-2xl object-cover max-h-64 border border-gray-200 shadow-sm';
+                    previewElement.className = 'w-full rounded-2xl object-cover max-h-64 border border-gray-200 shadow-sm dark:border-gray-600';
                 } else if (selectedFile.type.startsWith('video/')) {
                     previewElement = document.createElement('video');
                     previewElement.src = e.target.result;
                     previewElement.controls = true;
-                    previewElement.className = 'w-full rounded-2xl max-h-64 border border-gray-200 shadow-sm';
+                    previewElement.className = 'w-full rounded-2xl max-h-64 border border-gray-200 shadow-sm dark:border-gray-600';
                 }
                 
                 if (previewElement) {
@@ -1048,7 +1117,7 @@
                 // Add a remove button
                 const removeButton = document.createElement('button');
                 removeButton.innerHTML = '<i data-feather="x" class="w-4 h-4 mr-1"></i> Remove File';
-                removeButton.className = 'flex items-center justify-center w-full text-sm font-medium text-danger-600 hover:text-danger-800 transition-colors py-2 mt-2 rounded-lg bg-danger-50 border border-danger-200 focus-visible:ring-danger-600';
+                removeButton.className = 'flex items-center justify-center w-full text-sm font-medium text-danger-600 hover:text-danger-800 transition-colors py-2 mt-2 rounded-lg bg-danger-50 border border-danger-200 focus-visible:ring-danger-600 dark:bg-danger-950 dark:border-danger-700 dark:text-danger-400 dark:hover:text-danger-300';
                 removeButton.onclick = clearFileSelection;
                 previewContainer.appendChild(removeButton);
                 feather.replace();
@@ -1142,13 +1211,12 @@
              const newOption = document.createElement('input');
              newOption.type = 'text';
              newOption.placeholder = `Option ${optionCount + 1}`;
-             newOption.className = 'poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600';
+             newOption.className = 'poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400';
              container.appendChild(newOption);
          }
 
         /**
          * Converts contenteditable HTML to markdown-like text
-         * (Using the user-provided function from the prompt)
          */
         function editableContentToText(elementId) {
             const editor = document.getElementById(elementId);
