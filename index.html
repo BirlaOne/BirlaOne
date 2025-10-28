@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json"> {/* PWA Manifest */}
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
     <title>BirlaOne Dashboard</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/feather-icons"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script> {/* Added QR Code Lib */}
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +21,7 @@
     
     <script>
         tailwind.config = {
+            darkMode: 'class', // Enabled dark mode class strategy
             theme: {
                 extend: {
                     fontFamily: {
@@ -30,7 +34,7 @@
                             '400': '#a6d98e', '500': '#87c964', '600': '#56ab2f', '700': '#458a26',
                             '800': '#396f21', '900': '#305b1c', '950': '#1a320f',
                         },
-                         'danger': { // Added Danger colors
+                         'danger': { 
                             '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a', '300': '#e57373',
                             '400': '#ef5350', '500': '#f44336', '600': '#e53935', '700': '#d32f2f',
                             '800': '#c62828', '900': '#b71c1c', '950': '#8d1111',
@@ -42,42 +46,38 @@
     </script>
     
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* bg-slate-50 */
-        }
-        
-        /* Page load fade-in animation */
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
-        
-        /* Custom shadows for nav bars */
         .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
         .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
-
-        /* Hide scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Feather Icon Styling */
         i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
-        
-        /* Bottom nav icon sizing */
         .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
-
-        /* Spinner */
         .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Tick Mark Style */
         .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
-
-        /* Notification Panel Styles */
         #notification-panel { transition: transform 0.3s ease-in-out; }
         .notification-item-enter { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease; }
         .notification-item-enter-active { opacity: 1; transform: translateY(0); }
 
-        /* Toast Notifications */
+        /* --- Shimmer Loader Styles --- */
+        .shimmer-wrapper {
+            animation: shimmer 1.5s infinite linear;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .dark .shimmer-wrapper {
+            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
+
+        /* --- Toast Notifications --- */
         #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
         .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
         .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
@@ -85,196 +85,345 @@
         .toast.show { opacity: 1; }
         .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
         button:disabled { opacity: 0.6; cursor: not-allowed; }
 
+        /* --- Sidebar Styles (Copied from feed.html fixes) --- */
+        #sidebar { transition: transform 0.3s ease-in-out; width: 300px; }
+        .sidebar-menu-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: #374151; font-weight: 500; transition: background-color 0.2s; }
+        .sidebar-menu-item span { letter-spacing: 0.2px; }
+        .sidebar-menu-item:hover { background-color: #f3f4f6; }
+        .sidebar-menu-item i[data-feather] { width: 20px; height: 20px; color: #4b5563; flex-shrink: 0; }
+        .sidebar-menu-item i[data-feather]:first-child { margin-right: 1.75rem; }
+        .sidebar-menu-item-arrow { margin-left: auto; color: #9ca3af; }
+        #sidebar-qr-code-img { background: white; padding: 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
+        #sidebar-qr-code-img img, #sidebar-qr-code-img canvas { width: 100% !important; height: 100% !important; border-radius: 6px; }
+
+        /* --- Dark Mode Styles --- */
+        :root { color-scheme: light; }
+        :root.dark { color-scheme: dark; }
+        .dark body { background-color: #111827; }
+        .dark .bg-slate-50 { background-color: #111827; }
+        .dark .bg-white { background-color: #1f2937; }
+        .dark .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(255, 255, 255, 0.03); border-bottom: 1px solid #374151; }
+        .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
+        .dark .text-gray-900 { color: #f9fafb; }
+        .dark .text-gray-800 { color: #f3f4f6; }
+        .dark .text-gray-700 { color: #d1d5db; }
+        .dark .text-gray-600 { color: #9ca3af; }
+        .dark .text-gray-500 { color: #6b7280; }
+        .dark .text-gray-400 { color: #9ca3af; }
+        .dark .border-gray-100 { border-color: #374151; }
+        .dark .border-gray-200 { border-color: #374151; }
+        .dark .bg-gray-50 { background-color: #374151; }
+        .dark .bg-gray-100 { background-color: #374151; }
+        .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
+        .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
+        .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
+        .dark .bg-black\/30 { background-color: rgba(0, 0, 0, 0.5); }
+        .dark .text-primary-600 { color: #a6d98e; }
+        .dark .font-logo.text-primary-600 { color: #a6d98e; }
+        .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
+        .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
+        /* Sidebar Dark */
+        .dark #sidebar { background-color: #1f2937; border-color: #374151; }
+        .dark .sidebar-menu-item { color: #d1d5db; }
+        .dark .sidebar-menu-item:hover { background-color: #374151; }
+        .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
+        .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
+        .dark #sidebar-user-avatar { border-color: #374151; }
+        #sidebar-qr-code-img { background: white; }
+        .dark .sidebar-menu-item-arrow { color: #6b7280; }
+        .dark .text-danger-600 { color: #ef5350; }
+        .dark .hover\:\!bg-danger-50:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
+        .dark .sidebar-menu-item i.text-danger-600 { color: #ef5350 !important; }
+        /* Notification Dark */
+        .dark #notification-panel { background-color: #1f2937; border-color: #374151; }
+        .dark .bg-primary-50 { background-color: #374150; }
+        .dark .hover\:bg-primary-50:hover { background-color: #374151; }
+        .dark .text-primary-600.font-medium { color: #a6d98e; }
+        /* Toast Dark */
+        .dark .toast.toast-success { background-color: #a6d98e; color: #1a320f; }
+        .dark .toast.toast-error { background-color: #ef9a9a; color: #8d1111; }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-slate-800">
 
-        <div id="skeleton-loader" class="absolute inset-0 z-50 bg-white pt-20 pb-24 px-4 overflow-hidden">
-            <div class="animate-pulse space-y-6">
+        <!-- Shimmer Loader -->
+        <div id="shimmer-loader" class="absolute inset-0 z-50 bg-white dark:bg-gray-900 pt-20 pb-24 px-4 overflow-hidden">
+            <!-- Header Shimmer -->
+            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-24 h-6 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+            </div>
+            <!-- Content Shimmer -->
+            <div class="space-y-6">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
-                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
-                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
-                    <div class="h-28 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                 </div>
-                
                 <div>
-                    <div class="h-5 w-1/3 bg-gray-200 rounded-full mb-3"></div> <div class="h-20 bg-gray-200 rounded-2xl"></div> </div>
-                
-                <div class="h-32 bg-gray-200 rounded-2xl"></div>
-                
+                    <div class="h-5 w-1/3 shimmer-wrapper rounded-full mb-3"></div>
+                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
+                </div>
+                <div class="h-32 shimmer-wrapper rounded-2xl"></div>
                 <div class="space-y-3">
-                    <div class="h-5 w-1/2 bg-gray-200 rounded-full"></div>
-                    <div class="h-20 bg-gray-200 rounded-2xl"></div>
+                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
+                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
                 </div>
-                 <div class="space-y-3">
-                    <div class="h-5 w-1/2 bg-gray-200 rounded-full"></div>
-                    <div class="h-20 bg-gray-200 rounded-2xl"></div>
+                <div class="space-y-3">
+                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
+                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
                 </div>
             </div>
-            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white flex justify-between items-center p-4 border-b border-gray-100"> <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div class="w-24 h-6 bg-gray-200 rounded-full"></div>
-                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
-            </div>
-            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white flex justify-around items-center p-3 border-t border-gray-100"> <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
-                <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+            <!-- Bottom Nav Shimmer -->
+            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
             </div>
         </div>
         
+        <!-- App Content (Initially Hidden) -->
         <div id="app-content" class="hidden">
-            <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
-                <a href="myprofile.html" class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
-                    <i data-feather="user" class="text-gray-700"></i>
-                </a>
-                <h1 class="text-3xl font-logo text-primary-600">BirlaOne</h1>
-                <button id="notification-bell-btn" class="relative p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
-                    <i data-feather="bell" class="text-gray-700"></i>
-                    <span id="notification-badge" class="hidden absolute top-1 right-1 block h-4 w-4 rounded-full bg-red-500 text-white text-[10px] leading-tight text-center ring-2 ring-white">
+            <!-- Header (z-30) -->
+            <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
+               
+                <button id="sidebar-toggle-btn" class="p-2 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90">
+                    <i data-feather="menu" class="text-gray-700 dark:text-gray-300"></i>
+                </button>
+                <h1 class="text-3xl font-logo text-primary-600 dark:text-primary-400">BirlaOne</h1>
+                <button id="notification-bell-btn" class="relative p-2 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90">
+                    <i data-feather="bell" class="text-gray-700 dark:text-gray-300"></i>
+                    <span id="notification-badge" class="hidden absolute top-1 right-1 block h-4 w-4 rounded-full bg-red-500 text-white text-[10px] leading-tight text-center ring-2 ring-white dark:ring-gray-800">
                         0
                     </span>
                 </button>
             </header>
 
-            <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
+            <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar bg-slate-50 dark:bg-gray-900">
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
                         <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600">Academic Score</h2>
-                            <i data-feather="award" class="text-primary-600 h-5 w-5"></i>
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Academic Score</h2>
+                            <i data-feather="award" class="text-primary-600 dark:text-primary-400 h-5 w-5"></i>
                         </div>
                         <div>
-                            <span class="text-4xl font-bold text-gray-900">--</span>
-                            <span class="text-sm font-medium text-gray-500">/ 100</span>
+                            <span id="academic-score-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ 100</span>
                         </div>
                     </div>
                     
-                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
                         <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600">Plastic Recycled</h2>
-                            <i data-feather="refresh-ccw" class="text-green-600 h-5 w-5"></i>
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Plastic Recycled</h2>
+                            <i data-feather="refresh-ccw" class="text-green-600 dark:text-green-400 h-5 w-5"></i>
                         </div>
                         <div>
-                            <span class="text-4xl font-bold text-gray-900">--</span>
-                            <span class="text-sm font-medium text-gray-500">kg</span>
+                            <span id="recycled-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">kg</span>
                         </div>
                     </div>
 
-                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
                         <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600">Campus Friends</h2>
-                            <i data-feather="users" class="text-purple-500 h-5 w-5"></i>
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Campus Friends</h2>
+                            <i data-feather="users" class="text-purple-500 dark:text-purple-400 h-5 w-5"></i>
                         </div>
                         <div>
-                            <span id="friends-count-value" class="text-4xl font-bold text-gray-900">--</span>
-                            <span class="text-sm font-medium text-gray-500">Total</span>
+                            <span id="friends-count-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total</span>
                         </div>
                     </div>
                     
-                    <div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex flex-col justify-between">
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
                         <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600">Net Worth</h2>
-                            <i data-feather="credit-card" class="text-indigo-500 h-5 w-5"></i>
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Net Worth</h2>
+                            <i data-feather="credit-card" class="text-indigo-500 dark:text-indigo-400 h-5 w-5"></i>
                         </div>
                         <div>
-                            <span class="text-4xl font-bold text-gray-900">₹--</span>
-                            <p class="text-xs text-gray-500">Personal Wealth</p>
+                            <span id="net-worth-value" class="text-4xl font-bold text-gray-900 dark:text-white">₹--</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Personal Wealth</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="space-y-3">
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                        <i data-feather="star" class="text-yellow-500"></i>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                        <i data-feather="star" class="text-yellow-500 dark:text-yellow-400"></i>
                         <span>Roles & Badges</span>
                     </h2>
-                    <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
-                            Not Assigned
-                       </div>
+                    <div id="roles-badges-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                            Loading...
+                    </div>
                 </div>
 
                 <div class="space-y-3">
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                        <i data-feather="book-open" class="text-primary-600"></i>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                        <i data-feather="book-open" class="text-primary-600 dark:text-primary-400"></i>
                         <span>Scheduled Lectures</span>
                     </h2>
-                     <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
-                            No lectures Scheduled
-                       </div>
+                     <div id="lectures-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                            Loading...
+                    </div>
                 </div>
 
                 <div class="space-y-3">
-                    <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                        <i data-feather="calendar" class="text-green-600"></i>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                        <i data-feather="calendar" class="text-green-600 dark:text-green-400"></i>
                         <span>Upcoming Activities</span>
                     </h2>
-                    <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center">
-                            No Upcoming activities
-                       </div>
+                    <div id="activities-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                            Loading...
+                    </div>
                 </div>
 
             </main>
 
-            <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-                <a href="index.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Dashboard">
+            <!-- Bottom Nav (z-30) -->
+            <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+                <a href="index.html" class="flex flex-col items-center justify-center p-2 text-primary-600 dark:text-primary-400 rounded-lg bottom-nav-icon" aria-label="Dashboard">
                     <i data-feather="layout" class="stroke-[2.5px]"></i>
                 </a>
-                <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed">
+                <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Feed">
                     <i data-feather="file-text"></i>
                 </a>
-                <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create">
+                <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Create">
                     <i data-feather="plus-circle"></i>
                 </a>
-                <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search">
+                <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Search">
                     <i data-feather="search"></i>
                 </a>
-                <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+                <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Mini Apps">
                     <i data-feather="grid"></i>
                 </a>
             </nav>
 
-             <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl border-l border-gray-200 z-50 flex flex-col transform translate-x-full">
-                <div class="flex justify-between items-center p-3 border-b border-gray-200">
-                    <h3 class="font-semibold text-lg">Notifications</h3>
-                    <button id="close-notification-panel-btn" class="p-1 rounded-full text-gray-500 hover:bg-gray-100">
+            <!-- Notification Panel (z-50) -->
+            <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl border-l border-gray-200 dark:border-gray-700 z-50 flex flex-col transform translate-x-full">
+                <div class="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Notifications</h3>
+                    <button id="close-notification-panel-btn" class="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <i data-feather="x"></i>
                     </button>
                 </div>
                 <div id="notification-list" class="flex-1 overflow-y-auto p-2 space-y-2">
-                    <p id="notifications-loading" class="text-center text-gray-500 py-4">Loading...</p>
-                    <p id="no-notifications" class="hidden text-center text-gray-500 py-4">No notifications yet.</p>
+                    <p id="notifications-loading" class="text-center text-gray-500 dark:text-gray-400 py-4">Loading...</p>
+                    <p id="no-notifications" class="hidden text-center text-gray-500 dark:text-gray-400 py-4">No notifications yet.</p>
                 </div>
-                <div class="p-2 border-t border-gray-200">
-                    <button id="mark-all-read-btn" class="w-full text-sm text-primary-600 font-medium py-2 hover:bg-primary-50 rounded">
+                <div class="p-2 border-t border-gray-200 dark:border-gray-700">
+                    <button id="mark-all-read-btn" class="w-full text-sm text-primary-600 dark:text-primary-400 font-medium py-2 hover:bg-primary-50 dark:hover:bg-gray-700 rounded">
                         Mark all as read
                     </button>
                 </div>
             </div>
+            
+            <!-- Sidebar (z-50) -->
+            <nav id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full p-4 space-y-6 overflow-y-auto no-scrollbar">
+                <div class="profile-qr-card p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border border-gray-200 dark:border-gray-600 space-y-4">
+                    <div class="flex flex-col items-center space-y-2">
+                        <img id="sidebar-user-avatar" src="https://placehold.co/64x64/A8E063/305B1C?text=U" alt="Your Profile" class="w-16 h-16 rounded-full bg-gray-200 border-2 border-white dark:border-gray-800 object-cover">
+                        <h2 class="font-bold text-lg text-gray-900 dark:text-white leading-tight text-center">
+                            <span id="sidebar-user-name">Loading...</span>
+                            <span id="sidebar-user-tick-container" class="inline-block"></span>
+                        </h2>
+                    </div>
+                    <div id="sidebar-qr-code-img" class="w-full h-auto aspect-square">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="flex-1 space-y-2">
+                    <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Account</h3>
+                    <a href="myprofile.html" class="sidebar-menu-item">
+                        <i data-feather="user"></i>
+                        <span>My Profile</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <a href="changepassword.html" class="sidebar-menu-item">
+                        <i data-feather="lock"></i>
+                        <span>Change Password</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <a href="settings.html" class="sidebar-menu-item">
+                        <i data-feather="settings"></i>
+                        <span>Settings</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <hr class="my-4 border-gray-100 dark:border-gray-700">
+                    <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">More</h3>
+                    <a href="about.html" class="sidebar-menu-item">
+                        <i data-feather="info"></i>
+                        <span>About Us</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <a href="contact.html" class="sidebar-menu-item">
+                        <i data-feather="phone"></i>
+                        <span>Contact Us</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <a href="support.html" class="sidebar-menu-item">
+                        <i data-feather="help-circle"></i>
+                        <span>Help & Support</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <hr class="my-4 border-gray-100 dark:border-gray-700">
+                    <div class="sidebar-menu-item">
+                        <i data-feather="moon"></i>
+                        <span>Dark Mode</span>
+                        <label class="relative inline-flex items-center cursor-pointer ml-auto">
+                            <input type="checkbox" value="" id="theme-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <button id="logout-btn" class="sidebar-menu-item w-full !text-danger-600 dark:!text-danger-400 hover:!bg-danger-50 dark:hover:!bg-danger-900/30">
+                        <i data-feather="log-out" class="!text-danger-600 dark:!text-danger-400"></i>
+                        <span>Log Out</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Backdrops (z-40) -->
             <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
-             <div id="toast-container"></div> </div> </div> <script>
+            <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+
+            <div id="toast-container"></div>
+        </div>
+    </div>
+
+    <script>
         // --- 1. SUPABASE CLIENT SETUP ---
-        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // Replace if needed
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c'; // Replace if needed
+        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- Global variables ---
         let currentAuthUser = null;
-        let currentUserProfile = null; // Store user profile data
+        let currentUserProfile = null; // Store user profile data including public ID
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
+        const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
+        let currentDashboardData = null; // Store stringified dashboard data for comparison
 
         // --- DOM Elements ---
-        const skeletonLoader = document.getElementById('skeleton-loader');
+        const shimmerLoader = document.getElementById('shimmer-loader');
         const appContent = document.getElementById('app-content');
         const friendsCountValue = document.getElementById('friends-count-value');
+        // Add elements for other dashboard data if needed later
+        const academicScoreValue = document.getElementById('academic-score-value');
+        const recycledValue = document.getElementById('recycled-value');
+        const netWorthValue = document.getElementById('net-worth-value');
+        const rolesBadgesContent = document.getElementById('roles-badges-content');
+        const lecturesContent = document.getElementById('lectures-content');
+        const activitiesContent = document.getElementById('activities-content');
 
         // --- NOTIFICATION GLOBALS ---
         const notificationBellBtn = document.getElementById('notification-bell-btn');
@@ -289,141 +438,360 @@
         let notificationSubscription = null;
         const toastContainer = document.getElementById('toast-container');
 
+        // --- SIDEBAR GLOBALS ---
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+        const logoutBtn = document.getElementById('logout-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+
         // --- 2. AUTH & INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session }, error } = await _supabase.auth.getSession();
+            initializeTheme(); // Initialize theme first
 
-            if (error || !session) {
-                // If no session, show skeleton briefly then redirect
-                 showSkeletonAndRedirect('login.html', 500);
-                 return;
+            // --- Service Worker Registration ---
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    }).catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
             }
 
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            if (error || !session) {
+                showShimmerAndRedirect('login.html', 500);
+                return;
+            }
             currentAuthUser = session.user;
 
-            // Fetch profile, log data, and update UI
-            await fetchUserProfileAndLog(currentAuthUser.id);
+            // Fetch dashboard data (includes profile, logs) & update UI
+            await fetchDashboardData(currentAuthUser.id);
 
-            // Hide skeleton, show content
-            hideSkeletonShowApp(500); // 0.5 sec delay
-
-            // Initialize Notifications AFTER content is potentially visible
+            // Hide shimmer, show content (handled within fetchDashboardData based on cache)
+            // Initialize Notifications AFTER potential content visibility
             setupNotificationListeners();
             fetchUnreadCount();
             setupRealtimeNotifications();
+
+            // Initialize Sidebar AFTER potential content visibility
+            setupSidebarListeners();
         });
 
-        // --- 3. SKELETON LOADER & CONTENT DISPLAY ---
-        function showSkeletonAndRedirect(url, delay = 0) {
-            // Ensure skeleton is visible initially (it should be by default)
-             setTimeout(() => {
-                 window.location.href = url;
-             }, delay);
-        }
-
-        function hideSkeletonShowApp(delay = 0) {
-             setTimeout(() => {
-                 if (skeletonLoader && appContent) {
-                     skeletonLoader.style.transition = 'opacity 0.4s ease-out';
-                     skeletonLoader.style.opacity = '0';
-                     setTimeout(() => {
-                         skeletonLoader.style.display = 'none';
-                         appContent.classList.remove('hidden');
-                         appContent.classList.add('fade-in');
-                         feather.replace(); // Render icons now
-                     }, 400); // Match transition duration
-                 }
-             }, delay);
-        }
-
-        // --- 4. FETCH USER PROFILE & LOG DATA ---
-        async function fetchUserProfileAndLog(authId) {
-            if (!authId) return;
-
-            try {
-                // Fetch necessary user data including friend_count, id (student_id), name, course
-                const { data, error } = await _supabase
-                    .from('users')
-                    .select('auth_id, name, id, course, friend_count') // Select needed fields
-                    .eq('auth_id', authId)
-                    .single();
-
-                if (error) throw error;
-
-                if (data) {
-                    currentUserProfile = data; // Store profile data globally
-
-                    // Update UI: Friends Count
-                    if (friendsCountValue) {
-                        friendsCountValue.textContent = data.friend_count ?? 0;
-                    }
-
-                    // Log user data
-                    await logUserData(data);
-
-                } else {
-                    console.warn("User profile data not found.");
-                    // Log attempt even if data is missing? Decide based on requirements.
-                    // await logUserData({ auth_id: authId, name: 'Unknown', id: 'Unknown', course: 'Unknown' });
-                }
-
-            } catch (error) {
-                console.error("Error fetching user profile or logging:", error.message);
-                // Optionally show an error to the user
-                // showToast("Could not load profile data.", "error");
+        // --- 3. THEME ---
+        function initializeTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                if (themeToggle) themeToggle.checked = true; // Check if toggle exists
+            } else {
+                document.documentElement.classList.remove('dark');
+                if (themeToggle) themeToggle.checked = false;
             }
         }
 
-        // --- 5. LOG USER DATA ---
+        function handleThemeToggle(e) {
+            if (e.target.checked) {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            }
+        }
+
+        // --- 4. SHIMMER & CONTENT DISPLAY ---
+        function showShimmerAndRedirect(url, delay = 0) {
+            // Shimmer should be visible by default
+             setTimeout(() => { window.location.href = url; }, delay);
+        }
+
+        function hideShimmerShowApp(delay = 0) {
+             setTimeout(() => {
+                 if (shimmerLoader && appContent) {
+                     shimmerLoader.style.transition = 'opacity 0.4s ease-out';
+                     shimmerLoader.style.opacity = '0';
+                     setTimeout(() => {
+                         shimmerLoader.style.display = 'none';
+                         appContent.classList.remove('hidden');
+                         appContent.classList.add('fade-in');
+                         feather.replace(); // Render icons now
+                     }, 400); 
+                 }
+             }, delay);
+        }
+
+        // --- 5. CACHING UTILITIES ---
+        function setCache(key, data, ttlMinutes) {
+            try {
+                const item = { data: data, expires: Date.now() + ttlMinutes * 60 * 1000 };
+                localStorage.setItem(key, JSON.stringify(item));
+            } catch (e) { console.error("Error setting cache:", e); }
+        }
+
+        function getCache(key) {
+            try {
+                const itemStr = localStorage.getItem(key);
+                if (!itemStr) return null;
+                const item = JSON.parse(itemStr);
+                if (Date.now() > item.expires) {
+                    localStorage.removeItem(key); return null;
+                }
+                return item.data;
+            } catch (e) { console.error("Error getting cache:", e); return null; }
+        }
+
+        // --- 6. DATA FETCHING & UI UPDATE (with Caching) ---
+        async function fetchDashboardData(authId) {
+            if (!authId) return;
+
+            const cacheKey = 'birlaone_dashboard_data';
+            const cachedData = getCache(cacheKey);
+            let isCacheRendered = false;
+
+            if (cachedData) {
+                console.log("Loading dashboard from cache.");
+                currentUserProfile = cachedData.profile; // Set global profile from cache
+                currentDashboardData = JSON.stringify(cachedData);
+                updateDashboardUI(cachedData); // Update UI from cache
+                populateSidebar(cachedData.profile); // Populate sidebar from cache
+                hideShimmerShowApp(0); // Show content immediately
+                isCacheRendered = true;
+            } else {
+                // No cache, shimmer is already visible
+            }
+
+            try {
+                // Fetch fresh profile data
+                const { data: profileData, error: profileError } = await _supabase
+                    .from('users')
+                    .select('id, auth_id, name, img, tick, course, friend_count') // Added img, tick for sidebar
+                    .eq('auth_id', authId)
+                    .single();
+
+                if (profileError) throw profileError;
+                
+                // --- Placeholder: Fetch other dashboard data here if needed ---
+                // e.g., const { data: lecturesData, error: lecturesError } = await _supabase...
+                // e.g., const { data: rolesData, error: rolesError } = await _supabase...
+                // For now, we'll just use profile data and placeholders
+                const dashboardData = {
+                    profile: profileData,
+                    // lectures: lecturesData || [], // Example
+                    // roles: rolesData || [], // Example
+                    // activities: [], // Example
+                    // academicScore: 85, // Example
+                    // recycledKg: 12.5, // Example
+                    // netWorth: 5000 // Example
+                };
+                
+                // --- Log User Data (runs in background) ---
+                if (profileData) {
+                    logUserData(profileData); // Log fresh data
+                } else {
+                     console.warn("User profile data not found for logging.");
+                }
+
+                const newDataString = JSON.stringify(dashboardData);
+
+                if (!isCacheRendered || newDataString !== currentDashboardData) {
+                    console.log("Rendering fresh dashboard data.");
+                    currentUserProfile = dashboardData.profile; // Update global profile
+                    currentDashboardData = newDataString;
+                    updateDashboardUI(dashboardData);
+                    populateSidebar(dashboardData.profile); // Update sidebar
+                    setCache(cacheKey, dashboardData, CACHE_TTL_MINUTES);
+                    if (!isCacheRendered) {
+                         hideShimmerShowApp(300); // Slight delay after fetch if no cache
+                    } else {
+                        feather.replace(); // Re-render icons if only updating UI
+                    }
+                } else {
+                     console.log("Dashboard cache is up-to-date.");
+                     if (!isCacheRendered) {
+                         hideShimmerShowApp(300); // Still need to show app if cache was expired but data is same
+                     }
+                }
+
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error.message);
+                if (!isCacheRendered) {
+                    // Show error only if we couldn't load anything
+                    shimmerLoader.innerHTML = '<p class="text-center text-red-500 p-10">Could not load dashboard data.</p>';
+                }
+                 showToast("Could not refresh dashboard data.", "error");
+            }
+        }
+
+        function updateDashboardUI(data) {
+            if (!data || !data.profile) return;
+            
+            // --- Update Main Cards ---
+            friendsCountValue.textContent = data.profile.friend_count ?? 0;
+            // Update other cards with real data or placeholders
+            academicScoreValue.textContent = data.academicScore ?? '--';
+            recycledValue.textContent = data.recycledKg ?? '--';
+            netWorthValue.textContent = `₹${data.netWorth ?? '--'}`;
+
+            // --- Update Sections ---
+             // Roles & Badges (Placeholder - replace with actual rendering logic)
+            rolesBadgesContent.textContent = data.roles?.length > 0 ? 'Display roles here' : 'No Roles Assigned';
+            rolesBadgesContent.classList.remove('italic', 'text-center'); // Adjust styling if content exists
+            
+            // Lectures (Placeholder)
+            lecturesContent.textContent = data.lectures?.length > 0 ? 'Display lectures here' : 'No Lectures Scheduled';
+             lecturesContent.classList.remove('italic', 'text-center');
+
+            // Activities (Placeholder)
+            activitiesContent.textContent = data.activities?.length > 0 ? 'Display activities here' : 'No Upcoming Activities';
+             activitiesContent.classList.remove('italic', 'text-center');
+
+        }
+
+        // --- 7. LOG USER DATA ---
         async function logUserData(userData) {
              if (!userData || !userData.auth_id) {
-                 console.error("Cannot log data: User Auth ID is missing.");
-                 return;
+                 console.error("Cannot log data: User Auth ID is missing."); return;
              }
              try {
-                // Insert into the 'logs' table
-                 const { error: logError } = await _supabase
-                     .from('logs')
-                     .insert({
-                         time: new Date().toISOString(), // <-- FIX: Provide the current time
-                         user_id: userData.auth_id, // Assuming user_id in logs corresponds to auth_id
-                         Name: userData.name || 'N/A',
-                         course: userData.course || 'N/A',
-                     });
+                 const { error: logError } = await _supabase.from('logs').insert({
+                     time: new Date().toISOString(),
+                     user_id: userData.auth_id,
+                     Name: userData.name || 'N/A',
+                     course: userData.course || 'N/A',
+                 });
+                 if (logError) { console.error("Error inserting into logs table:", logError.message); } 
+                 else { console.log("User data logged successfully."); }
+             } catch (error) { console.error("Exception during logging:", error.message); }
+        }
 
-                 if (logError) {
-                     // Check for specific errors, e.g., foreign key violation if user_id doesn't exist
-                     console.error("Error inserting into logs table:", logError.message);
-                 } else {
-                     console.log("User data logged successfully.");
+        // --- 8. SIDEBAR FUNCTIONS (Copied from feed.html fixes) ---
+        function setupSidebarListeners() {
+            if (!sidebarToggleBtn || !sidebarBackdrop || !logoutBtn || !themeToggle) {
+                console.warn("Sidebar elements not found, listeners not attached.");
+                return;
+            }
+            sidebarToggleBtn.addEventListener('click', openSidebar);
+            sidebarBackdrop.addEventListener('click', closeSidebar);
+            logoutBtn.addEventListener('click', handleLogout);
+            themeToggle.addEventListener('change', handleThemeToggle);
+        }
+
+        function openSidebar() {
+            closeNotificationPanel(); // Close notifications if open
+            if (!sidebar || !sidebarBackdrop) return;
+            sidebar.classList.remove('hidden');
+            sidebarBackdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+            feather.replace(); // Ensure icons are rendered
+        }
+
+        function closeSidebar() {
+            if (!sidebar || !sidebarBackdrop) return;
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+            // Optional: Add hidden class after transition for accessibility/performance
+            setTimeout(() => {
+                sidebar.classList.add('hidden');
+            }, 300);
+        }
+
+        async function handleLogout() {
+            showToast("Logging you out...", 'success');
+            const { error } = await _supabase.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error.message);
+                showToast(error.message, 'error');
+            } else {
+                // Clear theme and caches on logout
+                localStorage.removeItem('theme');
+                localStorage.removeItem('birlaone_dashboard_data');
+                localStorage.removeItem('birlaone_feed'); // Clear other related caches if they exist
+                localStorage.removeItem('birlaone_popular');
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('birlaone_search_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                window.location.href = 'login.html';
+            }
+        }
+
+        function populateSidebar(profileData) {
+            // Ensure sidebar elements exist
+            const avatarEl = document.getElementById('sidebar-user-avatar');
+            const nameEl = document.getElementById('sidebar-user-name');
+            const tickContainer = document.getElementById('sidebar-user-tick-container');
+            const qrContainer = document.getElementById('sidebar-qr-code-img');
+
+            if (!avatarEl || !nameEl || !tickContainer || !qrContainer) {
+                 console.warn("Sidebar profile elements not found.");
+                 return;
+            }
+            if (!profileData) {
+                 // Optionally set defaults if profile data is missing after load attempt
+                 nameEl.textContent = 'User';
+                 avatarEl.src = 'https://placehold.co/64x64/cccccc/969696?text=U';
+                 tickContainer.innerHTML = '';
+                 qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID.</p>';
+                 return;
+            }
+
+            avatarEl.src = profileData.img || `https://placehold.co/64x64/A8E063/305B1C?text=${profileData.name ? profileData.name.charAt(0) : 'U'}`;
+            nameEl.textContent = profileData.name || 'Campus User';
+
+            tickContainer.innerHTML = ''; // Clear previous tick
+            const tickType = profileData.tick?.toLowerCase();
+            if (tickType && tickImages[tickType]) {
+                const tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`;
+                tickContainer.innerHTML = tickHtml;
+            }
+
+            qrContainer.innerHTML = ''; // Clear previous QR or spinner
+            if (profileData.id) { // Use public integer ID
+                 try {
+                     new QRCode(qrContainer, {
+                         text: String(profileData.id),
+                         width: 256,
+                         height: 256,
+                         colorDark : "#000000",
+                         colorLight : "#ffffff",
+                         correctLevel : QRCode.CorrectLevel.H
+                     });
+                 } catch (e) {
+                      console.error("Error generating QR code:", e);
+                      qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
                  }
-             } catch (error) {
-                  console.error("Exception during logging:", error.message);
-             }
+            } else {
+                qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID available for QR code.</p>';
+            }
         }
 
 
-        // --- 6. NOTIFICATION FUNCTIONS (Copied from feed.html) ---
-
+        // --- 9. NOTIFICATION FUNCTIONS ---
         function setupNotificationListeners() {
-            if (!notificationBellBtn) return;
+            if (!notificationBellBtn || !closeNotificationPanelBtn || !markAllReadBtn || !notificationBackdrop) return;
             notificationBellBtn.addEventListener('click', toggleNotificationPanel);
-            closeNotificationPanelBtn.addEventListener('click', closePanel);
+            closeNotificationPanelBtn.addEventListener('click', closeNotificationPanel);
             markAllReadBtn.addEventListener('click', markAllAsRead);
-            notificationBackdrop.addEventListener('click', closePanel);
+            notificationBackdrop.addEventListener('click', closeNotificationPanel);
         }
 
         function toggleNotificationPanel() {
             const isHidden = notificationPanel.classList.contains('hidden');
             if (isHidden) {
-                openPanel();
+                closeSidebar(); // Close sidebar if open
+                openNotificationPanel();
                 fetchNotifications();
             } else {
-                closePanel();
+                closeNotificationPanel();
             }
         }
 
-        function openPanel() {
+        function openNotificationPanel() {
+             if (!notificationPanel || !notificationBackdrop) return;
             notificationPanel.classList.remove('hidden');
             notificationBackdrop.classList.remove('hidden');
             requestAnimationFrame(() => {
@@ -431,12 +799,13 @@
             });
         }
 
-        function closePanel() {
+        function closeNotificationPanel() {
+             if (!notificationPanel || !notificationBackdrop) return;
             notificationPanel.classList.add('translate-x-full');
             notificationBackdrop.classList.add('hidden');
             setTimeout(() => {
                 notificationPanel.classList.add('hidden');
-            }, 300); // Match transition duration
+            }, 300);
         }
 
         async function fetchUnreadCount() {
@@ -452,17 +821,15 @@
 
         async function fetchNotifications() {
             if (!currentAuthUser) return;
+            if (!notificationsLoading || !noNotifications || !notificationList) return;
             notificationsLoading.style.display = 'block';
             noNotifications.style.display = 'none';
-            notificationList.innerHTML = ''; // Clear previous
+            notificationList.innerHTML = ''; 
 
             try {
                 const { data, error } = await _supabase.rpc('get_my_notifications');
                 if (error) throw error;
-
                 notificationsLoading.style.display = 'none';
-
-                // Check if data is null or empty array
                  if (!data || (Array.isArray(data) && data.length === 0)) {
                      noNotifications.style.display = 'block';
                  } else {
@@ -476,93 +843,66 @@
         }
 
         function renderNotifications(notifications) {
-            notificationList.innerHTML = ''; // Clear fully
-             const localTickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
+            if (!notificationList) return;
+            notificationList.innerHTML = '';
+            const localTickImages = tickImages; // Use global tickImages
+            const notificationsArray = Array.isArray(notifications) ? notifications : (notifications ? [notifications] : []);
 
-             // Handle potential non-array data (Supabase RPC might return single object or null)
-             const notificationsArray = Array.isArray(notifications) ? notifications : (notifications ? [notifications] : []);
-
-            notificationsArray.forEach(notif => {
-                 if (!notif) return; // Skip if null/undefined in array somehow
+            notificationsArray.forEach((notif, index) => {
+                 if (!notif) return;
                  const div = document.createElement('div');
-                div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors ${!notif.is_read ? 'bg-primary-50' : 'bg-white'} hover:bg-gray-100`;
+                div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors notification-item-enter ${!notif.is_read ? 'bg-primary-50 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'} hover:bg-gray-100 dark:hover:bg-gray-700`;
                 div.dataset.notificationId = notif.id;
-
                 const senderAvatar = notif.sender_img
                     ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">`
                     : `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">?</div>`;
-
-                 const tickType = notif.sender_tick?.toLowerCase();
-                 const tickHtml = (tickType && localTickImages[tickType])
-                         ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`
-                         : '';
-
+                const tickType = notif.sender_tick?.toLowerCase();
+                const tickHtml = (tickType && localTickImages[tickType]) ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">` : '';
                 const timeAgo = formatTimeAgo(notif.created_at);
-
                 const contentHtml = `
-                    <p class="text-sm text-gray-800">
+                    <p class="text-sm text-gray-800 dark:text-gray-200">
                         ${notif.sender_name ? `<strong class="font-medium">${notif.sender_name}</strong>${tickHtml} ` : ''}
                         ${notif.content_preview || `Notification type: ${notif.type}`}
                     </p>
-                    <p class="text-xs text-gray-500 mt-0.5">${timeAgo}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${timeAgo}</p>
                 `;
-
                 const isDirectLink = notif.link && !notif.link.includes('myprofile.html');
                 const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">';
                 const linkWrapperEnd = isDirectLink ? '</a>' : '</div>';
-
                 div.innerHTML = `
                     ${senderAvatar}
-                    ${linkWrapperStart}
-                        ${contentHtml}
-                    ${linkWrapperEnd}
+                    ${linkWrapperStart}${contentHtml}${linkWrapperEnd}
                     ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
                 `;
-
                 div.addEventListener('click', (e) => {
-                    if (isDirectLink && !e.target.closest('.w-2.h-2')) {
-                         markSingleAsRead(notif.id);
-                    } else {
+                    if (isDirectLink && !e.target.closest('.w-2.h-2')) { markSingleAsRead(notif.id); } 
+                    else {
                          if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
-                             // Check if current page is already myprofile.html before navigating
-                             if (!window.location.pathname.endsWith('myprofile.html')) {
-                                  window.location.href = notif.link;
-                             } else {
-                                 // Optional: If already on myprofile, maybe open the requests modal directly?
-                                 // Example: if (typeof openFriendRequestsModal === 'function') openFriendRequestsModal();
-                             }
+                             if (!window.location.pathname.endsWith('myprofile.html')) { window.location.href = notif.link; }
                          }
-                         if (!notif.is_read) {
-                             markSingleAsRead(notif.id, div);
-                         }
+                         if (!notif.is_read) { markSingleAsRead(notif.id, div); }
                     }
                 });
-
-                div.classList.add('notification-item-enter');
                 notificationList.appendChild(div);
-                requestAnimationFrame(() => {
-                    div.classList.add('notification-item-enter-active');
-                });
+                setTimeout(() => { requestAnimationFrame(() => { div.classList.add('notification-item-enter-active'); }); }, index * 30);
             });
             feather.replace();
         }
 
         async function markSingleAsRead(notificationId, elementToUpdate = null) {
             if (!currentAuthUser) return;
-             const notificationElement = elementToUpdate || notificationList.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
-             const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
-             if (!unreadDot) return;
-
+            const notificationElement = elementToUpdate || notificationList?.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
+            const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
+            if (!unreadDot) return;
             try {
                 const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
                 if (error) throw error;
-
                 if (notificationElement) {
-                    notificationElement.classList.remove('bg-primary-50');
-                    notificationElement.classList.add('bg-white');
+                    notificationElement.classList.remove('bg-primary-50', 'dark:bg-gray-700');
+                    notificationElement.classList.add('bg-white', 'dark:bg-gray-800');
                     unreadDot.remove();
                 }
-                fetchUnreadCount();
+                fetchUnreadCount(); // Update badge count
             } catch (error) {
                 console.error("Error marking notification read:", error.message);
                 showToast("Could not mark notification as read.", 'error');
@@ -570,21 +910,18 @@
         }
 
         async function markAllAsRead() {
-            if (!currentAuthUser) return;
+            if (!currentAuthUser || !markAllReadBtn) return;
             setButtonLoading(markAllReadBtn, true);
             try {
                 const { error } = await _supabase.rpc('mark_all_notifications_read');
                 if (error) throw error;
-
-                notificationList.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
-                    el.classList.remove('bg-primary-50');
-                    el.classList.add('bg-white');
-                    const unreadDot = el.querySelector('.w-2.h-2.bg-primary-500');
-                    if (unreadDot) unreadDot.remove();
+                notificationList?.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
+                    el.classList.remove('bg-primary-50', 'dark:bg-gray-700');
+                    el.classList.add('bg-white', 'dark:bg-gray-800');
+                    el.querySelector('.w-2.h-2.bg-primary-500')?.remove();
                 });
                 updateBadge(0);
                 showToast("All notifications marked as read.", 'success');
-
             } catch (error) {
                 console.error("Error marking all notifications read:", error.message);
                 showToast("Could not mark all as read.", 'error');
@@ -596,33 +933,21 @@
         function setupRealtimeNotifications() {
              if (!currentAuthUser) return;
              if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
-
-             notificationSubscription = _supabase
-                 .channel('public:notifications')
-                 .on(
-                     'postgres_changes',
-                     { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` },
-                     (payload) => {
-                         console.log('New notification received:', payload.new);
-                         fetchUnreadCount();
-                         showToast(payload.new.content_preview || 'You have a new notification!', 'success');
-                         if (!notificationPanel.classList.contains('hidden')) {
-                             fetchNotifications(); // Refetch list if panel is open
-                         }
-                     }
-                 )
+             notificationSubscription = _supabase.channel('public:notifications')
+                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => {
+                     console.log('New notification received:', payload.new);
+                     fetchUnreadCount();
+                     showToast(payload.new.content_preview || 'You have a new notification!', 'success');
+                     if (notificationPanel && !notificationPanel.classList.contains('hidden')) { fetchNotifications(); }
+                 })
                  .subscribe((status, err) => {
                       if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
                       if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
                  });
-
-                 window.addEventListener('beforeunload', () => {
-                     if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
-                 });
+             window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
         }
 
         function updateBadge(count) {
-             // Ensure elements exist before modifying
              if (!notificationBadge) return;
             if (count > 0) {
                 notificationBadge.textContent = count > 9 ? '9+' : count;
@@ -632,12 +957,13 @@
             }
         }
 
-        // --- 7. HELPER FUNCTIONS ---
+        // --- 10. HELPER FUNCTIONS ---
         function formatTimeAgo(dateString) {
              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
 
         function showToast(message, type = 'success') {
+            if (!toastContainer) return;
             const toast = document.createElement('div');
             const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
             toast.className = `toast toast-${type}`;
@@ -651,36 +977,17 @@
             }, 3000);
         }
 
-        function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) {
+        function setButtonLoading(buttonEl, isLoading) {
+             if (!buttonEl) return;
              buttonEl.disabled = isLoading;
-             const textEl = buttonEl.querySelector('.button-text');
-             const spinnerEl = buttonEl.querySelector('.button-spinner');
-
-             if (isSmall) {
-                 const iconEl = buttonEl.querySelector('i[data-feather]');
-                 if (isLoading) {
-                     if (iconEl) iconEl.style.display = 'none';
-                     if (!spinnerEl) {
-                         const spinner = document.createElement('div');
-                         spinner.className = 'spinner button-spinner w-5 h-5';
-                         buttonEl.prepend(spinner);
-                     } else { spinnerEl.style.display = 'block'; }
-                 } else {
-                     const existingSpinner = buttonEl.querySelector('.button-spinner');
-                     if (existingSpinner) existingSpinner.remove();
-                     if (iconEl) { iconEl.style.display = 'block'; }
-                     else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); }
-                 }
+             const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
+              if (isLoading) {
+                 buttonEl.dataset.originalText = originalText;
+                 buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
              } else {
-                 const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
-                  if (isLoading) {
-                     buttonEl.dataset.originalText = originalText;
-                     buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
-                 } else {
-                     buttonEl.innerHTML = originalText;
-                     delete buttonEl.dataset.originalText;
-                     feather.replace(); // Re-render icons if needed
-                 }
+                 buttonEl.innerHTML = originalText;
+                 delete buttonEl.dataset.originalText;
+                 feather.replace(); 
              }
         }
 
