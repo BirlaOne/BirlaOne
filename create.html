@@ -31,7 +31,7 @@
                             '400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26',
                             '800': '#396f21','900': '#305b1c','950': '#1a320f',
                         },
-                         'danger': { // Added Danger colors
+                         'danger': { 
                             '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a','300': '#e57373',
                             '400': '#ef5350', '500': '#f44336','600': '#e53935', '700': '#d32f2f',
                             '800': '#c62828','900': '#b71c1c', '950': '#8d1111'
@@ -43,7 +43,8 @@
     </script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        /* === UI ENHANCEMENT: Body Background === */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; } /* bg-gray-100 */
         .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -55,32 +56,31 @@
         #file-upload-input { display: none; }
         #file-upload-label { cursor: pointer; }
 
-        /* --- NEW STYLES --- */
-        /* Editable Div Styling */
+        /* --- STYLES FOR RICH TEXT & TOOLBAR --- */
         .editable-content {
-            min-height: 160px; /* Same as h-40 textarea */
+            min-height: 160px;
             height: auto;
             border: 1px solid #e5e7eb; /* border-gray-200 */
             border-radius: 0.75rem; /* rounded-xl */
             padding: 1rem; /* p-4 */
             background-color: #f9fafb; /* bg-gray-50 */
             color: #111827; /* text-gray-900 */
-            line-height: 1.5; /* Default line height */
+            line-height: 1.5;
         }
         .editable-content:focus {
             outline: none;
-            box-shadow: 0 0 0 2px #56ab2f; /* focus:ring-2 focus:ring-primary-600 */
+            border-color: #a6d98e; /* primary-400 */
+            box-shadow: 0 0 0 2px #56ab2f66; /* focus:ring-2 focus:ring-primary-600/50 */
         }
         .editable-content[placeholder]:empty:before {
             content: attr(placeholder);
             color: #6b7280; /* placeholder-gray-500 */
             pointer-events: none;
-            display: block; /* For cursor placement */
+            display: block;
         }
-        /* Toolbar Styling */
         .format-toolbar {
             display: flex;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
+            flex-wrap: wrap; 
             gap: 0.5rem; /* space-x-2 */
             margin-bottom: 0.75rem; /* mb-3 */
             padding: 0.5rem; /* p-2 */
@@ -89,7 +89,7 @@
             border: 1px solid #e5e7eb; /* border-gray-200 */
         }
         .format-toolbar button {
-            padding: 0.375rem 0.625rem; /* ~px-2.5 py-1.5 */
+            padding: 0.375rem 0.625rem; 
             border-radius: 0.375rem; /* rounded-md */
             background-color: white;
             border: 1px solid #d1d5db; /* border-gray-300 */
@@ -110,7 +110,35 @@
             width: 18px; height: 18px;
         }
 
-        /* Toast Notifications */
+        /* --- UI ENHANCEMENT: Form Inputs & Buttons --- */
+        .form-input {
+            @apply w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500;
+        }
+        .form-input:focus {
+             @apply focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-600/50;
+        }
+        .poll-option.form-input {
+            @apply p-3; /* Poll options are smaller */
+        }
+        /* Disabled state for post buttons */
+        button[id^='submit-']:disabled {
+            @apply bg-primary-300 cursor-not-allowed shadow-none;
+        }
+
+        /* --- UI ENHANCEMENT: File Preview --- */
+        #file-preview-container img,
+        #file-preview-container video {
+            @apply rounded-lg w-full h-auto max-h-72 object-cover border border-gray-200;
+        }
+        .preview-remove-btn {
+            @apply absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 leading-none transition-all hover:bg-black/80;
+            cursor: pointer;
+        }
+        .preview-remove-btn i[data-feather] {
+            @apply w-5 h-5; 
+        }
+
+        /* --- Toast Notifications --- */
         #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
         .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
         .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
@@ -118,7 +146,6 @@
         .toast.show { opacity: 1; }
         .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        /* --- END NEW STYLES --- */
     </style>
 </head>
 <body class="antialiased">
@@ -140,9 +167,9 @@
 
             <div class="flex border-b border-gray-200">
                 <button id="tab-text" onclick="switchTab('text')" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all">Text</button>
-                <button id="tab-photo" onclick="switchTab('photo')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Photo/Video</button>
-                <button id="tab-poll" onclick="switchTab('poll')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Poll</button>
-                <button id="tab-anonymous" onclick="switchTab('anonymous')" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Anonymous</button>
+                <button id="tab-photo" onclick="switchTab('photo')" class="flex-1 py-3 text-center font-medium border-b-2 border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all">Photo/Video</button>
+                <button id="tab-poll" onclick="switchTab('poll')" class="flex-1 py-3 text-center font-medium border-b-2 border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all">Poll</button>
+                <button id="tab-anonymous" onclick="switchTab('anonymous')" class="flex-1 py-3 text-center font-medium border-b-2 border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-all">Anonymous</button>
             </div>
 
             <div>
@@ -158,16 +185,15 @@
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
-                    <div class="format-toolbar">
+                    
+                     <div class="format-toolbar">
                         <button onclick="formatDoc('bold');" title="Bold"><i data-feather="bold"></i></button>
                         <button onclick="formatDoc('italic');" title="Italic"><i data-feather="italic"></i></button>
                         <button onclick="formatDoc('underline');" title="Underline"><i data-feather="underline"></i></button>
-                        <button onclick="formatDoc('strikeThrough');" title="Strikethrough"><i data-feather="slash"></i></button>
-                        <button onclick="formatDoc('insertUnorderedList');" title="Bulleted List"><i data-feather="list"></i></button>
-                        <button onclick="formatDoc('insertOrderedList');" title="Numbered List"><i data-feather="hash"></i></button>
+                        <button onclick="formatDoc('strikeThrough');" title="Strikethrough"><i data-feather="strikethrough"></i></button>
                     </div>
                     <div id="text-post-content" contenteditable="true" class="editable-content" placeholder="What's on your mind?"></div>
-                    <button id="submit-text-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post</button>
+                    <button id="submit-text-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:bg-primary-300 disabled:shadow-none disabled:cursor-not-allowed">Post</button>
                 </div>
 
                 <div id="panel-photo" class="space-y-4 hidden">
@@ -182,14 +208,20 @@
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea id="photo-post-caption" class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Write a caption..."></textarea>
+                    <textarea id="photo-post-caption" class="form-input h-24" placeholder="Write a caption..."></textarea>
+                    
                     <input type="file" id="file-upload-input" accept="image/*,video/*">
-                    <label id="file-upload-label" for="file-upload-input" class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-500 transition-all hover:border-primary-600 hover:text-primary-600">
+                    
+                    <label id="file-upload-label" for="file-upload-input" class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center text-gray-500 transition-all bg-gray-50 hover:border-primary-600 hover:text-primary-600 hover:bg-gray-100">
                         <i data-feather="upload-cloud" class="w-12 h-12"></i>
                         <p id="file-upload-text" class="font-semibold mt-2">Click to upload</p>
                         <p class="text-sm">PNG, JPG, MP4 or GIF</p>
                     </label>
-                    <button id="submit-photo-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post</button>
+
+                    <div id="file-preview-container" class="mt-4 relative">
+                        </div>
+
+                    <button id="submit-photo-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:bg-primary-300 disabled:shadow-none disabled:cursor-not-allowed">Post</button>
                 </div>
 
                 <div id="panel-poll" class="space-y-4 hidden">
@@ -204,17 +236,17 @@
                             <p class="text-sm text-gray-500">Posting publicly</p>
                         </div>
                     </div>
-                    <textarea id="poll-question" class="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Ask a question..."></textarea>
+                    <textarea id="poll-question" class="form-input h-24" placeholder="Ask a question..."></textarea>
                     <div id="poll-options-container" class="space-y-3">
                         <h3 class="font-semibold text-gray-700">Options</h3>
-                        <input type="text" placeholder="Option 1" class="poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
-                        <input type="text" placeholder="Option 2" class="poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        <input type="text" placeholder="Option 1" class="poll-option form-input">
+                        <input type="text" placeholder="Option 2" class="poll-option form-input">
                     </div>
                     <button id="add-poll-option" class="w-full flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-200 transition-colors">
                         <i data-feather="plus" class="w-5 h-5"></i>
                         <span>Add Option</span>
                     </button>
-                    <button id="submit-poll-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post Poll</button>
+                    <button id="submit-poll-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:bg-primary-300 disabled:shadow-none disabled:cursor-not-allowed">Post Poll</button>
                 </div>
 
                 <div id="panel-anonymous" class="space-y-4 hidden">
@@ -231,12 +263,10 @@
                         <button onclick="formatDoc('bold');" title="Bold"><i data-feather="bold"></i></button>
                         <button onclick="formatDoc('italic');" title="Italic"><i data-feather="italic"></i></button>
                         <button onclick="formatDoc('underline');" title="Underline"><i data-feather="underline"></i></button>
-                        <button onclick="formatDoc('strikeThrough');" title="Strikethrough"><i data-feather="slash"></i></button>
-                        <button onclick="formatDoc('insertUnorderedList');" title="Bulleted List"><i data-feather="list"></i></button>
-                        <button onclick="formatDoc('insertOrderedList');" title="Numbered List"><i data-feather="hash"></i></button>
+                        <button onclick="formatDoc('strikeThrough');" title="Strikethrough"><i data-feather="strikethrough"></i></button>
                     </div>
                     <div id="anonymous-post-content" contenteditable="true" class="editable-content" placeholder="Share your confession..."></div>
-                    <button id="submit-anonymous-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center">Post Anonymously</button>
+                    <button id="submit-anonymous-post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:bg-primary-300 disabled:shadow-none disabled:cursor-not-allowed">Post Anonymously</button>
                 </div>
             </div>
 
@@ -261,14 +291,24 @@
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // --- 2. CLOUDINARY SETUP (UPDATED WITH YOUR CREDENTIALS) ---
+        const CLOUDINARY_CLOUD_NAME = 'diawrhaov';
+        const CLOUDINARY_UPLOAD_PRESET = 'birlaone_uploads'; 
+
+
         // --- Global variables ---
         let currentAuthUser = null;
         let currentUserProfile = null;
+        let selectedFile = null; // Variable for file upload
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
         const loadingOverlay = document.getElementById('loading-overlay');
-        const toastContainer = document.getElementById('toast-container'); // Toast container
+        const toastContainer = document.getElementById('toast-container');
+        const fileUploadInput = document.getElementById('file-upload-input');
+        const fileUploadLabel = document.getElementById('file-upload-label');
+        const filePreviewContainer = document.getElementById('file-preview-container');
 
-        // --- 2. AUTH & SESSION CHECK ---
+
+        // --- 3. AUTH & SESSION CHECK ---
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { session }, error } = await _supabase.auth.getSession();
             if (error) { console.error("Error getting session:", error.message); return; }
@@ -280,7 +320,7 @@
             setupEventListeners();
         });
 
-        // --- 3. FETCH USER PROFILE ---
+        // --- 4. FETCH USER PROFILE ---
         async function fetchUserProfile(authId) {
              if (!authId) return;
              const { data, error } = await _supabase.from('users').select('name, img, tick').eq('auth_id', authId).single();
@@ -298,13 +338,7 @@
                  ['text', 'photo', 'poll'].forEach(type => {
                      document.getElementById(`user-avatar-${type}`).src = userAvatar;
                      document.getElementById(`user-name-${type}`).innerText = userName;
-                     
-                     // === JS Change Check ===
-                     // The parent element is now the <a> tag, which is correct.
                      const nameElementParent = document.getElementById(`user-name-${type}`).parentElement;
-                     // =======================
-
-                     // Clear previous tick if any before adding new one
                      const existingTick = nameElementParent.querySelector('.post-tick-mark');
                      if(existingTick) existingTick.remove();
                      if (tickHtml) nameElementParent.insertAdjacentHTML('beforeend', tickHtml);
@@ -312,35 +346,34 @@
              }
         }
 
-        // --- 4. TAB SWITCHING LOGIC ---
+        // --- 5. TAB SWITCHING LOGIC (UI ENHANCEMENT) ---
         const tabs = ['text', 'photo', 'poll', 'anonymous'];
         function switchTab(activeTab) {
              tabs.forEach(tab => {
                  document.getElementById(`panel-${tab}`).classList.add('hidden');
-                 document.getElementById(`tab-${tab}`).classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
-                 document.getElementById(`tab-${tab}`).classList.add('border-transparent', 'text-gray-500', 'font-medium');
+                 const tabButton = document.getElementById(`tab-${tab}`);
+                 tabButton.classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
+                 tabButton.classList.add('border-gray-200', 'text-gray-500', 'font-medium'); // Inactive tabs
              });
              document.getElementById(`panel-${activeTab}`).classList.remove('hidden');
-             document.getElementById(`tab-${activeTab}`).classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
-             document.getElementById(`tab-${activeTab}`).classList.remove('border-transparent', 'text-gray-500', 'font-medium');
-             // Re-render icons if needed, especially for toolbar
-             if (activeTab === 'text' || activeTab === 'anonymous') {
-                 feather.replace(); // This will render the new toolbar icons
+             const activeTabButton = document.getElementById(`tab-${activeTab}`);
+             activeTabButton.classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
+             activeTabButton.classList.remove('border-gray-200', 'text-gray-500', 'medium'); // Active tab
+             
+             if (activeTab === 'text' || activeTab === 'anonymous' || activeTab === 'photo') {
+                 feather.replace(); // Re-render icons for toolbars or preview
              }
         }
 
-        // --- 5. RICH TEXT FORMATTING ---
+        // --- 6. RICH TEXT FORMATTING ---
         function formatDoc(command, value = null) {
             document.execCommand(command, false, value);
-            // Optional: Add logic here to update toolbar button states (active/inactive)
-            // For simplicity, we'll skip this for now, but you could check
-            // document.queryCommandState('bold') and toggle an 'active' class.
         }
 
-        // --- 6. POSTING LOGIC ---
+        // --- 7. POSTING LOGIC ---
         function setupEventListeners() {
              document.getElementById('submit-text-post').addEventListener('click', handleTextPost);
-             document.getElementById('file-upload-input').addEventListener('change', handleFileSelect);
+             fileUploadInput.addEventListener('change', handleFileSelect); // File input
              document.getElementById('submit-photo-post').addEventListener('click', handlePhotoPost);
              document.getElementById('add-poll-option').addEventListener('click', addPollOption);
              document.getElementById('submit-poll-post').addEventListener('click', handlePollPost);
@@ -359,10 +392,10 @@
              if (button) { button.disabled = false; button.innerHTML = button.id.includes('poll') ? 'Post Poll' : (button.id.includes('anonymous') ? 'Post Anonymously' : 'Post'); }
              loadingOverlay.classList.add('hidden');
              if (success) {
-                 showToast(message, 'success'); // Use toast
-                 setTimeout(() => { window.location.href = 'feed.html'; }, 1500); // Redirect after toast
+                 showToast(message, 'success');
+                 setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
              } else {
-                  showToast(message, 'error'); // Show error toast if message provided
+                  showToast(message, 'error'); 
              }
         }
 
@@ -371,103 +404,224 @@
              return activeTab.id.replace('tab-', '');
         }
 
-        // --- START JAVASCRIPT UPDATE ---
-        // Updated function to handle new formats (lists, underline, strikethrough)
+        // --- JS UPDATE: Rich Text Parsing (Lists Removed) ---
         function editableContentToText(elementId) {
             const editor = document.getElementById(elementId);
             if (!editor) return '';
 
-            // 1. Clone the node to avoid modifying the original editor
             const clone = editor.cloneNode(true);
-
-            // 2. Handle lists first (as they are block-level)
-            // Replace list items with markdown-like text and a line break
-            clone.querySelectorAll('ul > li').forEach(el => {
-                el.innerHTML = `* ${el.innerHTML}<br>`;
-            });
-            clone.querySelectorAll('ol').forEach(ol => {
-                let start = ol.getAttribute('start') ? parseInt(ol.getAttribute('start'), 10) : 1;
-                ol.querySelectorAll('li').forEach(el => {
-                    el.innerHTML = `${start++}. ${el.innerHTML}<br>`;
-                });
-            });
-
-            // 3. Replace inline formatting tags with markdown
-            // This runs *after* list processing to catch formatting inside list items
+            
+            // 1. Replace inline formatting tags with markdown
             clone.querySelectorAll('b, strong').forEach(el => el.replaceWith(`**${el.innerHTML}**`));
             clone.querySelectorAll('i, em').forEach(el => el.replaceWith(`*${el.innerHTML}*`));
             clone.querySelectorAll('u').forEach(el => el.replaceWith(`__${el.innerHTML}__`)); // Underline
             clone.querySelectorAll('s, strike').forEach(el => el.replaceWith(`~~${el.innerHTML}~~`)); // Strikethrough
 
-            // 4. Handle line breaks (from <br>, <p>, <div>)
+            // 2. Handle line breaks (from <br>, <p>, <div>)
             clone.innerHTML = clone.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
             clone.innerHTML = clone.innerHTML.replace(/<\/(p|div)>/gi, '\n');
             
-            // 5. Remove all remaining HTML tags (like <ul>, <ol> wrappers)
+            // 3. Remove all remaining HTML tags
             clone.innerHTML = clone.innerHTML.replace(/<[^>]*>/g, '');
 
-            // 6. Decode HTML entities and clean up whitespace
+            // 4. Decode HTML entities and clean up whitespace
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = clone.innerHTML;
             let plainText = tempDiv.textContent || tempDiv.innerText || '';
             
-            // Consolidate multiple newlines into a maximum of two
             plainText = plainText.replace(/(\n\s*){2,}/g, '\n\n'); 
             
             return plainText.trim();
         }
-        // --- END JAVASCRIPT UPDATE ---
+        // --- END JS UPDATE ---
 
 
-        // --- POST HANDLERS (UPDATED for contenteditable and toast) ---
-
+        // --- POST HANDLERS (Text, Anonymous) ---
         async function handleTextPost() {
-            const content = editableContentToText('text-post-content'); // NEW
+            const content = editableContentToText('text-post-content');
             if (!content) { showToast("Please write something!", 'error'); return; }
             showLoading();
             const { error } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'text', content: content, is_anonymous: false });
-            if (error) { console.error("Error posting text:", error.message); hideLoading(false, `Error: ${error.message}`); }
+            if (error) { hideLoading(false, `Error: ${error.message}`); }
             else { hideLoading(true); }
         }
 
         async function handleAnonymousPost() {
-            const content = editableContentToText('anonymous-post-content'); // NEW
+            const content = editableContentToText('anonymous-post-content');
             if (!content) { showToast("Please write something!", 'error'); return; }
             showLoading();
             const { error } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'anonymous', content: content, is_anonymous: true });
-            if (error) { console.error("Error posting anonymously:", error.message); hideLoading(false, `Error: ${error.message}`); }
+            if (error) { hideLoading(false, `Error: ${error.message}`); }
             else { hideLoading(true); }
         }
 
-        // --- Keep other post handlers (Photo, Poll) as they are ---
-         let selectedFile = null;
-         function handleFileSelect(event) { /* ... keep existing ... */ selectedFile = event.target.files[0]; if (selectedFile) { document.getElementById('file-upload-text').textContent = selectedFile.name; } else { document.getElementById('file-upload-text').textContent = 'Click to upload'; }}
-         async function handlePhotoPost() { /* ... keep existing, but use showToast for errors ... */
+        // --- NEW: FILE PREVIEW & UPLOAD LOGIC ---
+        function handleFileSelect(event) {
+            selectedFile = event.target.files[0];
+            if (!selectedFile) {
+                resetFileSelection();
+                return;
+            }
+
+            filePreviewContainer.innerHTML = ''; // Clear previous preview
+            let previewElement;
+
+            if (selectedFile.type.startsWith('image/')) {
+                previewElement = document.createElement('img');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewElement.src = e.target.result;
+                };
+                reader.readAsDataURL(selectedFile);
+            } else if (selectedFile.type.startsWith('video/')) {
+                previewElement = document.createElement('video');
+                previewElement.src = URL.createObjectURL(selectedFile);
+                previewElement.controls = true;
+                previewElement.preload = 'metadata';
+            } else {
+                // Not an image or video, show text
+                previewElement = document.createElement('p');
+                previewElement.textContent = `Selected file: ${selectedFile.name}`;
+                previewElement.className = 'text-gray-700 font-medium';
+            }
+
+            // Add the remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'preview-remove-btn';
+            removeBtn.innerHTML = '<i data-feather="x"></i>';
+            removeBtn.onclick = resetFileSelection;
+
+            filePreviewContainer.appendChild(previewElement);
+            filePreviewContainer.appendChild(removeBtn);
+            feather.replace(); // Render the 'x' icon
+            
+            fileUploadLabel.classList.add('hidden'); // Hide upload box
+        }
+
+        function resetFileSelection() {
+            selectedFile = null;
+            fileUploadInput.value = null; // Clear the file input
+            filePreviewContainer.innerHTML = ''; // Clear the preview
+            fileUploadLabel.classList.remove('hidden'); // Show the upload box
+        }
+        
+        // --- NEW: CLOUDINARY UPLOAD FUNCTION ---
+        async function handleCloudinaryUpload(file) {
+            // Check if credentials are set (they are, but good practice)
+            if (CLOUDINARY_CLOUD_NAME === 'YOUR_CLOUD_NAME_HERE' || CLOUDINARY_UPLOAD_PRESET === 'YOUR_UPLOAD_PRESET_HERE') {
+                console.error("Cloudinary credentials not set.");
+                throw new Error("File upload is not configured. Please contact support.");
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            try {
+                // Determine resource type for Cloudinary API (image or video)
+                let resourceType = 'auto';
+                if (file.type.startsWith('image/')) {
+                    resourceType = 'image';
+                } else if (file.type.startsWith('video/')) {
+                    resourceType = 'video';
+                }
+
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Cloudinary Error: ${errorData.error.message}`);
+                }
+
+                const data = await response.json();
+                return data.secure_url; // Return the secure URL of the uploaded file
+            
+            } catch (error) {
+                console.error("Error uploading to Cloudinary:", error);
+                throw error; // Re-throw the error to be caught by handlePhotoPost
+            }
+        }
+
+        // --- UPDATED: Photo Post Handler (uses Cloudinary) ---
+        async function handlePhotoPost() {
              const caption = document.getElementById('photo-post-caption').value;
-             if (!selectedFile) { showToast("Please select a photo or video to upload.", "error"); return; }
+             if (!selectedFile) {
+                 showToast("Please select a photo or video to upload.", "error");
+                 return;
+             }
+             
              showLoading();
+
              try {
-                 const fileExt = selectedFile.name.split('.').pop();
-                 const fileName = `${currentAuthUser.id}/${Date.now()}.${fileExt}`;
-                 const { data: uploadData, error: uploadError } = await _supabase.storage.from('posts_media').upload(fileName, selectedFile);
-                 if (uploadError) { throw new Error(`Storage Error: ${uploadError.message}`); }
-                 const { data: urlData } = _supabase.storage.from('posts_media').getPublicUrl(fileName);
-                 if (!urlData.publicUrl) { throw new Error("Could not get public URL for the media."); }
-                 const { error: dbError } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'photo', content: caption, media_url: urlData.publicUrl, is_anonymous: false });
-                 if (dbError) { throw new Error(`Database Error: ${dbError.message}`); }
-                 hideLoading(true);
+                // 1. Upload to Cloudinary
+                const mediaUrl = await handleCloudinaryUpload(selectedFile);
+                
+                if (!mediaUrl) {
+                    throw new Error("Could not get public URL from Cloudinary.");
+                }
+
+                // 2. Insert post data into Supabase
+                const { error: dbError } = await _supabase.from('posts').insert({ 
+                    user_id: currentAuthUser.id, 
+                    post_type: 'photo', 
+                    content: caption, 
+                    media_url: mediaUrl, // Use the Cloudinary URL
+                    is_anonymous: false 
+                });
+                
+                if (dbError) { 
+                    throw new Error(`Database Error: ${dbError.message}`); 
+                }
+                
+                hideLoading(true); // Success!
+             
              } catch (error) {
                  console.error("Error posting photo:", error);
-                 hideLoading(false, `Error: ${error.message}`); // Use toast
+                 hideLoading(false, `Error: ${error.message}`); // Show specific error
              } finally {
-                 selectedFile = null; document.getElementById('file-upload-input').value = null; document.getElementById('file-upload-text').textContent = 'Click to upload';
+                 // Clean up regardless of success or failure
+                 resetFileSelection();
+                 document.getElementById('photo-post-caption').value = '';
              }
          }
-         function addPollOption() { /* ... keep existing ... */
-             const container = document.getElementById('poll-options-container'); const optionCount = container.querySelectorAll('.poll-option').length; if (optionCount >= 5) { showToast("You can add a maximum of 5 options.", "error"); return; } const newOption = document.createElement('input'); newOption.type = 'text'; newOption.placeholder = `Option ${optionCount + 1}`; newOption.className = 'poll-option w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600'; container.appendChild(newOption);
+
+        // --- Poll Handlers (UI Enhancement) ---
+         function addPollOption() {
+             const container = document.getElementById('poll-options-container'); 
+             const optionCount = container.querySelectorAll('.poll-option').length; 
+             if (optionCount >= 5) { 
+                 showToast("You can add a maximum of 5 options.", "error"); 
+                 return; 
+             } 
+             const newOption = document.createElement('input'); 
+             newOption.type = 'text'; 
+             newOption.placeholder = `Option ${optionCount + 1}`; 
+             // Add the modern form classes
+             newOption.className = 'poll-option form-input'; 
+             container.appendChild(newOption);
          }
-         async function handlePollPost() { /* ... keep existing, but use showToast for errors ... */
-              const question = document.getElementById('poll-question').value; if (!question.trim()) { showToast("Please ask a question for your poll.", "error"); return; } const options = []; document.querySelectorAll('.poll-option').forEach(input => { if (input.value.trim()) { options.push({ option: input.value.trim() }); } }); if (options.length < 2) { showToast("Please provide at least two poll options.", "error"); return; } showLoading(); const { error } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'poll', content: question, poll_options: options, is_anonymous: false }); if (error) { console.error("Error posting poll:", error.message); hideLoading(false, `Error: ${error.message}`); } else { hideLoading(true); }
+
+         async function handlePollPost() {
+              const question = document.getElementById('poll-question').value; 
+              if (!question.trim()) { 
+                  showToast("Please ask a question for your poll.", "error"); 
+                  return; 
+              } 
+              const options = []; 
+              document.querySelectorAll('.poll-option').forEach(input => { 
+                  if (input.value.trim()) { options.push({ option: input.value.trim() }); } 
+              }); 
+              if (options.length < 2) { 
+                  showToast("Please provide at least two poll options.", "error"); 
+                  return; 
+              } 
+              showLoading(); 
+              const { error } = await _supabase.from('posts').insert({ user_id: currentAuthUser.id, post_type: 'poll', content: question, poll_options: options, is_anonymous: false }); 
+              if (error) { hideLoading(false, `Error: ${error.message}`); } 
+              else { hideLoading(true); }
          }
 
         // --- Toast Notification Function ---
