@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" class=""> <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>About Us - BirlaOne</title>
+  
+  <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: { 
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    logo: ['Pacifico', 'cursive'],
+                },
+                colors: {
+                    'primary': {
+                        '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3',
+                        '400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26',
+                        '800': '#396f21','900': '#305b1c','950': '#1a320f',
+                    },
+                     'danger': {
+                        '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a',
+                        '300': '#e57373', '400': '#ef5350', '500': '#f44336',
+                        '600': '#e53935', '700': '#d32f2f', '800': '#c62828',
+                        '900': '#b71c1c', '950': '#8d1111',
+                    }
+                }
+            },
+        },
+    };
+  </script>
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
+    .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
+    .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
+    .liked svg.feather-heart, .liked i[data-feather="heart"] { fill: #ef4444; color: #ef4444; stroke: #ef4444; }
+    .engagement-icon { width: 20px; height: 20px; }
+    .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .poll-option-button { min-height: 44px; }
+    .poll-bar-fg { height: 100%; transition: width 0.3s ease-in-out; }
+    .delete-comment-button svg.feather { width: 16px; height: 16px; } 
+    .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
+    #notification-panel { transition: transform 0.3s ease-in-out; }
+
+    /* --- Fluid Load-in Animations --- */
+    .notification-item-enter, .post-item-enter {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .notification-item-enter-active, .post-item-enter-active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+     #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
+     .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
+     .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
+     .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
+     .toast.show { opacity: 1; }
+     .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+     @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+     button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* --- Shimmer Loader Styles --- */
+    .shimmer-wrapper {
+        animation: shimmer 1.5s infinite linear;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+    }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    .dark .shimmer-wrapper {
+        background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+        background-size: 200% 100%;
+    }
+
+    /* --- Sidebar Styles --- */
+    #sidebar { transition: transform 0.3s ease-in-out; width: 300px; }
+    .sidebar-menu-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: #374151; font-weight: 500; transition: background-color 0.2s; }
+    .sidebar-menu-item span { letter-spacing: 0.2px; }
+    .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
+    .sidebar-menu-item:hover { background-color: #f3f4f6; }
+    .sidebar-menu-item i[data-feather] {
+        width: 20px;
+        height: 20px;
+        color: #4b5563;
+        flex-shrink: 0; /* Prevent icon from shrinking */
+    }
+    .sidebar-menu-item i[data-feather]:first-child {
+        margin-right: 1.75rem; 
+    }
+    .sidebar-menu-item-arrow { margin-left: auto; color: #9ca3af; }
+    #sidebar-qr-code-img { background: white; padding: 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
+    #sidebar-qr-code-img img,
+    #sidebar-qr-code-img canvas {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 6px;
+    }
+
+    /* --- Dark Mode Styles --- */
+    :root { color-scheme: light; }
+    :root.dark { color-scheme: dark; }
+    .dark body { background-color: #111827; }
+    .dark .bg-slate-50 { background-color: #111827; }
+    .dark .bg-white { background-color: #1f2937; }
+    .dark .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(255, 255, 255, 0.03); border-bottom: 1px solid #374151; }
+    .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
+    .dark .text-gray-900 { color: #f9fafb; }
+    .dark .text-gray-800 { color: #f3f4f6; }
+    .dark .text-gray-700 { color: #d1d5db; }
+    .dark .text-gray-600 { color: #9ca3af; }
+    .dark .text-gray-500 { color: #6b7280; }
+    .dark .text-gray-400 { color: #9ca3af; }
+    .dark .border-gray-100 { border-color: #374151; }
+    .dark .border-gray-200 { border-color: #374151; }
+    .dark .bg-gray-50 { background-color: #374151; }
+    .dark .bg-gray-100 { background-color: #374151; }
+    .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
+    .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
+    .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
+    .dark .bg-black\/30 { background-color: rgba(0, 0, 0, 0.5); }
+    .dark .text-primary-600 { color: #a6d98e; }
+    .dark .font-logo.text-primary-600 { color: #a6d98e; }
+    .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
+    .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
+    /* Sidebar Dark */
+    .dark #sidebar { background-color: #1f2937; border-color: #374151; }
+    .dark .sidebar-menu-item { color: #d1d5db; }
+    .dark .sidebar-menu-item:hover { background-color: #374151; }
+    .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
+    .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
+    .dark #sidebar-user-avatar { border-color: #374151; }
+    #sidebar-qr-code-img { background: white; }
+    .dark .sidebar-menu-item-arrow { color: #6b7280; }
+    .dark .text-danger-600 { color: #ef5350; }
+    .dark .hover\:\!bg-danger-50:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
+    .dark .sidebar-menu-item i.text-danger-600 { color: #ef5350 !important; }
+    /* Feed Dark */
+    .dark .bg-gray-800 { background-color: #374151; }
+    .dark .text-white { color: #f9fafb; }
+    .dark .comment-item .bg-gray-100 { background-color: #374151; }
+    .dark input[type="text"].bg-gray-100 { background-color: #4b5563; }
+    .dark .liked { color: #f44336; }
+    .dark .liked svg.feather-heart { fill: #f44336; color: #f44336; }
+    .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
+    .dark .poll-option-button { border-color: #4b5563; }
+    .dark .poll-option-button.bg-primary-100 { background-color: #396f21; }
+    .dark .poll-option-button.border-primary-600 { border-color: #56ab2f; }
+    /* Notification Dark */
+    .dark #notification-panel { background-color: #1f2937; border-color: #374151; }
+    .dark .bg-primary-50 { background-color: #374150; }
+    .dark .hover\:bg-primary-50:hover { background-color: #374151; }
+    .dark .text-primary-600.font-medium { color: #a6d98e; }
+    /* Toast Dark */
+    .dark .toast.toast-success { background-color: #a6d98e; color: #1a320f; }
+    .dark .toast.toast-error { background-color: #ef9a9a; color: #8d1111; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-slate-50">
+
+    <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
+      <a href="feed.html" class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90" aria-label="Back to feed">
+        <i data-feather="arrow-left" class="text-gray-700"></i>
+      </a>
+      <h1 class="text-xl font-semibold text-gray-900">About Us</h1>
+      <div class="w-10 h-10"></div> </header>
+
+    <main class="pt-20 p-4 pb-10">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 space-y-5">
+          
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome to BirlaOne!</h2>
+            <p class="text-base leading-relaxed text-gray-700">
+                <strong>BirlaOne</strong> is an all-in-one digital platform created <em>by students, for students</em> of B.K. Birla Night College. Designed to bring together academics, interaction, and campus life into one seamless app, BirlaOne is your smart companion for everything college-related — from attendance tracking to collaborative learning and beyond.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Who We Are</h2>
+            <p class="text-base leading-relaxed text-gray-700">
+                We are a group of passionate students from B.K. Birla Night College who believe that education and communication should go hand in hand. Inspired by everyday college life, we developed BirlaOne to simplify routine academic tasks while also encouraging connection, feedback, and collaboration among students and faculty.
+            </p>
+          </div>
+          
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">What BirlaOne Offers</h2>
+            <p class="text-base leading-relaxed text-gray-700 mb-4">
+                BirlaOne is built to make student life easier, smarter, and more engaging. It brings together essential tools and interactive features such as:
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 leading-relaxed">
+                <li>📘 <strong>Attendance Tracking</strong> – Stay updated on your class attendance anytime.</li>
+                <li>📝 <strong>Assignments & Notes</strong> – Access and submit coursework easily.</li>
+                <li>💬 <strong>Social Interaction</strong> – Connect and collaborate with peers within the app.</li>
+                <li>🕵️‍♀️ <strong>Anonymous Surveys & Feedback</strong> – Share honest opinions and ideas safely.</li>
+                <li>📢 <strong>Notifications & Updates</strong> – Never miss important announcements.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Our Purpose</h2>
+            <p class="text-base leading-relaxed text-gray-700">
+                Our mission is to build a connected digital ecosystem for our college — where students can manage academics, share resources, voice opinions, and grow together. BirlaOne promotes transparency, participation, and digital empowerment across all streams and departments.
+            </D>
+          </div>
+
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Our Vision</h2>
+            <p class="text-base leading-relaxed text-gray-700">
+                We envision BirlaOne as the heartbeat of B.K. Birla Night College — a student-driven, innovative space that enhances campus communication, supports learning, and inspires collaboration. Our goal is to make college life more organized, engaging, and interactive — all in one app.
+            </p>
+          </div>
+          
+          <p class="mt-8 pt-6 border-t border-gray-200 italic text-center text-sm text-gray-500">
+              Note: BirlaOne is an independent student initiative and is not officially affiliated with B.K. Birla Night College administration.
+          </p>
+      </div>
+    </main>
+
+  </div> <script>
+    function initializeTheme() {
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeTheme();
+        feather.replace();
+    });
+  </script>
+</body>
+</html>
