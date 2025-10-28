@@ -6,23 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BirlaOne Search</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Feather Icons Script -->
     <script src="https://unpkg.com/feather-icons"></script>
 
-    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Pacifico font for the logo -->
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     
-    <!-- Tailwind Config with NEW GREEN THEME -->
     <script>
         tailwind.config = {
             theme: {
@@ -40,7 +34,6 @@
         };
     </script>
     
-    <!-- Custom Styles -->
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; /* bg-slate-50 */ }
         .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
@@ -66,13 +59,10 @@
 </head>
 <body class="antialiased">
 
-    <!-- App Container -->
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
 
-        <!-- Main Content - Search -->
         <main class="pb-28 overflow-y-auto h-screen no-scrollbar">
             
-            <!-- Sticky Search Header -->
             <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 space-y-4">
                 <h1 class="text-3xl font-bold text-gray-900">Search</h1>
                 <div class="relative flex items-center">
@@ -81,46 +71,37 @@
                 </div>
             </div>
 
-            <!-- Content Area -->
             <div class="p-4 space-y-4">
-                <!-- Popular Users Section (Visible by default) -->
                 <div id="popular-section">
                     <h2 class="text-lg font-semibold text-gray-700 mb-3">Popular</h2>
                     <div id="popular-users-list" class="space-y-3">
                         <div id="popular-loading" class="text-center text-gray-500 py-4">Loading popular users...</div>
-                        <!-- Popular user items will be injected here -->
-                    </div>
+                        </div>
                 </div>
 
-                <!-- Search Results Section (Hidden by default) -->
                 <div id="search-results-section" class="hidden">
                      <h2 class="text-lg font-semibold text-gray-700 mb-3">Results</h2>
                      <div id="search-results-list" class="space-y-3">
                          <div id="search-loading" class="text-center text-gray-500 py-4 hidden">Searching...</div>
                          <div id="no-results" class="text-center text-gray-500 py-4 hidden">No users found.</div>
-                         <!-- Search result items will be injected here -->
-                     </div>
+                         </div>
                 </div>
             </div>
 
         </main>
 
-        <!-- Bottom Navigation -->
         <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
             <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
             <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
             <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
-            <!-- Active Search Link -->
             <a href="search.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Search"> <i data-feather="search" class="stroke-[2.5px]"></i> </a>
             <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Profile"> <i data-feather="grid"></i> </a>
         </nav>
 
     </div>
 
-     <!-- Toast Notification Container -->
-    <div id="toast-container"></div>
+     <div id="toast-container"></div>
 
-    <!-- JavaScript -->
     <script>
         // --- Supabase Client & Globals ---
         const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // REPLACE
@@ -194,10 +175,12 @@
             noResults.style.display = 'none';
 
             try {
+                // CHANGED: Added 's_permission' to select
                 const { data: users, error } = await _supabase.from('users')
-                    .select('id, auth_id, name, img, course, tick')
+                    .select('id, auth_id, name, img, course, tick, s_permission') 
                     .ilike('name', `%${searchTerm}%`) // Case-insensitive search
-                    .neq('auth_id', currentAuthUser.id) // Exclude self
+                    // CHANGED: Replaced .neq() with .or() to conditionally include self
+                    .or(`auth_id.neq.${currentAuthUser.id},and(auth_id.eq.${currentAuthUser.id},s_permission.eq.yes)`)
                     .limit(10);
                 
                 if (error) throw error;
@@ -205,7 +188,9 @@
                 if (users.length === 0) {
                     noResults.style.display = 'block';
                 } else {
-                    const friendshipStatuses = await checkMultipleFriendshipStatuses(users.map(u => u.auth_id));
+                    // Filter out self from friendship check, as it's not needed
+                    const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
+                    const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
                     renderUserList(users, searchResultsList, friendshipStatuses);
                 }
 
@@ -223,17 +208,21 @@
             popularLoading.style.display = 'block';
             popularUsersList.innerHTML = ''; // Clear previous
             try {
+                // CHANGED: Added 's_permission' to select
                 const { data: users, error } = await _supabase.from('users')
-                    .select('id, auth_id, name, img, course, tick, friend_count')
+                    .select('id, auth_id, name, img, course, tick, friend_count, s_permission')
                     .gt('friend_count', 0) // Friend count > 0
-                    .neq('auth_id', currentAuthUser.id) // Exclude self
+                    // CHANGED: Replaced .neq() with .or() to conditionally include self
+                    .or(`auth_id.neq.${currentAuthUser.id},and(auth_id.eq.${currentAuthUser.id},s_permission.eq.yes)`)
                     .order('friend_count', { ascending: false }) // Highest first
                     .limit(10); // Limit results
 
                 if (error) throw error;
                 
                 if (users.length > 0) {
-                    const friendshipStatuses = await checkMultipleFriendshipStatuses(users.map(u => u.auth_id));
+                    // Filter out self from friendship check, as it's not needed
+                    const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
+                    const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
                     renderUserList(users, popularUsersList, friendshipStatuses);
                 } else {
                     popularUsersList.innerHTML = '<p class="text-center text-gray-500">No popular users found yet.</p>';
@@ -255,6 +244,9 @@
         
         // --- Create Single User Item HTML ---
         function createUserItemHTML(user, status) {
+            // CHANGED: Check if the rendered user is the current logged-in user
+            const isCurrentUser = user.auth_id === currentAuthUser.id;
+            
             const profileUrl = `profile.html?id=${user.id}`;
             const avatarUrl = user.img || `https://placehold.co/60x60/DCEFD3/305B1C?text=${user.name ? user.name.charAt(0) : '?'}`;
             const tickType = user.tick?.toLowerCase();
@@ -264,7 +256,13 @@
             const courseText = user.course ? user.course.toUpperCase() : 'Course not set';
             
             let actionButtonHtml = '';
-            if (status === 'none') {
+            // CHANGED: Added logic for 'isCurrentUser'
+            if (isCurrentUser) {
+                actionButtonHtml = `
+                    <span class="p-2 rounded-full text-primary-700 bg-primary-100 font-semibold text-sm px-3">
+                        You
+                    </span>`;
+            } else if (status === 'none') {
                 actionButtonHtml = `
                     <button class="add-friend-btn p-2 rounded-full text-primary-600 bg-primary-100 hover:bg-primary-200 transition-all active:scale-90" data-user-id="${user.auth_id}" title="Add Friend">
                         <i data-feather="user-plus" class="w-5 h-5"></i>
