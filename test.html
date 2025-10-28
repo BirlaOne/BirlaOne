@@ -1,18 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json"> {/* PWA Manifest */}
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
-    <title>BirlaOne Dashboard</title>
+    <meta name="theme-color" content="#56ab2f"> <title>BirlaOne - Create Post</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script> {/* Added QR Code Lib */}
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +17,6 @@
     
     <script>
         tailwind.config = {
-            darkMode: 'class', // Enabled dark mode class strategy
             theme: {
                 extend: {
                     fontFamily: {
@@ -30,14 +25,14 @@
                     },
                     colors: {
                         'primary': {
-                            '50': '#f7fbf4', '100': '#eef8e9', '200': '#dcf1d3', '300': '#c3e7b3',
-                            '400': '#a6d98e', '500': '#87c964', '600': '#56ab2f', '700': '#458a26',
-                            '800': '#396f21', '900': '#305b1c', '950': '#1a320f',
+                            '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3',
+                            '400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26',
+                            '800': '#396f21','900': '#305b1c','950': '#1a320f',
                         },
                          'danger': { 
-                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a', '300': '#e57373',
-                            '400': '#ef5350', '500': '#f44336', '600': '#e53935', '700': '#d32f2f',
-                            '800': '#c62828', '900': '#b71c1c', '950': '#8d1111',
+                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a','300': '#e57373',
+                            '400': '#ef5350', '500': '#f44336','600': '#e53935', '700': '#d32f2f',
+                            '800': '#c62828','900': '#b71c1c', '950': '#8d1111'
                         }
                     }
                 },
@@ -46,952 +41,1179 @@
     </script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .fade-in { animation: fadeIn 0.4s ease-in-out; }
-        .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; /* Changed to f9fafb */ }
         .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
         .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
-        .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Non-blocking spinner for buttons */
+        .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #ffffff; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
         .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
-        #notification-panel { transition: transform 0.3s ease-in-out; }
-        .notification-item-enter { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease; }
-        .notification-item-enter-active { opacity: 1; transform: translateY(0); }
+        #file-upload-input { display: none; }
+        #file-upload-label { cursor: pointer; }
 
-        /* --- Shimmer Loader Styles --- */
-        .shimmer-wrapper {
-            animation: shimmer 1.5s infinite linear;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-        }
+        /* --- NEW & ENHANCED STYLES --- */
+        
+        /* Shimmer Loader for Profile */
         @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% { background-position: -468px 0; }
+            100% { background-position: 468px 0; }
         }
-        .dark .shimmer-wrapper {
-            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-            background-size: 200% 100%;
+        .shimmer-bg {
+            animation: shimmer 1.5s linear infinite forwards;
+            background: linear-gradient(to right, #f6f7f8 4%, #edeef1 25%, #f6f7f8 36%);
+            background-size: 800px 104px;
         }
 
-        /* --- Toast Notifications --- */
-        #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
-        .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
+        /* Editable Div Styling */
+        .editable-content {
+            min-height: 160px; height: auto; border: 1px solid #e5e7eb; border-radius: 0.75rem; 
+            padding: 1rem; background-color: white; /* Changed from bg-gray-50 */ color: #111827; line-height: 1.5;
+            transition: box-shadow 0.2s;
+        }
+        .editable-content:focus {
+            outline: none; box-shadow: 0 0 0 2px #56ab2f;
+        }
+        .editable-content[placeholder]:empty:before {
+            content: attr(placeholder); color: #6b7280; pointer-events: none; display: block;
+        }
+
+        /* Toolbar Styling */
+        .format-toolbar {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; padding: 0.5rem;
+            background-color: #f3f4f6; border-radius: 0.5rem; border: 1px solid #e5e7eb;
+        }
+        .format-toolbar button {
+            padding: 0.375rem 0.625rem; border-radius: 0.375rem; background-color: white;
+            border: 1px solid #d1d5db; font-weight: 600; font-size: 0.875rem; color: #374151;
+            transition: all 0.2s;
+        }
+        .format-toolbar button:hover { background-color: #f9fafb; }
+        /* Enhanced Active State */
+        .format-toolbar button.active {
+             background-color: #eef8e9; /* primary-100 */
+             color: #458a26; /* primary-700 */
+             border-color: #a6d98e; /* primary-400 */
+             box-shadow: 0 0 0 1px #a6d98e;
+        }
+        .format-toolbar button i[data-feather] { width: 18px; height: 18px; }
+
+        /* Enhanced Toast Notifications (Centered) */
+        #toast-container { 
+            position: fixed; bottom: 4rem; /* Above bottom nav */ left: 50%; transform: translateX(-50%);
+            z-index: 100; display: flex; flex-direction: column; align-items: center; 
+            gap: 0.75rem; pointer-events: none; width: 100%; max-width: 380px; padding: 0 1rem;
+        }
+        .toast { 
+            display: flex; align-items: center; width: 100%; padding: 0.75rem 1rem; 
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1); /* shadow-lg */
+            animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
         .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
         .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
-        .toast.show { opacity: 1; }
+        .toast.toast-info { background-color: #f9fafb; color: #1f2937; border-color: #e5e7eb; }
+        .toast.show { opacity: 1; animation: toast-in 0.3s ease-out forwards; }
+        .toast.hide { animation: toast-out 0.3s ease-in forwards; }
         .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        @keyframes toast-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
-        /* --- Sidebar Styles (Copied from feed.html fixes) --- */
-        #sidebar { transition: transform 0.3s ease-in-out; width: 300px; }
-        .sidebar-menu-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: #374151; font-weight: 500; transition: background-color 0.2s; }
-        .sidebar-menu-item span { letter-spacing: 0.2px; }
-        .sidebar-menu-item:hover { background-color: #f3f4f6; }
-        .sidebar-menu-item i[data-feather] { width: 20px; height: 20px; color: #4b5563; flex-shrink: 0; }
-        .sidebar-menu-item i[data-feather]:first-child { margin-right: 1.75rem; }
-        .sidebar-menu-item-arrow { margin-left: auto; color: #9ca3af; }
-        #sidebar-qr-code-img { background: white; padding: 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
-        #sidebar-qr-code-img img, #sidebar-qr-code-img canvas { width: 100% !important; height: 100% !important; border-radius: 6px; }
+        /* Tab Panel Transitions */
+        .tab-panel {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .tab-panel.hidden {
+            opacity: 0;
+            transform: translateY(10px);
+            display: none; /* JS will toggle this, but opacity handles anim */
+        }
 
-        /* --- Dark Mode Styles --- */
-        :root { color-scheme: light; }
-        :root.dark { color-scheme: dark; }
-        .dark body { background-color: #111827; }
-        .dark .bg-slate-50 { background-color: #111827; }
-        .dark .bg-white { background-color: #1f2937; }
-        .dark .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(255, 255, 255, 0.03); border-bottom: 1px solid #374151; }
-        .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
-        .dark .text-gray-900 { color: #f9fafb; }
-        .dark .text-gray-800 { color: #f3f4f6; }
-        .dark .text-gray-700 { color: #d1d5db; }
-        .dark .text-gray-600 { color: #9ca3af; }
-        .dark .text-gray-500 { color: #6b7280; }
-        .dark .text-gray-400 { color: #9ca3af; }
-        .dark .border-gray-100 { border-color: #374151; }
-        .dark .border-gray-200 { border-color: #374151; }
-        .dark .bg-gray-50 { background-color: #374151; }
-        .dark .bg-gray-100 { background-color: #374151; }
-        .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
-        .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
-        .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
-        .dark .bg-black\/30 { background-color: rgba(0, 0, 0, 0.5); }
-        .dark .text-primary-600 { color: #a6d98e; }
-        .dark .font-logo.text-primary-600 { color: #a6d98e; }
-        .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
-        .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
-        /* Sidebar Dark */
-        .dark #sidebar { background-color: #1f2937; border-color: #374151; }
-        .dark .sidebar-menu-item { color: #d1d5db; }
-        .dark .sidebar-menu-item:hover { background-color: #374151; }
-        .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
-        .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
-        .dark #sidebar-user-avatar { border-color: #374151; }
-        #sidebar-qr-code-img { background: white; }
-        .dark .sidebar-menu-item-arrow { color: #6b7280; }
-        .dark .text-danger-600 { color: #ef5350; }
-        .dark .hover\:\!bg-danger-50:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
-        .dark .sidebar-menu-item i.text-danger-600 { color: #ef5350 !important; }
-        /* Notification Dark */
-        .dark #notification-panel { background-color: #1f2937; border-color: #374151; }
-        .dark .bg-primary-50 { background-color: #374150; }
-        .dark .hover\:bg-primary-50:hover { background-color: #374151; }
-        .dark .text-primary-600.font-medium { color: #a6d98e; }
-        /* Toast Dark */
-        .dark .toast.toast-success { background-color: #a6d98e; color: #1a320f; }
-        .dark .toast.toast-error { background-color: #ef9a9a; color: #8d1111; }
+        /* Autosave Indicator */
+        .autosave-indicator {
+            font-size: 0.875rem; color: #6b7280; text-align: right; height: 1.25rem;
+            transition: opacity 0.3s; opacity: 0;
+        }
+        .autosave-indicator.show { opacity: 1; }
+        
+        /* Dark Anonymous Panel */
+        #panel-anonymous.dark-panel {
+            background-color: #1f2937; /* gray-800 */
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+        .dark-panel .editable-content { background-color: #374151; color: #e5e7eb; border-color: #4b5563; }
+        .dark-panel .editable-content:focus { box-shadow: 0 0 0 2px #56ab2f; }
+        .dark-panel .editable-content[placeholder]:empty:before { color: #9ca3af; }
+        .dark-panel .format-toolbar { background-color: #374151; border-color: #4b5563; }
+        .dark-panel .format-toolbar button { background-color: #4b5563; border-color: #6b7280; color: #f3f4f6; }
+        .dark-panel .format-toolbar button:hover { background-color: #525c6a; }
+        .dark-panel .format-toolbar button.active { background-color: #eef8e9; color: #458a26; border-color: #a6d98e; }
+        .dark-panel .autosave-indicator { color: #9ca3af; }
+
+        /* Accessibility Focus */
+        :focus-visible {
+            outline: 2px solid #56ab2f !important;
+            outline-offset: 2px;
+            border-radius: 0.375rem;
+        }
+        .editable-content:focus-visible { outline: none !important; } /* Handled by box-shadow */
+        
+        /* Upload Progress Bar */
+        #upload-progress-container {
+             background-color: #e5e7eb; border-radius: 9999px; height: 0.75rem;
+             overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+        #upload-progress-bar {
+            background-color: #56ab2f; height: 0.75rem; border-radius: 9999px;
+            transition: width 0.3s ease-out;
+        }
+
+        /* Sidebar Icon Spacing Fix (Goal 8) */
+        .sidebar-menu-item i[data-feather] {
+          margin-right: 1.25rem; /* Space between icon and text */
+          vertical-align: middle;
+        }
     </style>
 </head>
 <body class="antialiased">
 
-    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-slate-800">
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
 
-        <!-- Shimmer Loader -->
-        <div id="shimmer-loader" class="absolute inset-0 z-50 bg-white dark:bg-gray-900 pt-20 pb-24 px-4 overflow-hidden">
-            <!-- Header Shimmer -->
-            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
-                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
-                <div class="w-24 h-6 shimmer-wrapper rounded-full"></div>
-                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
-            </div>
-            <!-- Content Shimmer -->
-            <div class="space-y-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
-                </div>
-                <div>
-                    <div class="h-5 w-1/3 shimmer-wrapper rounded-full mb-3"></div>
-                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
-                </div>
-                <div class="h-32 shimmer-wrapper rounded-2xl"></div>
-                <div class="space-y-3">
-                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
-                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
-                </div>
-                <div class="space-y-3">
-                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
-                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
-                </div>
-            </div>
-            <!-- Bottom Nav Shimmer -->
-            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
-                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
-                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
-                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
-                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
-                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
-            </div>
+        <div id="offline-banner" class="hidden fixed top-0 left-0 right-0 z-50 md:max-w-md md:mx-auto bg-danger-800 text-white p-3 text-center text-sm font-medium shadow-lg">
+            📴 You’re offline. Posts will be saved locally and uploaded when you're back.
         </div>
-        
-        <!-- App Content (Initially Hidden) -->
-        <div id="app-content" class="hidden">
-            <!-- Header (z-30) -->
-            <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
-               
-                <button id="sidebar-toggle-btn" class="p-2 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90">
-                    <i data-feather="menu" class="text-gray-700 dark:text-gray-300"></i>
-                </button>
-                <h1 class="text-3xl font-logo text-primary-600 dark:text-primary-400">BirlaOne</h1>
-                <button id="notification-bell-btn" class="relative p-2 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90">
-                    <i data-feather="bell" class="text-gray-700 dark:text-gray-300"></i>
-                    <span id="notification-badge" class="hidden absolute top-1 right-1 block h-4 w-4 rounded-full bg-red-500 text-white text-[10px] leading-tight text-center ring-2 ring-white dark:ring-gray-800">
-                        0
-                    </span>
-                </button>
-            </header>
 
-            <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar bg-slate-50 dark:bg-gray-900">
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Academic Score</h2>
-                            <i data-feather="award" class="text-primary-600 dark:text-primary-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="academic-score-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ 100</span>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Plastic Recycled</h2>
-                            <i data-feather="refresh-ccw" class="text-green-600 dark:text-green-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="recycled-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">kg</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Campus Friends</h2>
-                            <i data-feather="users" class="text-purple-500 dark:text-purple-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="friends-count-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total</span>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Net Worth</h2>
-                            <i data-feather="credit-card" class="text-indigo-500 dark:text-indigo-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="net-worth-value" class="text-4xl font-bold text-gray-900 dark:text-white">₹--</span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Personal Wealth</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
-                        <i data-feather="star" class="text-yellow-500 dark:text-yellow-400"></i>
-                        <span>Roles & Badges</span>
-                    </h2>
-                    <div id="roles-badges-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
-                            Loading...
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
-                        <i data-feather="book-open" class="text-primary-600 dark:text-primary-400"></i>
-                        <span>Scheduled Lectures</span>
-                    </h2>
-                     <div id="lectures-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
-                            Loading...
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
-                        <i data-feather="calendar" class="text-green-600 dark:text-green-400"></i>
-                        <span>Upcoming Activities</span>
-                    </h2>
-                    <div id="activities-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
-                            Loading...
-                    </div>
-                </div>
-
-            </main>
-
-            <!-- Bottom Nav (z-30) -->
-            <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-                <a href="index.html" class="flex flex-col items-center justify-center p-2 text-primary-600 dark:text-primary-400 rounded-lg bottom-nav-icon" aria-label="Dashboard">
-                    <i data-feather="layout" class="stroke-[2.5px]"></i>
-                </a>
-                <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Feed">
-                    <i data-feather="file-text"></i>
-                </a>
-                <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Create">
-                    <i data-feather="plus-circle"></i>
-                </a>
-                <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Search">
-                    <i data-feather="search"></i>
-                </a>
-                <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Mini Apps">
-                    <i data-feather="grid"></i>
-                </a>
-            </nav>
-
-            <!-- Notification Panel (z-50) -->
-            <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl border-l border-gray-200 dark:border-gray-700 z-50 flex flex-col transform translate-x-full">
-                <div class="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Notifications</h3>
-                    <button id="close-notification-panel-btn" class="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <i data-feather="x"></i>
-                    </button>
-                </div>
-                <div id="notification-list" class="flex-1 overflow-y-auto p-2 space-y-2">
-                    <p id="notifications-loading" class="text-center text-gray-500 dark:text-gray-400 py-4">Loading...</p>
-                    <p id="no-notifications" class="hidden text-center text-gray-500 dark:text-gray-400 py-4">No notifications yet.</p>
-                </div>
-                <div class="p-2 border-t border-gray-200 dark:border-gray-700">
-                    <button id="mark-all-read-btn" class="w-full text-sm text-primary-600 dark:text-primary-400 font-medium py-2 hover:bg-primary-50 dark:hover:bg-gray-700 rounded">
-                        Mark all as read
-                    </button>
-                </div>
-            </div>
+        <main class="pt-6 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
             
-            <!-- Sidebar (z-50) -->
-            <nav id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full p-4 space-y-6 overflow-y-auto no-scrollbar">
-                <div class="profile-qr-card p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border border-gray-200 dark:border-gray-600 space-y-4">
-                    <div class="flex flex-col items-center space-y-2">
-                        <img id="sidebar-user-avatar" src="https://placehold.co/64x64/A8E063/305B1C?text=U" alt="Your Profile" class="w-16 h-16 rounded-full bg-gray-200 border-2 border-white dark:border-gray-800 object-cover">
-                        <h2 class="font-bold text-lg text-gray-900 dark:text-white leading-tight text-center">
-                            <span id="sidebar-user-name">Loading...</span>
-                            <span id="sidebar-user-tick-container" class="inline-block"></span>
-                        </h2>
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold text-gray-900">Create Post</h1>
+                <a href="feed.html" class="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all focus-visible:ring-primary-600" aria-label="Close create post">
+                    <i data-feather="x" class="w-7 h-7"></i>
+                </a>
+            </div>
+
+            <div class="flex border-b border-gray-200">
+                <button id="tab-text" class="flex-1 py-3 text-center font-semibold border-b-2 border-primary-600 text-primary-600 transition-all focus-visible:ring-primary-600" aria-label="Create Text Post">Text</button>
+                <button id="tab-photo" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600" aria-label="Create Photo/Video Post">Photo/Video</button>
+                <button id="tab-poll" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600" aria-label="Create Poll Post">Poll</button>
+                <button id="tab-anonymous" class="flex-1 py-3 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all focus-visible:ring-primary-600" aria-label="Create Anonymous Post">Anonymous</button>
+            </div>
+
+            <div>
+                <div id="panel-text" class="space-y-4 tab-panel">
+                    <div class="flex items-center space-x-3">
+                        <div id="user-avatar-text-shimmer" class="w-10 h-10 rounded-full shimmer-bg"></div>
+                        <img id="user-avatar-text" src="" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200 hidden">
+                        <div>
+                            <div id="user-name-text-shimmer" class="h-5 w-32 rounded shimmer-bg"></div>
+                            <a href="myprofile.html" class="flex items-center hidden" id="user-name-text-container">
+                                <span id="user-name-text" class="font-semibold text-gray-900 hover:underline"></span>
+                            </a>
+                            <p class="text-sm text-gray-500">Posting publicly</p>
+                        </div>
                     </div>
-                    <div id="sidebar-qr-code-img" class="w-full h-auto aspect-square">
-                        <div class="spinner"></div>
+                    <div class="format-toolbar">
+                        <button onclick="formatDoc('bold');" title="Bold (Ctrl+B)" aria-label="Bold (Ctrl+B)"><i data-feather="bold"></i></button>
+                        <button onclick="formatDoc('italic');" title="Italic (Ctrl+I)" aria-label="Italic (Ctrl+I)"><i data-feather="italic"></i></button>
+                        <button onclick="formatDoc('underline');" title="Underline (Ctrl+U)" aria-label="Underline (Ctrl+U)"><i data-feather="underline"></i></button>
+                        <button onclick="formatDoc('strikeThrough');" title="Strikethrough (Ctrl+S)" aria-label="Strikethrough (Ctrl+S)"><i data-feather="slash"></i></button>
                     </div>
+                    <div id="text-post-content" contenteditable="true" class="editable-content" placeholder="What's on your mind?" aria-label="Text post content"></div>
+                    <div id="autosave-indicator-text" class="autosave-indicator"></div>
+                    <button id="submit-text-post" data-type="text" data-original-text="Post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed">Post</button>
                 </div>
-                <div class="flex-1 space-y-2">
-                    <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Account</h3>
-                    <a href="myprofile.html" class="sidebar-menu-item">
-                        <i data-feather="user"></i>
-                        <span>My Profile</span>
-                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                    </a>
-                    <a href="changepassword.html" class="sidebar-menu-item">
-                        <i data-feather="lock"></i>
-                        <span>Change Password</span>
-                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                    </a>
-                    <a href="settings.html" class="sidebar-menu-item">
-                        <i data-feather="settings"></i>
-                        <span>Settings</span>
-                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                    </a>
-                    <hr class="my-4 border-gray-100 dark:border-gray-700">
-                    <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">More</h3>
-                    <a href="about.html" class="sidebar-menu-item">
-                        <i data-feather="info"></i>
-                        <span>About Us</span>
-                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                    </a>
-                    <a href="contact.html" class="sidebar-menu-item">
-                        <i data-feather="phone"></i>
-                        <span>Contact Us</span>
-                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                    </a>
-                    <a href="support.html" class="sidebar-menu-item">
-                        <i data-feather="help-circle"></i>
-                        <span>Help & Support</span>
-                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                    </a>
-                    <hr class="my-4 border-gray-100 dark:border-gray-700">
-                    <div class="sidebar-menu-item">
-                        <i data-feather="moon"></i>
-                        <span>Dark Mode</span>
-                        <label class="relative inline-flex items-center cursor-pointer ml-auto">
-                            <input type="checkbox" value="" id="theme-toggle" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                        </label>
+
+                <div id="panel-photo" class="space-y-4 tab-panel hidden">
+                    <div class="flex items-center space-x-3">
+                        <div id="user-avatar-photo-shimmer" class="w-10 h-10 rounded-full shimmer-bg"></div>
+                        <img id="user-avatar-photo" src="" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200 hidden">
+                        <div>
+                            <div id="user-name-photo-shimmer" class="h-5 w-32 rounded shimmer-bg"></div>
+                            <a href="myprofile.html" class="flex items-center hidden" id="user-name-photo-container">
+                                <span id="user-name-photo" class="font-semibold text-gray-900 hover:underline"></span>
+                            </a>
+                            <p class="text-sm text-gray-500">Posting publicly</p>
+                        </div>
                     </div>
+                    <textarea id="photo-post-caption" class="w-full h-24 bg-white border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Write a caption..."></textarea>
+                    
+                    <input type="file" id="file-upload-input" accept="image/*,video/*" aria-label="Upload photo or video file">
+                    
+                    <label id="file-upload-label" for="file-upload-input" class="border border-gray-200 bg-gray-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center text-gray-600 transition-all hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 shadow-sm hover:shadow-md">
+                        <i data-feather="upload-cloud" class="w-12 h-12"></i>
+                        <p id="file-upload-text" class="font-semibold mt-2">Click to upload</p>
+                        <p class="text-sm">PNG, JPG, MP4 (Max 50MB)</p>
+                    </label>
+
+                    <div id="file-preview-container" class="mt-4 space-y-3"></div>
+                    <div id="upload-progress-container" class="hidden w-full space-y-2">
+                        <div class="flex justify-between mb-1">
+                             <span id="upload-progress-filename" class="text-sm font-medium text-gray-700">Uploading...</span>
+                             <span id="upload-progress-text" class="text-sm font-medium text-primary-700">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="upload-progress-bar" class="bg-primary-600 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="submit-photo-post" data-type="photo" data-original-text="Post" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed">Post</button>
+                    <button id="submit-photo-retry" data-type="photo" data-original-text="Retry Upload" class="hidden w-full bg-danger-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-danger-500/30 hover:bg-danger-700 transition-all active:scale-95 flex items-center justify-center">Retry Upload</button>
                 </div>
-                <div>
-                    <button id="logout-btn" class="sidebar-menu-item w-full !text-danger-600 dark:!text-danger-400 hover:!bg-danger-50 dark:hover:!bg-danger-900/30">
-                        <i data-feather="log-out" class="!text-danger-600 dark:!text-danger-400"></i>
-                        <span>Log Out</span>
+
+                <div id="panel-poll" class="space-y-4 tab-panel hidden">
+                    <div class="flex items-center space-x-3">
+                        <div id="user-avatar-poll-shimmer" class="w-10 h-10 rounded-full shimmer-bg"></div>
+                        <img id="user-avatar-poll" src="" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200 hidden">
+                        <div>
+                            <div id="user-name-poll-shimmer" class="h-5 w-32 rounded shimmer-bg"></div>
+                            <a href="myprofile.html" class="flex items-center hidden" id="user-name-poll-container">
+                                <span id="user-name-poll" class="font-semibold text-gray-900 hover:underline"></span>
+                            </a>
+                            <p class="text-sm text-gray-500">Posting publicly</p>
+                        </div>
+                    </div>
+                    <textarea id="poll-question" class="w-full h-24 bg-white border border-gray-200 rounded-xl p-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600" placeholder="Ask a question..."></textarea>
+                    <div id="poll-options-container" class="space-y-3">
+                        <h3 class="font-semibold text-gray-700">Options</h3>
+                        <input type="text" placeholder="Option 1" class="poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        <input type="text" placeholder="Option 2" class="poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600">
+                    </div>
+                    <button id="add-poll-option" class="w-full flex items-center justify-center space-x-2 bg-primary-50 text-primary-700 font-semibold py-3 rounded-xl hover:bg-primary-100 transition-colors border border-primary-200" aria-label="Add another poll option">
+                        <i data-feather="plus" class="w-5 h-5"></i>
+                        <span>Add Option</span>
                     </button>
+                    <button id="submit-poll-post" data-type="poll" data-original-text="Post Poll" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed">Post Poll</button>
                 </div>
-            </nav>
 
-            <!-- Backdrops (z-40) -->
-            <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
-            <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+                <div id="panel-anonymous" class="space-y-4 tab-panel hidden dark-panel">
+                    <div class="flex items-center space-x-3 p-4 bg-gray-700 border border-gray-600 rounded-xl">
+                        <div class="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0">
+                            <i data-feather="eye-off" class="text-gray-200"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-100">Posting Anonymously</p>
+                            <p class="text-sm text-gray-300">This post will not be linked to your profile.</p>
+                        </div>
+                    </div>
+                     <div class="format-toolbar">
+                        <button onclick="formatDoc('bold');" title="Bold (Ctrl+B)" aria-label="Bold (Ctrl+B)"><i data-feather="bold"></i></button>
+                        <button onclick="formatDoc('italic');" title="Italic (Ctrl+I)" aria-label="Italic (Ctrl+I)"><i data-feather="italic"></i></button>
+                        <button onclick="formatDoc('underline');" title="Underline (Ctrl+U)" aria-label="Underline (Ctrl+U)"><i data-feather="underline"></i></button>
+                        <button onclick="formatDoc('strikeThrough');" title="Strikethrough (Ctrl+S)" aria-label="Strikethrough (Ctrl+S)"><i data-feather="slash"></i></button>
+                    </div>
+                    <div id="anonymous-post-content" contenteditable="true" class="editable-content" placeholder="Share your confession..." aria-label="Anonymous post content"></div>
+                    <div id="autosave-indicator-anonymous" class="autosave-indicator"></div>
+                    <button id="submit-anonymous-post" data-type="anonymous" data-original-text="Post Anonymously" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 transition-all active:scale-95 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed">Post Anonymously</button>
+                </div>
+            </div>
 
-            <div id="toast-container"></div>
-        </div>
+        </main>
+
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"><i data-feather="layout"></i></a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"><i data-feather="file-text"></i></a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Create Post"><i data-feather="plus-circle" class="stroke-[2.5px]"></i></a>
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"><i data-feather="search"></i></a>
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"><i data-feather="grid"></i></a>
+        </nav>
+
+        <div id="toast-container" aria-live="polite" role="status"></div>
+
     </div>
 
     <script>
-        // --- 1. SUPABASE CLIENT SETUP ---
+        // --- 1. CONSTANTS & CONFIG ---
         const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIZDAiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
+        const CLOUDINARY_CLOUD_NAME = 'diawrhaov';
+        const CLOUDINARY_UPLOAD_PRESET = 'birlaone_uploads';
+        
+        const MAX_IMAGE_SIZE_MB = 5;
+        const MAX_VIDEO_SIZE_MB = 50;
+        const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+        const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
 
-        // --- Global variables ---
-        let currentAuthUser = null;
-        let currentUserProfile = null; // Store user profile data including public ID
+        const CACHE_KEY_PROFILE = 'birlaone_user_profile';
+        const CACHE_KEY_PROFILE_EXPIRY = 'birlaone_user_profile_expiry';
+        const CACHE_EXPIRY_MS = 6 * 60 * 60 * 1000; // 6 hours
+        
+        const DRAFT_KEY_TEXT = 'birlaone_draft_text';
+        const DRAFT_KEY_ANON = 'birlaone_draft_anonymous';
+        const OFFLINE_QUEUE_KEY = 'birlaone_offline_post_queue';
+
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
-        const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
-        let currentDashboardData = null; // Store stringified dashboard data for comparison
 
-        // --- DOM Elements ---
-        const shimmerLoader = document.getElementById('shimmer-loader');
-        const appContent = document.getElementById('app-content');
-        const friendsCountValue = document.getElementById('friends-count-value');
-        // Add elements for other dashboard data if needed later
-        const academicScoreValue = document.getElementById('academic-score-value');
-        const recycledValue = document.getElementById('recycled-value');
-        const netWorthValue = document.getElementById('net-worth-value');
-        const rolesBadgesContent = document.getElementById('roles-badges-content');
-        const lecturesContent = document.getElementById('lectures-content');
-        const activitiesContent = document.getElementById('activities-content');
+        // --- 2. GLOBAL STATE ---
+        let _supabase;
+        let currentAuthUser = null;
+        let currentUserProfile = null;
+        let selectedFile = null;
+        let currentActiveTab = 'text';
+        let autosaveInterval;
 
-        // --- NOTIFICATION GLOBALS ---
-        const notificationBellBtn = document.getElementById('notification-bell-btn');
-        const notificationBadge = document.getElementById('notification-badge');
-        const notificationPanel = document.getElementById('notification-panel');
-        const notificationList = document.getElementById('notification-list');
-        const notificationsLoading = document.getElementById('notifications-loading');
-        const noNotifications = document.getElementById('no-notifications');
-        const closeNotificationPanelBtn = document.getElementById('close-notification-panel-btn');
-        const markAllReadBtn = document.getElementById('mark-all-read-btn');
-        const notificationBackdrop = document.getElementById('notification-backdrop');
-        let notificationSubscription = null;
-        const toastContainer = document.getElementById('toast-container');
+        // --- 3. CORE: INITIALIZATION & AUTH ---
 
-        // --- SIDEBAR GLOBALS ---
-        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
-        const logoutBtn = document.getElementById('logout-btn');
-        const themeToggle = document.getElementById('theme-toggle');
-
-        // --- 2. AUTH & INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            initializeTheme(); // Initialize theme first
-
-            // --- Service Worker Registration ---
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registered with scope:', registration.scope);
-                    }).catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                    });
+        /**
+         * Main entry point, runs on DOMContentLoaded
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Must initialize Supabase client immediately
+            try {
+                const { createClient } = supabase;
+                _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Run the full page setup
+                initCreatePage();
+            } catch (error) {
+                console.error("Failed to initialize Supabase. Page may not work.", error);
+                showToast("Error connecting to services.", "error");
             }
-
-            const { data: { session }, error } = await _supabase.auth.getSession();
-            if (error || !session) {
-                showShimmerAndRedirect('login.html', 500);
-                return;
-            }
-            currentAuthUser = session.user;
-
-            // Fetch dashboard data (includes profile, logs) & update UI
-            await fetchDashboardData(currentAuthUser.id);
-
-            // Hide shimmer, show content (handled within fetchDashboardData based on cache)
-            // Initialize Notifications AFTER potential content visibility
-            setupNotificationListeners();
-            fetchUnreadCount();
-            setupRealtimeNotifications();
-
-            // Initialize Sidebar AFTER potential content visibility
-            setupSidebarListeners();
         });
 
-        // --- 3. THEME ---
-        function initializeTheme() {
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                if (themeToggle) themeToggle.checked = true; // Check if toggle exists
+        /**
+         * Orchestrates the setup of the entire page
+         */
+        async function initCreatePage() {
+            // Render initial icons
+            feather.replace();
+
+            // Setup all UI listeners
+            setupEventListeners();
+            
+            // Setup online/offline handlers
+            setupOfflineHandler();
+            
+            // Register service worker for caching
+            registerServiceWorker();
+
+            // Check auth, then load profile (from cache or network)
+            await checkAuthAndLoadProfile();
+
+            // After profile is loaded, restore drafts
+            restoreDrafts();
+            
+            // Start autosave timer
+            setupAutosave();
+        }
+
+        /**
+         * Checks Supabase session. Redirects if not logged in.
+         * Fetches and caches user profile on success.
+         */
+        async function checkAuthAndLoadProfile() {
+            if (!_supabase) return;
+
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            if (error) { 
+                console.error("Error getting session:", error.message); 
+                showToast("Error getting session.", "error");
+                return; 
+            }
+            if (!session) { 
+                window.location.href = 'login.html'; 
+                return; 
+            }
+
+            currentAuthUser = session.user;
+
+            // Fetch profile (will use cache if available)
+            currentUserProfile = await fetchProfileAndCache(currentAuthUser.id);
+            
+            if (currentUserProfile) {
+                populateUserProfile(currentUserProfile);
             } else {
-                document.documentElement.classList.remove('dark');
-                if (themeToggle) themeToggle.checked = false;
+                // Handle failure to load profile
+                populateUserProfile({ name: 'Campus User', img: null, tick: null });
+                showToast("Could not load your profile.", "error");
             }
         }
 
-        function handleThemeToggle(e) {
-            if (e.target.checked) {
-                document.documentElement.classList.add('dark');
-                localStorage.theme = 'dark';
-            } else {
-                document.documentElement.classList.remove('dark');
-                localStorage.theme = 'light';
-            }
-        }
+        // --- 4. MODULE: PROFILE & CACHING ---
 
-        // --- 4. SHIMMER & CONTENT DISPLAY ---
-        function showShimmerAndRedirect(url, delay = 0) {
-            // Shimmer should be visible by default
-             setTimeout(() => { window.location.href = url; }, delay);
-        }
-
-        function hideShimmerShowApp(delay = 0) {
-             setTimeout(() => {
-                 if (shimmerLoader && appContent) {
-                     shimmerLoader.style.transition = 'opacity 0.4s ease-out';
-                     shimmerLoader.style.opacity = '0';
-                     setTimeout(() => {
-                         shimmerLoader.style.display = 'none';
-                         appContent.classList.remove('hidden');
-                         appContent.classList.add('fade-in');
-                         feather.replace(); // Render icons now
-                     }, 400); 
-                 }
-             }, delay);
-        }
-
-        // --- 5. CACHING UTILITIES ---
-        function setCache(key, data, ttlMinutes) {
-            try {
-                const item = { data: data, expires: Date.now() + ttlMinutes * 60 * 1000 };
-                localStorage.setItem(key, JSON.stringify(item));
-            } catch (e) { console.error("Error setting cache:", e); }
-        }
-
-        function getCache(key) {
-            try {
-                const itemStr = localStorage.getItem(key);
-                if (!itemStr) return null;
-                const item = JSON.parse(itemStr);
-                if (Date.now() > item.expires) {
-                    localStorage.removeItem(key); return null;
-                }
-                return item.data;
-            } catch (e) { console.error("Error getting cache:", e); return null; }
-        }
-
-        // --- 6. DATA FETCHING & UI UPDATE (with Caching) ---
-        async function fetchDashboardData(authId) {
-            if (!authId) return;
-
-            const cacheKey = 'birlaone_dashboard_data';
-            const cachedData = getCache(cacheKey);
-            let isCacheRendered = false;
-
-            if (cachedData) {
-                console.log("Loading dashboard from cache.");
-                currentUserProfile = cachedData.profile; // Set global profile from cache
-                currentDashboardData = JSON.stringify(cachedData);
-                updateDashboardUI(cachedData); // Update UI from cache
-                populateSidebar(cachedData.profile); // Populate sidebar from cache
-                hideShimmerShowApp(0); // Show content immediately
-                isCacheRendered = true;
-            } else {
-                // No cache, shimmer is already visible
+        /**
+         * Fetches user profile from cache or network (stale-while-revalidate)
+         */
+        async function fetchProfileAndCache(authId) {
+            // 1. Check cache
+            const cachedProfile = localStorage.getItem(CACHE_KEY_PROFILE);
+            const cacheExpiry = localStorage.getItem(CACHE_KEY_PROFILE_EXPIRY);
+            
+            if (cachedProfile && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
+                console.log("Loading profile from cache.");
+                // Return cached data immediately
+                return JSON.parse(cachedProfile);
             }
 
+            // 2. Fetch from network
+            console.log("Fetching profile from network...");
             try {
-                // Fetch fresh profile data
-                const { data: profileData, error: profileError } = await _supabase
-                    .from('users')
-                    .select('id, auth_id, name, img, tick, course, friend_count') // Added img, tick for sidebar
+                const { data, error } = await _supabase.from('users')
+                    .select('name, img, tick')
                     .eq('auth_id', authId)
                     .single();
 
-                if (profileError) throw profileError;
-                
-                // --- Placeholder: Fetch other dashboard data here if needed ---
-                // e.g., const { data: lecturesData, error: lecturesError } = await _supabase...
-                // e.g., const { data: rolesData, error: rolesError } = await _supabase...
-                // For now, we'll just use profile data and placeholders
-                const dashboardData = {
-                    profile: profileData,
-                    // lectures: lecturesData || [], // Example
-                    // roles: rolesData || [], // Example
-                    // activities: [], // Example
-                    // academicScore: 85, // Example
-                    // recycledKg: 12.5, // Example
-                    // netWorth: 5000 // Example
-                };
-                
-                // --- Log User Data (runs in background) ---
-                if (profileData) {
-                    logUserData(profileData); // Log fresh data
-                } else {
-                     console.warn("User profile data not found for logging.");
+                if (error) { throw error; }
+
+                if (data) {
+                    // 3. Update cache
+                    localStorage.setItem(CACHE_KEY_PROFILE, JSON.stringify(data));
+                    localStorage.setItem(CACHE_KEY_PROFILE_EXPIRY, (Date.now() + CACHE_EXPIRY_MS).toString());
+                    return data;
                 }
-
-                const newDataString = JSON.stringify(dashboardData);
-
-                if (!isCacheRendered || newDataString !== currentDashboardData) {
-                    console.log("Rendering fresh dashboard data.");
-                    currentUserProfile = dashboardData.profile; // Update global profile
-                    currentDashboardData = newDataString;
-                    updateDashboardUI(dashboardData);
-                    populateSidebar(dashboardData.profile); // Update sidebar
-                    setCache(cacheKey, dashboardData, CACHE_TTL_MINUTES);
-                    if (!isCacheRendered) {
-                         hideShimmerShowApp(300); // Slight delay after fetch if no cache
-                    } else {
-                        feather.replace(); // Re-render icons if only updating UI
-                    }
-                } else {
-                     console.log("Dashboard cache is up-to-date.");
-                     if (!isCacheRendered) {
-                         hideShimmerShowApp(300); // Still need to show app if cache was expired but data is same
-                     }
-                }
-
             } catch (error) {
-                console.error("Error fetching dashboard data:", error.message);
-                if (!isCacheRendered) {
-                    // Show error only if we couldn't load anything
-                    shimmerLoader.innerHTML = '<p class="text-center text-red-500 p-10">Could not load dashboard data.</p>';
-                }
-                 showToast("Could not refresh dashboard data.", "error");
+                console.error("Error fetching user profile:", error.message);
+                // Return stale cache if available, even if expired
+                if (cachedProfile) return JSON.parse(cachedProfile);
+                return null;
             }
         }
 
-        function updateDashboardUI(data) {
-            if (!data || !data.profile) return;
+        /**
+         * Populates the UI with user profile data, removing shimmers
+         */
+        function populateUserProfile(profile) {
+            const userName = profile.name || 'Campus User';
+            const userAvatar = profile.img || `https://placehold.co/40x40/A8E063/305B1C?text=${userName.charAt(0)}`;
+            const tickType = profile.tick?.toLowerCase();
+            let tickHtml = '';
             
-            // --- Update Main Cards ---
-            friendsCountValue.textContent = data.profile.friend_count ?? 0;
-            // Update other cards with real data or placeholders
-            academicScoreValue.textContent = data.academicScore ?? '--';
-            recycledValue.textContent = data.recycledKg ?? '--';
-            netWorthValue.textContent = `₹${data.netWorth ?? '--'}`;
+            if (tickType && tickImages[tickType]) {
+                tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`;
+            }
 
-            // --- Update Sections ---
-             // Roles & Badges (Placeholder - replace with actual rendering logic)
-            rolesBadgesContent.textContent = data.roles?.length > 0 ? 'Display roles here' : 'No Roles Assigned';
-            rolesBadgesContent.classList.remove('italic', 'text-center'); // Adjust styling if content exists
-            
-            // Lectures (Placeholder)
-            lecturesContent.textContent = data.lectures?.length > 0 ? 'Display lectures here' : 'No Lectures Scheduled';
-             lecturesContent.classList.remove('italic', 'text-center');
+            ['text', 'photo', 'poll'].forEach(type => {
+                // Avatars
+                document.getElementById(`user-avatar-${type}-shimmer`).classList.add('hidden');
+                const avatarImg = document.getElementById(`user-avatar-${type}`);
+                avatarImg.src = userAvatar;
+                avatarImg.classList.remove('hidden');
 
-            // Activities (Placeholder)
-            activitiesContent.textContent = data.activities?.length > 0 ? 'Display activities here' : 'No Upcoming Activities';
-             activitiesContent.classList.remove('italic', 'text-center');
-
+                // Names
+                document.getElementById(`user-name-${type}-shimmer`).classList.add('hidden');
+                document.getElementById(`user-name-${type}`).innerText = userName;
+                const nameContainer = document.getElementById(`user-name-${type}-container`);
+                
+                // Clear old tick
+                const existingTick = nameContainer.querySelector('.post-tick-mark');
+                if(existingTick) existingTick.remove();
+                if (tickHtml) nameContainer.insertAdjacentHTML('beforeend', tickHtml);
+                
+                nameContainer.classList.remove('hidden');
+            });
         }
 
-        // --- 7. LOG USER DATA ---
-        async function logUserData(userData) {
-             if (!userData || !userData.auth_id) {
-                 console.error("Cannot log data: User Auth ID is missing."); return;
+        // --- 5. MODULE: DRAFT & AUTOSAVE ---
+
+        /**
+         * Sets up a 15-second interval to save drafts
+         */
+        function setupAutosave() {
+            autosaveInterval = setInterval(saveCurrentDraft, 15000); // 15 seconds
+        }
+
+        /**
+         * Saves the content of the current active editor to localStorage
+         */
+        function saveCurrentDraft() {
+            let content;
+            let key;
+            let indicator;
+
+            if (currentActiveTab === 'text') {
+                content = document.getElementById('text-post-content').innerHTML;
+                key = DRAFT_KEY_TEXT;
+                indicator = document.getElementById('autosave-indicator-text');
+            } else if (currentActiveTab === 'anonymous') {
+                content = document.getElementById('anonymous-post-content').innerHTML;
+                key = DRAFT_KEY_ANON;
+                indicator = document.getElementById('autosave-indicator-anonymous');
+            } else {
+                return; // Not on a text editor tab
+            }
+
+            if (content && content !== `<br>`) {
+                localStorage.setItem(key, content);
+                if (indicator) {
+                    indicator.innerText = "Draft saved ✓";
+                    indicator.classList.add('show');
+                }
+            }
+        }
+
+        /**
+         * Restores drafts from localStorage on page load
+         */
+        function restoreDrafts() {
+            const textDraft = localStorage.getItem(DRAFT_KEY_TEXT);
+            if (textDraft) {
+                document.getElementById('text-post-content').innerHTML = textDraft;
+                showToast("Text draft restored", "info");
+            }
+
+            const anonDraft = localStorage.getItem(DRAFT_KEY_ANON);
+            if (anonDraft) {
+                document.getElementById('anonymous-post-content').innerHTML = anonDraft;
+                // Only show one toast
+                if (!textDraft) showToast("Anonymous draft restored", "info");
+            }
+        }
+
+        /**
+         * Clears a specific draft from localStorage
+         */
+        function clearDraft(type) {
+             if (type === 'text') {
+                localStorage.removeItem(DRAFT_KEY_TEXT);
+             } else if (type === 'anonymous') {
+                localStorage.removeItem(DRAFT_KEY_ANON);
              }
-             try {
-                 const { error: logError } = await _supabase.from('logs').insert({
-                     time: new Date().toISOString(),
-                     user_id: userData.auth_id,
-                     Name: userData.name || 'N/A',
-                     course: userData.course || 'N/A',
-                 });
-                 if (logError) { console.error("Error inserting into logs table:", logError.message); } 
-                 else { console.log("User data logged successfully."); }
-             } catch (error) { console.error("Exception during logging:", error.message); }
         }
 
-        // --- 8. SIDEBAR FUNCTIONS (Copied from feed.html fixes) ---
-        function setupSidebarListeners() {
-            if (!sidebarToggleBtn || !sidebarBackdrop || !logoutBtn || !themeToggle) {
-                console.warn("Sidebar elements not found, listeners not attached.");
+
+        // --- 6. MODULE: UI & EVENT LISTENERS ---
+
+        /**
+         * Attaches all primary event listeners for the page
+         */
+        function setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('button[id^="tab-"]').forEach(button => {
+                button.addEventListener('click', (e) => switchTab(e.currentTarget.id.replace('tab-', '')));
+            });
+
+            // Post submission buttons
+            document.querySelectorAll('button[id^="submit-"]').forEach(button => {
+                button.addEventListener('click', handleSubmitClick);
+            });
+
+            // Rich Text Editors
+            ['text-post-content', 'anonymous-post-content'].forEach(id => {
+                const editor = document.getElementById(id);
+                // Clear "Draft saved" on input
+                editor.addEventListener('input', () => {
+                    const indicatorId = `autosave-indicator-${id.includes('text') ? 'text' : 'anonymous'}`;
+                    document.getElementById(indicatorId)?.classList.remove('show');
+                });
+                // Keyboard shortcuts
+                editor.addEventListener('keydown', setupEditorShortcuts);
+                // Toolbar state update on selection change
+                editor.addEventListener('keyup', updateToolbarState);
+                editor.addEventListener('mouseup', updateToolbarState);
+            });
+
+            // Photo/Video Upload
+            document.getElementById('file-upload-input').addEventListener('change', handleFileSelect);
+
+            // Poll
+            document.getElementById('add-poll-option').addEventListener('click', addPollOption);
+        }
+
+        /**
+         * Handles tab switching with smooth fade transitions
+         */
+        function switchTab(activeTab) {
+            currentActiveTab = activeTab;
+            const tabs = ['text', 'photo', 'poll', 'anonymous'];
+            
+            tabs.forEach(tab => {
+                const panel = document.getElementById(`panel-${tab}`);
+                const tabButton = document.getElementById(`tab-${tab}`);
+
+                if (tab === activeTab) {
+                    // Activate Tab
+                    tabButton.classList.add('border-primary-600', 'text-primary-600', 'font-semibold');
+                    tabButton.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+                    // Show Panel
+                    panel.classList.remove('hidden');
+                    setTimeout(() => { // Allow display:block to register before changing opacity
+                         panel.style.opacity = '1';
+                         panel.style.transform = 'translateY(0)';
+                    }, 10);
+                } else {
+                    // Deactivate Tab
+                    tabButton.classList.remove('border-primary-600', 'text-primary-600', 'font-semibold');
+                    tabButton.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+                    // Hide Panel
+                    panel.style.opacity = '0';
+                    panel.style.transform = 'translateY(10px)';
+                    setTimeout(() => { // Hide after transition
+                        panel.classList.add('hidden');
+                    }, 300); // Match CSS transition duration
+                }
+            });
+
+            // Re-render icons if needed
+            if (activeTab === 'text' || activeTab === 'anonymous' || activeTab === 'photo') {
+                feather.replace();
+            }
+        }
+        
+        /**
+         * Handles keyboard shortcuts (Ctrl+B/I/U/S) in editors
+         */
+        function setupEditorShortcuts(event) {
+            if (!event.ctrlKey && !event.metaKey) return; // Use Meta for Mac
+
+            let command;
+            switch (event.key.toLowerCase()) {
+                case 'b': command = 'bold'; break;
+                case 'i': command = 'italic'; break;
+                case 'u': command = 'underline'; break;
+                case 's': command = 'strikeThrough'; break;
+                default: return; // Not a shortcut
+            }
+            
+            event.preventDefault(); // Prevent default browser action (e.g., save page)
+            formatDoc(command);
+        }
+
+        /**
+         * Executes a rich text command and updates toolbar state
+         */
+        function formatDoc(command, value = null) {
+            document.execCommand(command, false, value);
+            updateToolbarState();
+        }
+
+        /**
+         * Updates toolbar buttons to show "active" state
+         */
+        function updateToolbarState() {
+            const commands = ['bold', 'italic', 'underline', 'strikeThrough'];
+            // Find the correct toolbar (text or anonymous)
+            const toolbar = document.querySelector(`#panel-${currentActiveTab} .format-toolbar`);
+            if (!toolbar) return;
+
+            commands.forEach(command => {
+                const button = toolbar.querySelector(`button[onclick*="'${command}'"]`);
+                if (button) {
+                    if (document.queryCommandState(command)) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // --- 7. MODULE: POST SUBMISSION (ONLINE/OFFLINE) ---
+
+        /**
+         * Master handler for all submit button clicks
+         */
+        async function handleSubmitClick(event) {
+            event.preventDefault();
+            const button = event.currentTarget;
+            const postType = button.dataset.type;
+
+            // Show non-blocking loader
+            showLoading(button);
+
+            // Get post data
+            const postData = await buildPostData(postType);
+            if (!postData) {
+                hideLoading(button); // Validation failed
                 return;
             }
-            sidebarToggleBtn.addEventListener('click', openSidebar);
-            sidebarBackdrop.addEventListener('click', closeSidebar);
-            logoutBtn.addEventListener('click', handleLogout);
-            themeToggle.addEventListener('change', handleThemeToggle);
-        }
-
-        function openSidebar() {
-            closeNotificationPanel(); // Close notifications if open
-            if (!sidebar || !sidebarBackdrop) return;
-            sidebar.classList.remove('hidden');
-            sidebarBackdrop.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                sidebar.classList.remove('-translate-x-full');
-            });
-            feather.replace(); // Ensure icons are rendered
-        }
-
-        function closeSidebar() {
-            if (!sidebar || !sidebarBackdrop) return;
-            sidebar.classList.add('-translate-x-full');
-            sidebarBackdrop.classList.add('hidden');
-            // Optional: Add hidden class after transition for accessibility/performance
-            setTimeout(() => {
-                sidebar.classList.add('hidden');
-            }, 300);
-        }
-
-        async function handleLogout() {
-            showToast("Logging you out...", 'success');
-            const { error } = await _supabase.auth.signOut();
-            if (error) {
-                console.error('Error logging out:', error.message);
-                showToast(error.message, 'error');
+            
+            // Check network state
+            if (!navigator.onLine) {
+                await queueOfflinePost(postData, postType);
+                hideLoading(button);
             } else {
-                // Clear theme and caches on logout
-                localStorage.removeItem('theme');
-                localStorage.removeItem('birlaone_dashboard_data');
-                localStorage.removeItem('birlaone_feed'); // Clear other related caches if they exist
-                localStorage.removeItem('birlaone_popular');
-                Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith('birlaone_search_')) {
-                        localStorage.removeItem(key);
+                // Try to post online
+                try {
+                    const success = await createPostOnline(postData, postType);
+                    if (success) {
+                        showPostSuccess(postType);
+                    } else {
+                        throw new Error("Post submission failed.");
                     }
-                });
-                window.location.href = 'login.html';
-            }
-        }
-
-        function populateSidebar(profileData) {
-            // Ensure sidebar elements exist
-            const avatarEl = document.getElementById('sidebar-user-avatar');
-            const nameEl = document.getElementById('sidebar-user-name');
-            const tickContainer = document.getElementById('sidebar-user-tick-container');
-            const qrContainer = document.getElementById('sidebar-qr-code-img');
-
-            if (!avatarEl || !nameEl || !tickContainer || !qrContainer) {
-                 console.warn("Sidebar profile elements not found.");
-                 return;
-            }
-            if (!profileData) {
-                 // Optionally set defaults if profile data is missing after load attempt
-                 nameEl.textContent = 'User';
-                 avatarEl.src = 'https://placehold.co/64x64/cccccc/969696?text=U';
-                 tickContainer.innerHTML = '';
-                 qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID.</p>';
-                 return;
-            }
-
-            avatarEl.src = profileData.img || `https://placehold.co/64x64/A8E063/305B1C?text=${profileData.name ? profileData.name.charAt(0) : 'U'}`;
-            nameEl.textContent = profileData.name || 'Campus User';
-
-            tickContainer.innerHTML = ''; // Clear previous tick
-            const tickType = profileData.tick?.toLowerCase();
-            if (tickType && tickImages[tickType]) {
-                const tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`;
-                tickContainer.innerHTML = tickHtml;
-            }
-
-            qrContainer.innerHTML = ''; // Clear previous QR or spinner
-            if (profileData.id) { // Use public integer ID
-                 try {
-                     new QRCode(qrContainer, {
-                         text: String(profileData.id),
-                         width: 256,
-                         height: 256,
-                         colorDark : "#000000",
-                         colorLight : "#ffffff",
-                         correctLevel : QRCode.CorrectLevel.H
-                     });
-                 } catch (e) {
-                      console.error("Error generating QR code:", e);
-                      qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
-                 }
-            } else {
-                qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID available for QR code.</p>';
-            }
-        }
-
-
-        // --- 9. NOTIFICATION FUNCTIONS ---
-        function setupNotificationListeners() {
-            if (!notificationBellBtn || !closeNotificationPanelBtn || !markAllReadBtn || !notificationBackdrop) return;
-            notificationBellBtn.addEventListener('click', toggleNotificationPanel);
-            closeNotificationPanelBtn.addEventListener('click', closeNotificationPanel);
-            markAllReadBtn.addEventListener('click', markAllAsRead);
-            notificationBackdrop.addEventListener('click', closeNotificationPanel);
-        }
-
-        function toggleNotificationPanel() {
-            const isHidden = notificationPanel.classList.contains('hidden');
-            if (isHidden) {
-                closeSidebar(); // Close sidebar if open
-                openNotificationPanel();
-                fetchNotifications();
-            } else {
-                closeNotificationPanel();
-            }
-        }
-
-        function openNotificationPanel() {
-             if (!notificationPanel || !notificationBackdrop) return;
-            notificationPanel.classList.remove('hidden');
-            notificationBackdrop.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                notificationPanel.classList.remove('translate-x-full');
-            });
-        }
-
-        function closeNotificationPanel() {
-             if (!notificationPanel || !notificationBackdrop) return;
-            notificationPanel.classList.add('translate-x-full');
-            notificationBackdrop.classList.add('hidden');
-            setTimeout(() => {
-                notificationPanel.classList.add('hidden');
-            }, 300);
-        }
-
-        async function fetchUnreadCount() {
-            if (!currentAuthUser) return;
-            try {
-                const { data, error } = await _supabase.rpc('get_unread_notifications_count');
-                if (error) throw error;
-                updateBadge(data);
-            } catch (error) {
-                console.error("Error fetching unread count:", error.message);
-            }
-        }
-
-        async function fetchNotifications() {
-            if (!currentAuthUser) return;
-            if (!notificationsLoading || !noNotifications || !notificationList) return;
-            notificationsLoading.style.display = 'block';
-            noNotifications.style.display = 'none';
-            notificationList.innerHTML = ''; 
-
-            try {
-                const { data, error } = await _supabase.rpc('get_my_notifications');
-                if (error) throw error;
-                notificationsLoading.style.display = 'none';
-                 if (!data || (Array.isArray(data) && data.length === 0)) {
-                     noNotifications.style.display = 'block';
-                 } else {
-                     renderNotifications(data);
-                 }
-            } catch (error) {
-                console.error("Error fetching notifications:", error.message);
-                notificationsLoading.style.display = 'none';
-                notificationList.innerHTML = '<p class="text-center text-red-500 py-4">Could not load notifications.</p>';
-            }
-        }
-
-        function renderNotifications(notifications) {
-            if (!notificationList) return;
-            notificationList.innerHTML = '';
-            const localTickImages = tickImages; // Use global tickImages
-            const notificationsArray = Array.isArray(notifications) ? notifications : (notifications ? [notifications] : []);
-
-            notificationsArray.forEach((notif, index) => {
-                 if (!notif) return;
-                 const div = document.createElement('div');
-                div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors notification-item-enter ${!notif.is_read ? 'bg-primary-50 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'} hover:bg-gray-100 dark:hover:bg-gray-700`;
-                div.dataset.notificationId = notif.id;
-                const senderAvatar = notif.sender_img
-                    ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">`
-                    : `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">?</div>`;
-                const tickType = notif.sender_tick?.toLowerCase();
-                const tickHtml = (tickType && localTickImages[tickType]) ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">` : '';
-                const timeAgo = formatTimeAgo(notif.created_at);
-                const contentHtml = `
-                    <p class="text-sm text-gray-800 dark:text-gray-200">
-                        ${notif.sender_name ? `<strong class="font-medium">${notif.sender_name}</strong>${tickHtml} ` : ''}
-                        ${notif.content_preview || `Notification type: ${notif.type}`}
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${timeAgo}</p>
-                `;
-                const isDirectLink = notif.link && !notif.link.includes('myprofile.html');
-                const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">';
-                const linkWrapperEnd = isDirectLink ? '</a>' : '</div>';
-                div.innerHTML = `
-                    ${senderAvatar}
-                    ${linkWrapperStart}${contentHtml}${linkWrapperEnd}
-                    ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
-                `;
-                div.addEventListener('click', (e) => {
-                    if (isDirectLink && !e.target.closest('.w-2.h-2')) { markSingleAsRead(notif.id); } 
-                    else {
-                         if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
-                             if (!window.location.pathname.endsWith('myprofile.html')) { window.location.href = notif.link; }
-                         }
-                         if (!notif.is_read) { markSingleAsRead(notif.id, div); }
-                    }
-                });
-                notificationList.appendChild(div);
-                setTimeout(() => { requestAnimationFrame(() => { div.classList.add('notification-item-enter-active'); }); }, index * 30);
-            });
-            feather.replace();
-        }
-
-        async function markSingleAsRead(notificationId, elementToUpdate = null) {
-            if (!currentAuthUser) return;
-            const notificationElement = elementToUpdate || notificationList?.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
-            const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
-            if (!unreadDot) return;
-            try {
-                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
-                if (error) throw error;
-                if (notificationElement) {
-                    notificationElement.classList.remove('bg-primary-50', 'dark:bg-gray-700');
-                    notificationElement.classList.add('bg-white', 'dark:bg-gray-800');
-                    unreadDot.remove();
+                } catch (error) {
+                    console.error("Online post failed:", error);
+                    showToast(`Error: ${error.message}`, "error");
+                    // Optionally queue if network error
+                    await queueOfflinePost(postData, postType);
+                    hideLoading(button);
                 }
-                fetchUnreadCount(); // Update badge count
-            } catch (error) {
-                console.error("Error marking notification read:", error.message);
-                showToast("Could not mark notification as read.", 'error');
             }
         }
 
-        async function markAllAsRead() {
-            if (!currentAuthUser || !markAllReadBtn) return;
-            setButtonLoading(markAllReadBtn, true);
-            try {
-                const { error } = await _supabase.rpc('mark_all_notifications_read');
-                if (error) throw error;
-                notificationList?.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
-                    el.classList.remove('bg-primary-50', 'dark:bg-gray-700');
-                    el.classList.add('bg-white', 'dark:bg-gray-800');
-                    el.querySelector('.w-2.h-2.bg-primary-500')?.remove();
+        /**
+         * Gathers and validates data from the correct panel
+         */
+        async function buildPostData(type) {
+            const baseData = {
+                user_id: currentAuthUser.id,
+                post_type: type,
+                is_anonymous: false
+            };
+
+            switch (type) {
+                case 'text':
+                    const textContent = editableContentToText('text-post-content');
+                    if (!textContent) { showToast("Please write something!", 'error'); return null; }
+                    return { ...baseData, content: textContent, html_content: document.getElementById('text-post-content').innerHTML };
+                
+                case 'anonymous':
+                    const anonContent = editableContentToText('anonymous-post-content');
+                    if (!anonContent) { showToast("Please write something!", 'error'); return null; }
+                    return { ...baseData, post_type: 'anonymous', content: anonContent, html_content: document.getElementById('anonymous-post-content').innerHTML, is_anonymous: true };
+
+                case 'photo':
+                    const caption = document.getElementById('photo-post-caption').value;
+                    if (!selectedFile) { showToast("Please select a photo or video.", "error"); return null; }
+                    if (!validateFile(selectedFile)) return null;
+                    // Note: File itself is handled separately in createPostOnline
+                    return { ...baseData, content: caption, fileName: selectedFile.name, fileType: selectedFile.type };
+
+                case 'poll':
+                    const question = document.getElementById('poll-question').value;
+                    if (!question.trim()) { showToast("Please ask a question.", "error"); return null; }
+                    const options = Array.from(document.querySelectorAll('.poll-option'))
+                                         .map(input => input.value.trim())
+                                         .filter(Boolean)
+                                         .map(opt => ({ option: opt })); // Format for Supabase
+                    if (options.length < 2) { showToast("Please provide at least two options.", "error"); return null; }
+                    return { ...baseData, content: question, poll_options: options };
+                    
+                default:
+                    return null;
+            }
+        }
+
+        /**
+         * Handles the actual network request to Supabase (and Cloudinary)
+         */
+        async function createPostOnline(postData, type) {
+            let finalPostData = { ...postData };
+            
+            if (type === 'photo') {
+                // 1. Upload to Cloudinary first
+                try {
+                    const mediaUrl = await uploadToCloudinaryWithProgress(selectedFile);
+                    if (!mediaUrl) throw new Error("Cloudinary upload failed.");
+                    finalPostData.media_url = mediaUrl;
+                    
+                    // Clean up file-related keys not in Supabase schema
+                    delete finalPostData.fileName;
+                    delete finalPostData.fileType;
+                    
+                } catch (error) {
+                    console.error("Cloudinary upload error:", error);
+                    showToast(`Upload Failed: ${error.message}`, "error");
+                    document.getElementById('submit-photo-retry').classList.remove('hidden'); // Show retry button
+                    return false;
+                }
+            }
+
+            // 2. Insert post data into Supabase
+            const { error } = await _supabase.from('posts').insert(finalPostData);
+            
+            if (error) {
+                console.error(`Error posting ${type}:`, error.message);
+                throw new Error(`Database Error: ${error.message}`);
+            }
+            
+            return true; // Success
+        }
+
+        /**
+         * Handles successful post submission feedback
+         */
+        function showPostSuccess(type) {
+            showToast("Post Created 🎉", "success");
+
+            // Clear inputs
+            if (type === 'text' || type === 'anonymous') {
+                clearDraft(type);
+                document.getElementById(`${type === 'text' ? 'text' : 'anonymous'}-post-content`).innerHTML = '';
+            } else if (type === 'photo') {
+                clearFileSelection();
+                document.getElementById('photo-post-caption').value = '';
+                document.getElementById('file-preview-container').style.opacity = '0';
+            } else if (type === 'poll') {
+                document.getElementById('poll-question').value = '';
+                document.querySelectorAll('.poll-option').forEach(opt => opt.value = '');
+            }
+
+            // Redirect after delay
+            setTimeout(() => {
+                window.location.href = 'feed.html';
+            }, 2000);
+        }
+
+        // --- 8. MODULE: OFFLINE QUEUE ---
+
+        /**
+         * Sets up listeners for network status changes
+         */
+        function setupOfflineHandler() {
+            const offlineBanner = document.getElementById('offline-banner');
+
+            function updateNetworkStatus() {
+                if (navigator.onLine) {
+                    offlineBanner.classList.add('hidden');
+                    // Attempt to sync posts
+                    syncOfflinePosts();
+                } else {
+                    offlineBanner.classList.remove('hidden');
+                }
+            }
+            
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            
+            // Initial check
+            if (!navigator.onLine) offlineBanner.classList.remove('hidden');
+        }
+
+        /**
+         * Adds a failed post to the localStorage queue
+         */
+        async function queueOfflinePost(postData, type) {
+            showToast("Offline. Post saved locally.", "info");
+            
+            const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+            
+            let dataToStore = { ...postData, type };
+
+            // For photos, we must store the file data
+            if (type === 'photo' && selectedFile) {
+                // Cannot store file object. Must read as Base64.
+                // Note: This can be large and may fail if localStorage quota is exceeded.
+                // IndexedDB is a better long-term solution, but this fulfills the prompt.
+                try {
+                    const fileData = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = e => resolve(e.target.result);
+                        reader.onerror = e => reject(e);
+                        reader.readAsDataURL(selectedFile);
+                    });
+                    dataToStore.fileData = fileData;
+                    clearFileSelection(); // Clear UI
+                } catch (error) {
+                    console.error("Could not read file for offline storage:", error);
+                    showToast("Error saving photo locally.", "error");
+                    return;
+                }
+            }
+
+            queue.push(dataToStore);
+            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+
+            // Clear inputs as if successful
+             if (type === 'text' || type === 'anonymous') {
+                clearDraft(type);
+                document.getElementById(`${type === 'text' ? 'text' : 'anonymous'}-post-content`).innerHTML = '';
+            }
+        }
+
+        /**
+         * Attempts to send all queued posts when online
+         */
+        async function syncOfflinePosts() {
+            const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+            if (queue.length === 0) return;
+
+            showToast(`Back online! Syncing ${queue.length} post(s)...`, "info");
+            
+            const remainingPosts = [];
+            let successCount = 0;
+
+            for (const post of queue) {
+                const { type, ...postData } = post;
+                
+                // Re-hydrate file if it's a photo post
+                if (type === 'photo' && postData.fileData) {
+                    // Convert Base64 back to Blob/File
+                    const res = await fetch(postData.fileData);
+                    const blob = await res.blob();
+                    selectedFile = new File([blob], postData.fileName, { type: postData.fileType });
+                    delete postData.fileData; // Don't send this to Supabase
+                }
+
+                try {
+                    const success = await createPostOnline(postData, type);
+                    if (success) {
+                        successCount++;
+                    } else {
+                        remainingPosts.push(post); // Failed, put back in queue
+                    }
+                } catch (error) {
+                    console.error("Offline sync error:", error);
+                    remainingPosts.push(post); // Failed, put back in queue
+                }
+            }
+
+            // Update queue
+            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remainingPosts));
+
+            if (successCount > 0) {
+                showToast(`Successfully synced ${successCount} post(s)!`, "success");
+            }
+            if (remainingPosts.length > 0) {
+                showToast(`${remainingPosts.length} posts failed to sync. Will retry.`, "error");
+            }
+        }
+
+        /**
+         * Registers the service worker
+         */
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/service-worker.js')
+                        .then(reg => console.log('Service Worker registered.', reg))
+                        .catch(err => console.log('Service Worker registration failed:', err));
                 });
-                updateBadge(0);
-                showToast("All notifications marked as read.", 'success');
-            } catch (error) {
-                console.error("Error marking all notifications read:", error.message);
-                showToast("Could not mark all as read.", 'error');
-            } finally {
-                setButtonLoading(markAllReadBtn, false);
             }
         }
 
-        function setupRealtimeNotifications() {
-             if (!currentAuthUser) return;
-             if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
-             notificationSubscription = _supabase.channel('public:notifications')
-                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => {
-                     console.log('New notification received:', payload.new);
-                     fetchUnreadCount();
-                     showToast(payload.new.content_preview || 'You have a new notification!', 'success');
-                     if (notificationPanel && !notificationPanel.classList.contains('hidden')) { fetchNotifications(); }
-                 })
-                 .subscribe((status, err) => {
-                      if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
-                      if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
-                 });
-             window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
-        }
+        // --- 9. MODULE: PHOTO/VIDEO UPLOAD ---
 
-        function updateBadge(count) {
-             if (!notificationBadge) return;
-            if (count > 0) {
-                notificationBadge.textContent = count > 9 ? '9+' : count;
-                notificationBadge.classList.remove('hidden');
-            } else {
-                notificationBadge.classList.add('hidden');
+        /**
+         * Validates file size and type
+         */
+        function validateFile(file) {
+            if (!file) return false;
+
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+
+            if (!isImage && !isVideo) {
+                 showToast("Invalid file type. Please upload images or videos.", "error");
+                 return false;
             }
+            
+            if (isImage && file.size > MAX_IMAGE_SIZE_BYTES) {
+                 showToast(`Image is too large (Max ${MAX_IMAGE_SIZE_MB}MB).`, "error");
+                 return false;
+            }
+            
+            if (isVideo && file.size > MAX_VIDEO_SIZE_BYTES) {
+                 showToast(`Video is too large (Max ${MAX_VIDEO_SIZE_MB}MB).`, "error");
+                 return false;
+            }
+            
+            return true;
         }
 
-        // --- 10. HELPER FUNCTIONS ---
-        function formatTimeAgo(dateString) {
-             const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
+        /**
+         * Handles file selection, validation, and preview generation
+         */
+        function handleFileSelect(event) {
+            if (event.target.files.length === 0) {
+                clearFileSelection();
+                return;
+            }
+
+            const file = event.target.files[0];
+            
+            if (!validateFile(file)) {
+                clearFileSelection();
+                return;
+            }
+
+            selectedFile = file; // Store file globally
+            
+            const previewContainer = document.getElementById('file-preview-container');
+            const uploadLabel = document.getElementById('file-upload-label');
+            previewContainer.innerHTML = ''; // Clear previous preview
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let previewElement;
+                if (selectedFile.type.startsWith('image/')) {
+                    previewElement = document.createElement('img');
+                    previewElement.src = e.target.result;
+                    previewElement.className = 'w-full rounded-2xl object-cover max-h-64 border border-gray-200 shadow-sm';
+                } else if (selectedFile.type.startsWith('video/')) {
+                    previewElement = document.createElement('video');
+                    previewElement.src = e.target.result;
+                    previewElement.controls = true;
+                    previewElement.className = 'w-full rounded-2xl max-h-64 border border-gray-200 shadow-sm';
+                }
+                
+                if (previewElement) {
+                    previewContainer.appendChild(previewElement);
+                }
+                
+                // Add a remove button
+                const removeButton = document.createElement('button');
+                removeButton.innerHTML = '<i data-feather="x" class="w-4 h-4 mr-1"></i> Remove File';
+                removeButton.className = 'flex items-center justify-center w-full text-sm font-medium text-danger-600 hover:text-danger-800 transition-colors py-2 mt-2 rounded-lg bg-danger-50 border border-danger-200 focus-visible:ring-danger-600';
+                removeButton.onclick = clearFileSelection;
+                previewContainer.appendChild(removeButton);
+                feather.replace();
+            };
+            reader.readAsDataURL(selectedFile);
+            uploadLabel.classList.add('hidden'); // Hide the upload box
+            
+            // Show progress bar container
+            const progressContainer = document.getElementById('upload-progress-container');
+            document.getElementById('upload-progress-filename').textContent = selectedFile.name;
+            document.getElementById('upload-progress-text').textContent = '0%';
+            document.getElementById('upload-progress-bar').style.width = '0%';
+            progressContainer.classList.remove('hidden');
+        }
+        
+        /**
+         * Clears the file input, preview, and progress bar
+         */
+        function clearFileSelection() {
+            selectedFile = null;
+            document.getElementById('file-upload-input').value = null; // Clear the input
+            document.getElementById('file-preview-container').innerHTML = ''; // Clear the preview
+            document.getElementById('file-upload-label').classList.remove('hidden'); // Show the upload box
+            document.getElementById('upload-progress-container').classList.add('hidden'); // Hide progress
+            document.getElementById('submit-photo-retry').classList.add('hidden'); // Hide retry
+        }
+        
+        /**
+         * Uploads file to Cloudinary using XHR for progress tracking
+         */
+        async function uploadToCloudinaryWithProgress(file, retryCount = 3) {
+            return new Promise((resolve, reject) => {
+                const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`;
+                const xhr = new XMLHttpRequest();
+                const formData = new FormData();
+                
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                const progressText = document.getElementById('upload-progress-text');
+                const progressBar = document.getElementById('upload-progress-bar');
+
+                // Update progress
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressText.textContent = `${percent}%`;
+                        progressBar.style.width = `${percent}%`;
+                    }
+                });
+
+                // Success
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response.secure_url);
+                    } else {
+                        reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.responseText}`));
+                    }
+                });
+
+                // Error
+                xhr.addEventListener('error', () => {
+                    if (retryCount > 0) {
+                        console.log(`Upload error, retrying... (${retryCount} left)`);
+                        uploadToCloudinaryWithProgress(file, retryCount - 1).then(resolve).catch(reject);
+                    } else {
+                        reject(new Error('Upload failed after multiple retries.'));
+                    }
+                });
+                
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                
+                xhr.send(formData);
+            });
         }
 
+        // --- 10. MODULE: POLLS & HELPERS ---
+
+         /**
+          * Adds a new input field for a poll option
+          */
+         function addPollOption() {
+             const container = document.getElementById('poll-options-container');
+             const optionCount = container.querySelectorAll('.poll-option').length;
+             if (optionCount >= 5) {
+                 showToast("You can add a maximum of 5 options.", "error");
+                 return;
+             }
+             const newOption = document.createElement('input');
+             newOption.type = 'text';
+             newOption.placeholder = `Option ${optionCount + 1}`;
+             newOption.className = 'poll-option w-full bg-white border border-gray-200 rounded-xl p-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600';
+             container.appendChild(newOption);
+         }
+
+        /**
+         * Converts contenteditable HTML to markdown-like text
+         * (Using the user-provided function from the prompt)
+         */
+        function editableContentToText(elementId) {
+            const editor = document.getElementById(elementId);
+            if (!editor) return '';
+            const clone = editor.cloneNode(true);
+            clone.querySelectorAll('b, strong').forEach(el => el.replaceWith(`**${el.innerHTML}**`));
+            clone.querySelectorAll('i, em').forEach(el => el.replaceWith(`*${el.innerHTML}*`));
+            clone.querySelectorAll('u').forEach(el => el.replaceWith(`__${el.innerHTML}__`));
+            clone.querySelectorAll('s, strike').forEach(el => el.replaceWith(`~~${el.innerHTML}~~`));
+            clone.innerHTML = clone.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
+            clone.innerHTML = clone.innerHTML.replace(/<\/(p|div)>/gi, '\n');
+            clone.innerHTML = clone.innerHTML.replace(/<[^>]*>/g, '');
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = clone.innerHTML;
+            let plainText = tempDiv.textContent || tempDiv.innerText || '';
+            plainText = plainText.replace(/(\n\s*){2,}/g, '\n\n'); 
+            return plainText.trim();
+        }
+
+        /**
+         * Shows a non-blocking spinner inside a button
+         */
+        function showLoading(button) {
+             button.disabled = true;
+             button.innerHTML = '<div class="spinner"></div>';
+        }
+
+        /**
+         * Restores a button's text and re-enables it
+         */
+        function hideLoading(button) {
+             if (button) {
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalText || 'Submit';
+             }
+        }
+
+        /**
+         * Displays a toast notification
+         */
         function showToast(message, type = 'success') {
-            if (!toastContainer) return;
+            const toastContainer = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
+            const iconName = type === 'success' ? 'check-circle' : (type === 'error' ? 'alert-circle' : 'info');
+            
             toast.className = `toast toast-${type}`;
-            toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`;
+            toast.innerHTML = `
+                <i data-feather="${iconName}" class="toast-icon"></i>
+                <span class="font-medium flex-1">${message}</span>
+            `;
+            
             toastContainer.appendChild(toast);
-            feather.replace();
+            feather.replace(); // Render the new icon
+            
+            // Trigger animation
             setTimeout(() => { toast.classList.add('show'); }, 10);
+            
+            // Remove toast after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
-                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+                toast.classList.add('hide');
+                toast.addEventListener('animationend', () => toast.remove(), { once: true });
             }, 3000);
         }
 
-        function setButtonLoading(buttonEl, isLoading) {
-             if (!buttonEl) return;
-             buttonEl.disabled = isLoading;
-             const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
-              if (isLoading) {
-                 buttonEl.dataset.originalText = originalText;
-                 buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
-             } else {
-                 buttonEl.innerHTML = originalText;
-                 delete buttonEl.dataset.originalText;
-                 feather.replace(); 
-             }
-        }
-
     </script>
-
 </body>
 </html>
