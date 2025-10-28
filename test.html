@@ -2,34 +2,44 @@
 <html lang="en" class="">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
-    <title>My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
+    <title>BirlaOne Feed</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/feather-icons"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     
     <script>
-        // Tailwind Config
         tailwind.config = {
-             // REQUEST: Enable dark mode
             darkMode: 'class',
             theme: {
                 extend: { 
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        logo: ['Pacifico', 'cursive'],
+                    },
                     colors: {
-                        'primary': { '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3','400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26','800': '#396f21','900': '#305b1c','950': '#1a320f' },
-                        'danger': { '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a','300': '#e57373', '400': '#ef5350', '500': '#f44336','600': '#e53935', '700': '#d32f2f', '800': '#c62828','900': '#b71c1c', '950': '#8d1111' }
+                        'primary': {
+                            '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3',
+                            '400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26',
+                            '800': '#396f21','900': '#305b1c','950': '#1a320f',
+                        },
+                         'danger': {
+                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a',
+                            '300': '#e57373', '400': '#ef5350', '500': '#f44336',
+                            '600': '#e53935', '700': '#d32f2f', '800': '#c62828',
+                            '900': '#b71c1c', '950': '#8d1111',
+                        }
                     }
                 },
             },
@@ -38,51 +48,96 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
+        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
-        .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .tick-mark { width: 1.5rem; height: 1.5rem; vertical-align: middle; margin-left: 4px; display: inline-block;}
-        .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block;}
-        
-        /* Modal base styles */
-        .modal { display: none; opacity: 0; transition: opacity 0.2s ease-in-out; }
-        .modal.active { display: flex; opacity: 1; }
-        .modal-content { transform: scale(0.95); opacity: 0; transition: all 0.2s ease-in-out; }
-        .modal.active .modal-content { transform: scale(1); opacity: 1; }
-
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
         .liked svg.feather-heart, .liked i[data-feather="heart"] { fill: #ef4444; color: #ef4444; stroke: #ef4444; }
         .engagement-icon { width: 20px; height: 20px; }
+        .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .poll-option-button { min-height: 44px; }
         .poll-bar-fg { height: 100%; transition: width 0.3s ease-in-out; }
-        .action-button-icon { width: 20px; height: 20px; }
+        .delete-comment-button svg.feather { width: 16px; height: 16px; } 
+        .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
+        #notification-panel { transition: transform 0.3s ease-in-out; }
 
-        /* Toast Notifications */
-        #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
-        .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
-        .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
-        .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
-        .toast.show { opacity: 1; }
-        .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
-        @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- Fluid Load-in Animations --- */
+        .notification-item-enter, .post-item-enter {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .notification-item-enter-active, .post-item-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-        /* Cropper.js container */
-        #cropper-container { width: 100%; max-height: 400px; overflow: hidden; }
-        #cropper-container img { max-width: 100%; }
-        #image-upload-modal { z-index: 51; }
+         #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
+         .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
+         .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
+         .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
+         .toast.show { opacity: 1; }
+         .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+         button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Bottom Nav Styles */
-        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
-        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
+        /* --- Shimmer Loader Styles --- */
+        .shimmer-wrapper {
+            animation: shimmer 1.5s infinite linear;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .dark .shimmer-wrapper {
+            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
 
-        /* --- REQUEST: Dark Mode Styles --- */
+        /* --- Sidebar Styles --- */
+        #sidebar { transition: transform 0.3s ease-in-out; width: 300px; }
+        .sidebar-menu-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: #374151; font-weight: 500; transition: background-color 0.2s; }
+        .sidebar-menu-item span { letter-spacing: 0.2px; }
+        .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
+        .sidebar-menu-item:hover { background-color: #f3f4f6; }
+        
+        /* ### FIX 1: Icon Spacing ### */
+        /* Base style for icons in menu items */
+        .sidebar-menu-item i[data-feather] {
+            width: 20px;
+            height: 20px;
+            color: #4b5563;
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+        /* Add margin ONLY to the first icon (e.g., user, lock) and NOT the arrow icon */
+        .sidebar-menu-item i[data-feather]:first-child {
+            margin-right: 1.75rem; 
+        }
+        
+        .sidebar-menu-item-arrow { margin-left: auto; color: #9ca3af; }
+        #sidebar-qr-code-img { background: white; padding: 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
+        
+        /* ### FIX 2: QR Code Aspect Ratio ### */
+        /* Force generated QR (img or canvas) to fill the square container */
+        #sidebar-qr-code-img img,
+        #sidebar-qr-code-img canvas {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 6px;
+        }
+
+        /* --- Dark Mode Styles --- */
         :root { color-scheme: light; }
         :root.dark { color-scheme: dark; }
         .dark body { background-color: #111827; }
         .dark .bg-slate-50 { background-color: #111827; }
         .dark .bg-white { background-color: #1f2937; }
+        .dark .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(255, 255, 255, 0.03); border-bottom: 1px solid #374151; }
         .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
         .dark .text-gray-900 { color: #f9fafb; }
         .dark .text-gray-800 { color: #f3f4f6; }
@@ -92,418 +147,454 @@
         .dark .text-gray-400 { color: #9ca3af; }
         .dark .border-gray-100 { border-color: #374151; }
         .dark .border-gray-200 { border-color: #374151; }
-        .dark .border-gray-300 { border-color: #4b5563; }
-        .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
         .dark .bg-gray-50 { background-color: #374151; }
         .dark .bg-gray-100 { background-color: #374151; }
         .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
         .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
-        .dark .bg-white\/50 { background-color: rgba(31, 41, 55, 0.7); }
-        .dark .hover\:bg-white\/90:hover { background-color: rgba(31, 41, 55, 0.9); }
         .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
-        .dark .bg-black\/50 { background-color: rgba(0, 0, 0, 0.7); }
+        .dark .bg-black\/30 { background-color: rgba(0, 0, 0, 0.5); }
         .dark .text-primary-600 { color: #a6d98e; }
-        .dark .border-primary-600 { border-color: #56ab2f; }
-        .dark .text-blue-600 { color: #60a5fa; }
+        .dark .font-logo.text-primary-600 { color: #a6d98e; }
+        .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
         .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
-        /* Modal Dark */
-        .dark .modal-content { background-color: #1f2937; }
-        .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
-        .dark input.border-gray-300, .dark textarea.border-gray-300 { border-color: #4b5563; background-color: #374151; color: #f3f4f6;}
-        .dark label.text-gray-700 { color: #d1d5db; }
-        .dark button.border-gray-300 { border-color: #4b5563; color: #d1d5db; }
+        /* Sidebar Dark */
+        .dark #sidebar { background-color: #1f2937; border-color: #374151; }
+        .dark .sidebar-menu-item { color: #d1d5db; }
+        .dark .sidebar-menu-item:hover { background-color: #374151; }
+        .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
+        .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
+        .dark #sidebar-user-avatar { border-color: #374151; }
+        #sidebar-qr-code-img { background: white; }
+        .dark .sidebar-menu-item-arrow { color: #6b7280; }
+        .dark .text-danger-600 { color: #ef5350; }
+        .dark .hover\:\!bg-danger-50:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
+        .dark .sidebar-menu-item i.text-danger-600 { color: #ef5350 !important; }
         /* Feed Dark */
         .dark .bg-gray-800 { background-color: #374151; }
         .dark .text-white { color: #f9fafb; }
+        .dark .comment-item .bg-gray-100 { background-color: #374151; }
+        .dark input[type="text"].bg-gray-100 { background-color: #4b5563; }
         .dark .liked { color: #f44336; }
         .dark .liked svg.feather-heart { fill: #f44336; color: #f44336; }
         .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
         .dark .poll-option-button { border-color: #4b5563; }
         .dark .poll-option-button.bg-primary-100 { background-color: #396f21; }
         .dark .poll-option-button.border-primary-600 { border-color: #56ab2f; }
-        /* Cropper Dark */
-        .dark .cropper-bg { background-color: #1f2937 !important; }
-        .dark .cropper-modal { background-color: rgba(31, 41, 55, 0.7) !important; }
-        /* File Input Dark */
-        .dark input[type="file"] { color: #9ca3af; }
-        .dark input[type="file"]::file-selector-button { background-color: #374151; color: #a6d98e; }
-        .dark input[type="file"]:hover::file-selector-button { background-color: #4b5563; }
+        /* Notification Dark */
+        .dark #notification-panel { background-color: #1f2937; border-color: #374151; }
+        .dark .bg-primary-50 { background-color: #374150; }
+        .dark .hover\:bg-primary-50:hover { background-color: #374151; }
+        .dark .text-primary-600.font-medium { color: #a6d98e; }
+        /* Toast Dark */
+        .dark .toast.toast-success { background-color: #a6d98e; color: #1a320f; }
+        .dark .toast.toast-error { background-color: #ef9a9a; color: #8d1111; }
     </style>
 </head>
-<body class="antialiased bg-slate-50">
+<body class="antialiased">
 
-    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white">
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-slate-50">
 
-        <header class="fixed top-0 left-0 right-0 z-40 p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
-            <a href="javascript:history.back()" class="p-2 rounded-full transition-all bg-white/50 hover:bg-white/90 active:scale-90 backdrop-blur-sm shadow-md">
-                <i data-feather="arrow-left" class="text-gray-900"></i>
-            </a>
-            <button id="edit-profile-btn" class="p-2 px-3 rounded-full transition-all bg-white/50 hover:bg-white/90 active:scale-90 backdrop-blur-sm shadow-md flex items-center space-x-2 text-gray-900 font-semibold">
-                <i data-feather="edit-2" class="w-5 h-5"></i>
-                <span>Edit Profile</span>
+        <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
+            <button id="sidebar-toggle-btn" class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
+                <i data-feather="menu" class="text-gray-700"></i>
+            </button>
+            <h1 class="text-3xl font-logo text-primary-600">BirlaOne</h1>
+            <button id="notification-bell-btn" class="relative p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
+                <i data-feather="bell" class="text-gray-700"></i>
+                <span id="notification-badge" class="hidden absolute top-1 right-1 block h-4 w-4 rounded-full bg-red-500 text-white text-[10px] leading-tight text-center ring-2 ring-white">
+                    0
+                </span>
             </button>
         </header>
 
-        <main id="main-content" class="px-6 space-y-6 pb-28 overflow-y-auto h-screen no-scrollbar pt-16"> 
+        <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
             
-             <div id="profile-loading" class="text-center py-10 text-gray-500">
-                 <div class="spinner mx-auto mb-2"></div>
-                 <p>Loading profile...</p>
-             </div>
-            
-             <div id="login-prompt" class="hidden text-center py-10 text-gray-700 space-y-4">
-                 <i data-feather="alert-circle" class="w-12 h-12 text-danger-500 mx-auto"></i>
-                 <h2 class="text-xl font-bold">Not Logged In</h2>
-                 <p class="text-gray-500">You must be logged in to view your profile.</p>
-             </div>
+            <div id="create-post-bar" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-200 flex items-center space-x-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                 <img id="user-avatar-post-bar" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200 object-cover">
+                <div class="flex-1 bg-gray-100 rounded-full p-3 text-gray-500">What's on your mind?</div>
+                <div class="p-2 text-gray-500"><i data-feather="image"></i></div>
+            </div>
 
-            <div id="profile-content" class="hidden space-y-6">
-
-                <div class="flex flex-col items-center"> 
-                    <button id="profile-picture-btn" class="relative group" title="Click to change profile picture">
-                        <img id="profile-picture" src="https://placehold.co/100x100/A8E063/305B1C?text=?" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-primary-600 bg-gray-200 object-cover">
-                        <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i data-feather="camera" class="w-8 h-8"></i>
-                        </div>
-                    </button>
-                    <div class="flex items-center space-x-1.5 mt-4">
-                        <h2 id="profile-name" class="text-2xl font-bold text-gray-900">User Name</h2>
-                        <img id="profile-tick" src="" alt="Verification Tick" class="tick-mark hidden">
-                    </div>
-                    <p id="profile-role" class="text-lg text-gray-500">Role</p>
-                    <p id="profile-bio" class="text-base text-gray-700 mt-2 text-center max-w-sm"></p>
+            <div id="feed-posts-container" class="space-y-6">
                 </div>
 
-                <div class="flex justify-center items-center divide-x divide-gray-200 w-full bg-gray-50 py-4 rounded-2xl border border-gray-200">
-                    <div class="flex flex-col items-center w-1/2 cursor-pointer hover:opacity-80 transition-opacity" id="profile-friends-count-btn">
-                        <span id="profile-friend-count-box" class="text-2xl font-bold text-gray-900">0</span>
-                        <span class="text-sm text-gray-500">Friends</span>
-                    </div>
-                    <div class="flex flex-col items-center text-center w-1/2">
-                        <span id="profile-course-box" class="text-2xl font-bold text-gray-900 uppercase">-</span> 
-                        <span class="text-sm text-gray-500">Course</span>
-                    </div>
-                </div>
-                 <div id="friend-requests-container">
-                    <button id="friend-requests-btn" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95">
-                        <i data-feather="user-check" class="action-button-icon"></i>
-                        <span class="font-semibold text-lg">View Friend Requests</span>
-                        <span id="friend-requests-count" class="hidden items-center justify-center w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full ml-2">0</span>
-                    </button>
-                </div>
-
-                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
-                    <h2 class="text-xl font-bold text-gray-900">Personal Info</h2>
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium text-gray-700">Student ID</span>
-                        <span id="profile-student-id" class="font-medium text-gray-900"></span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium text-gray-700">Course</span>
-                        <span id="profile-course" class="font-medium text-gray-900 uppercase"></span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium text-gray-700">Mobile</span>
-                        <span id="profile-mobile" class="font-medium text-gray-900"></span>
-                    </div>
-                     <div class="flex justify-between items-center">
-                        <span class="font-medium text-gray-700">Email</span>
-                        <span id="profile-email" class="font-medium text-gray-900"></span>
-                    </div>
-                </div>
-
-                <div class="space-y-3"> <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2"> <i data-feather="star" class="text-yellow-500"></i> <span>Roles & Badges</span> </h2> <div class="text-gray-500 italic p-4 bg-gray-50 border border-gray-200 rounded-2xl text-center"> Not Assigned </div> </div>
-
-                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-4"> <h2 class="text-xl font-bold text-gray-900">Social Links</h2> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="instagram" class="h-5 w-5"></i> <span class="font-medium">Instagram</span> </div> <span id="profile-instagram" class="font-medium text-gray-900 italic"></span> </div> <div class="flex justify-between items-center"> <div class="flex items-center space-x-3 text-gray-700"> <i data-feather="linkedin" class="h-5 w-5"></i> <span class="font-medium">LinkedIn</span> </div> <span id="profile-linkedin" class="font-medium text-gray-900 italic"></span> </div> </div>
-
-                 <div class="space-y-3 pt-4 border-t border-gray-200"> <h2 class="text-xl font-bold text-gray-900">My Posts</h2> <div id="user-posts-container" class="space-y-6"> <div id="posts-loading" class="text-center py-6 text-gray-500"> <p>Loading posts...</p> </div> </div> </div>
-
-             </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
-            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
-            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"> <i data-feather="plus-circle"></i> </a>
-            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"> <i data-feather="search"></i> </a>
-            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"> <i data-feather="grid"></i> </a>
+        <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"><i data-feather="layout"></i></a>
+            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Feed"><i data-feather="file-text" class="stroke-[2.5px]"></i></a>
+            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"><i data-feather="plus-circle"></i></a>
+            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"><i data-feather="search"></i></a>
+            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"><i data-feather="grid"></i></a>
         </nav>
-        </div>
 
-    <div id="edit-profile-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center p-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Edit Profile</h2>
-                <button id="close-edit-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button>
+        <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl border-l border-gray-200 z-50 flex flex-col transform translate-x-full">
+            <div class="flex justify-between items-center p-3 border-b border-gray-200">
+                <h3 class="font-semibold text-lg text-gray-900">Notifications</h3>
+                <button id="close-notification-panel-btn" class="p-1 rounded-full text-gray-500 hover:bg-gray-100">
+                    <i data-feather="x"></i>
+                </button>
             </div>
-            <div class="p-4 space-y-4 overflow-y-auto">
-                <div>
-                    <label for="edit-bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                    <textarea id="edit-bio" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" placeholder="Tell everyone a bit about yourself..."></textarea>
-                </div>
-                <div>
-                    <label for="edit-instagram" class="block text-sm font-medium text-gray-700 mb-1">Instagram Handle</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="instagram" class="w-5 h-5 text-gray-400"></i>
-                        </div>
-                        <input type="text" id="edit-instagram" class="w-full p-2 pl-10 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" placeholder="your_username">
-                    </div>
-                </div>
-                <div>
-                    <label for="edit-linkedin" class="block text-sm font-medium text-gray-700 mb-1">LinkedIn Handle</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-feather="linkedin" class="w-5 h-5 text-gray-400"></i>
-                        </div>
-                        <input type="text" id="edit-linkedin" class="w-full p-2 pl-10 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500" placeholder="your-handle">
-                    </div>
-                </div>
+            <div id="notification-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                <p id="notifications-loading" class="text-center text-gray-500 py-4">Loading...</p>
+                <p id="no-notifications" class="hidden text-center text-gray-500 py-4">No notifications yet.</p>
             </div>
-            <div class="p-4 border-t border-gray-200 flex items-center space-x-4">
-                <button id="cancel-edit-btn" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-3 rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
-                <button id="save-profile-btn" class="w-1/2 bg-primary-600 text-white p-3 rounded-xl font-semibold hover:bg-primary-700 flex items-center justify-center space-x-2">
-                    <span class="button-text">Save</span>
-                    <div class="spinner button-spinner hidden"></div>
+            <div class="p-2 border-t border-gray-200">
+                <button id="mark-all-read-btn" class="w-full text-sm text-primary-600 font-medium py-2 hover:bg-primary-50 rounded">
+                    Mark all as read
                 </button>
             </div>
         </div>
-    </div>
-
-    <div id="friend-requests-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
-        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col"> 
-            <div class="flex justify-between items-center p-4 border-b border-gray-200"> 
-                <h2 class="text-lg font-semibold text-gray-900">Friend Requests</h2> 
-                <button id="close-requests-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button> 
-            </div> 
-            <div id="requests-modal-body" class="p-4 overflow-y-auto"> 
-            </div> 
-        </div> 
-    </div>
-
-    <div id="friends-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4"> 
-        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col"> 
-            <div class="flex justify-between items-center p-4 border-b border-gray-200"> 
-                <h2 class="text-lg font-semibold text-gray-900">My Friends</h2> 
-                <button id="close-friends-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button> 
-            </div> 
-            <div id="friends-modal-body" class="p-4 overflow-y-auto"> 
-                <p class="text-gray-500 text-center py-4">Loading friends...</p> 
-            </div> 
-        </div> 
-    </div>
-
-    <div id="image-upload-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm flex flex-col">
-            <div class="flex justify-between items-center p-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Update Profile Picture</h2>
-                <button id="close-upload-modal" class="p-1 rounded-full text-gray-500 hover:bg-gray-100"> <i data-feather="x"></i> </button>
-            </div>
-            <div class="p-4 space-y-4">
-                <input type="file" id="image-upload-input" accept="image/png, image/jpeg" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"/>
-                <div id="cropper-container" class="hidden">
-                    <img id="cropper-image" src="">
+        
+        <nav id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 bg-white shadow-xl border-r border-gray-200 flex flex-col transform -translate-x-full p-4 space-y-6 overflow-y-auto no-scrollbar">
+            
+            <div class="profile-qr-card p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-4">
+                <div class="flex flex-col items-center space-y-2">
+                    <img id="sidebar-user-avatar" src="https://placehold.co/64x64/A8E063/305B1C?text=U" alt="Your Profile" class="w-16 h-16 rounded-full bg-gray-200 border-2 border-white object-cover">
+                    <h2 class="font-bold text-lg text-gray-900 leading-tight text-center">
+                        <span id="sidebar-user-name">Loading...</span>
+                        <span id="sidebar-user-tick-container" class="inline-block"></span>
+                    </h2>
+                </div>
+                <div id="sidebar-qr-code-img" class="w-full h-auto aspect-square">
+                    <div class="spinner"></div>
                 </div>
             </div>
-            <div class="p-4 border-t border-gray-200 flex items-center space-x-4">
-                <button id="cancel-upload-btn" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-3 rounded-xl font-semibold hover:bg-gray-50">Cancel</button>
-                <button id="save-image-btn" class="w-1/2 bg-primary-600 text-white p-3 rounded-xl font-semibold hover:bg-primary-700 flex items-center justify-center space-x-2" disabled>
-                    <span class="button-text">Upload</span>
-                    <div class="spinner button-spinner hidden"></div>
+
+            <div class="flex-1 space-y-2">
+                <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Account</h3>
+                <a href="myprofile.html" class="sidebar-menu-item">
+                    <i data-feather="user"></i>
+                    <span>My Profile</span>
+                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                </a>
+                <a href="changepassword.html" class="sidebar-menu-item">
+                    <i data-feather="lock"></i>
+                    <span>Change Password</span>
+                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                </a>
+                <a href="settings.html" class="sidebar-menu-item">
+                    <i data-feather="settings"></i>
+                    <span>Settings</span>
+                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                </a>
+
+                <hr class="my-4 border-gray-100">
+
+                <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">More</h3>
+                <a href="about.html" class="sidebar-menu-item">
+                    <i data-feather="info"></i>
+                    <span>About Us</span>
+                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                </a>
+                <a href="contact.html" class="sidebar-menu-item">
+                    <i data-feather="phone"></i>
+                    <span>Contact Us</span>
+                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                </a>
+                <a href="support.html" class="sidebar-menu-item">
+                    <i data-feather="help-circle"></i>
+                    <span>Help & Support</span>
+                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                </a>
+                
+                <hr class="my-4 border-gray-100">
+                
+                <div class="sidebar-menu-item">
+                    <i data-feather="moon"></i>
+                    <span>Dark Mode</span>
+                    <label class="relative inline-flex items-center cursor-pointer ml-auto">
+                        <input type="checkbox" value="" id="theme-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                    </label>
+                </div>
+            </div>
+            
+            <div>
+                <button id="logout-btn" class="sidebar-menu-item w-full !text-danger-600 hover:!bg-danger-50">
+                    <i data-feather="log-out" class="!text-danger-600"></i>
+                    <span>Log Out</span>
                 </button>
             </div>
-        </div>
+        </nav>
+
+        <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+        <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+
+        <div id="toast-container"></div>
     </div>
-
-
-    <div id="confirm-modal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="modal-content bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
-            <h2 id="confirm-title" class="text-xl font-bold text-gray-900">Confirm Action</h2>
-            <p id="confirm-message" class="text-gray-700">Are you sure you want to do this?</p>
-            <div class="flex items-center space-x-4">
-                <button id="confirm-btn-no" class="w-1/2 bg-white border border-gray-300 text-gray-700 p-3 rounded-xl flex justify-center items-center space-x-2 shadow-sm transition-all duration-300 hover:bg-gray-50 active:scale-95">
-                    <i data-feather="x" class="w-5 h-5"></i>
-                    <span class="font-semibold">Cancel</span>
-                </button>
-                <button id="confirm-btn-yes" class="w-1/2 bg-danger-600 text-white p-3 rounded-xl flex justify-center items-center space-x-2 shadow-lg shadow-danger-500/30 transition-all duration-300 hover:shadow-xl hover:bg-danger-700 active:scale-95">
-                    <i data-feather="check" class="w-5 h-5"></i>
-                    <span class="font-semibold">Confirm</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast-container"></div>
-
 
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
-        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co'; // REPLACE
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c'; // REPLACE
+        const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- Global variables ---
-        let currentAuthUser = null; 
-        let currentUserProfile = null; // Replaces 'viewedUserProfile'
+        let currentAuthUser = null;
+        let currentUserProfile = null;
+        let likesSubscription = null; 
+        let pollVotesSubscription = null; 
+        let commentsSubscription = null;
+        const feedContainer = document.getElementById('feed-posts-container');
+        const userAvatarPostBar = document.getElementById('user-avatar-post-bar');
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
-        let cropper = null; // For the image cropper instance
-        
-        // --- DOM Elements ---
-        const profileLoading = document.getElementById('profile-loading');
-        const loginPrompt = document.getElementById('login-prompt');
-        const profileContent = document.getElementById('profile-content');
-        const userPostsContainer = document.getElementById('user-posts-container');
-        const postsLoading = document.getElementById('posts-loading');
-        
-        // Modals & Toasts
-        const confirmModal = document.getElementById('confirm-modal');
-        const confirmTitle = document.getElementById('confirm-title');
-        const confirmMessage = document.getElementById('confirm-message');
-        const confirmBtnYes = document.getElementById('confirm-btn-yes');
-        const confirmBtnNo = document.getElementById('confirm-btn-no');
+        const CACHE_TTL_MINUTES = 15;
+        let currentFeedData = null;
+
+        // === NOTIFICATION GLOBALS ===
+        const notificationBellBtn = document.getElementById('notification-bell-btn');
+        const notificationBadge = document.getElementById('notification-badge');
+        const notificationPanel = document.getElementById('notification-panel');
+        const notificationList = document.getElementById('notification-list');
+        const notificationsLoading = document.getElementById('notifications-loading');
+        const noNotifications = document.getElementById('no-notifications');
+        const closeNotificationPanelBtn = document.getElementById('close-notification-panel-btn');
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+        const notificationBackdrop = document.getElementById('notification-backdrop');
+        let notificationSubscription = null;
         const toastContainer = document.getElementById('toast-container');
-        
-        // Edit Profile Modal
-        const editProfileModal = document.getElementById('edit-profile-modal');
-        const saveProfileBtn = document.getElementById('save-profile-btn');
 
-        // Friend Requests Modal
-        const friendRequestsModal = document.getElementById('friend-requests-modal');
-        const friendRequestsBtn = document.getElementById('friend-requests-btn');
-        const friendRequestsCount = document.getElementById('friend-requests-count');
-        const requestsModalBody = document.getElementById('requests-modal-body');
+        // === SIDEBAR GLOBALS ===
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+        const logoutBtn = document.getElementById('logout-btn');
+        const themeToggle = document.getElementById('theme-toggle');
 
-        // REQUEST: Friends List Modal Globals
-        const friendsModal = document.getElementById('friends-modal');
-        const friendsModalBody = document.getElementById('friends-modal-body');
-        const profileFriendsCountBtn = document.getElementById('profile-friends-count-btn'); // Button in header
+        // --- 2. AUTH & INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', async () => { 
+             initializeTheme();
 
-        // Image Upload Modal
-        const imageUploadModal = document.getElementById('image-upload-modal');
-        const imageUploadInput = document.getElementById('image-upload-input');
-        const cropperContainer = document.getElementById('cropper-container');
-        const cropperImage = document.getElementById('cropper-image');
-        const saveImageBtn = document.getElementById('save-image-btn');
-
-        // --- 2. INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', async () => {
-             // REQUEST: Initialize Theme
-            initializeTheme();
-
-            const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
-            if (sessionError) { console.error("Session Error:", sessionError); showError("Error loading session."); return; }
-            
-            if (session) {
-                currentAuthUser = session.user;
-                await loadProfileData(currentAuthUser.id);
-                await loadMyPosts(currentAuthUser.id);
-                await loadFriendRequestsCount(currentAuthUser.id);
-                setupEventListeners();
-                feather.replace(); 
-            } else {
-                profileLoading.style.display = 'none';
-                loginPrompt.style.display = 'block';
-                feather.replace();
+             if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    }).catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
             }
+
+             const { data: { session }, error } = await _supabase.auth.getSession();
+             if (error || !session) { window.location.href = 'login.html'; return; }
+             currentAuthUser = session.user;
+
+             await fetchUserProfile(currentAuthUser.id);
+             await fetchPosts();
+
+             feather.replace(); 
+             setupEventListeners(); 
+             subscribeToLikeChanges(); 
+             subscribeToPollVoteChanges(); 
+             subscribeToCommentChanges();
+
+             setupNotificationListeners();
+             fetchUnreadCount();
+             setupRealtimeNotifications();
+
+             setupSidebarListeners();
         });
 
-        // --- 3. UI HELPER FUNCTIONS (TOAST & CONFIRM) ---
-        function showToast(message, type = 'success') { /* ... (keep existing) ... */ 
-             const toast = document.createElement('div'); const iconName = type === 'success' ? 'check-circle' : 'alert-circle'; toast.className = `toast toast-${type}`; toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`; toastContainer.appendChild(toast); feather.replace(); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 3000);
+        // --- 3. FETCH USER PROFILE ---
+        async function fetchUserProfile(authId) { 
+             if (!authId) return; 
+             const { data, error } = await _supabase.from('users').select('id, name, img, tick, auth_id').eq('auth_id', authId).single(); 
+             if (error) { 
+                console.error("Error fetching user profile:", error.message); 
+             } 
+             else if (data) { 
+                 currentUserProfile = data; 
+                 const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : 'U'}`; 
+                 userAvatarPostBar.src = userAvatar; 
+                 populateSidebar(data);
+             }
         }
-        function showConfirm(title, message, confirmText = 'Confirm', isDanger = true) { /* ... (keep existing) ... */ 
-             confirmTitle.textContent = title; confirmMessage.textContent = message; confirmBtnYes.textContent = confirmText; confirmBtnYes.classList.toggle('bg-danger-600', isDanger); confirmBtnYes.classList.toggle('shadow-danger-500/30', isDanger); confirmBtnYes.classList.toggle('hover:bg-danger-700', isDanger); confirmBtnYes.classList.toggle('bg-primary-600', !isDanger); confirmBtnYes.classList.toggle('shadow-primary-500/30', !isDanger); confirmBtnYes.classList.toggle('hover:bg-primary-700', !isDanger); confirmBtnYes.innerHTML = `<i data-feather="${isDanger ? 'check' : 'check'}" class="w-5 h-5"></i><span class="font-semibold">${confirmText}</span>`; confirmBtnNo.innerHTML = `<i data-feather="x" class="w-5 h-5"></i><span class="font-semibold">Cancel</span>`; feather.replace(); confirmModal.classList.add('active'); return new Promise((resolve) => { const onYes = () => { cleanup(); resolve(true); }; const onNo = () => { cleanup(); resolve(false); }; const cleanup = () => { confirmModal.classList.remove('active'); confirmBtnYes.removeEventListener('click', onYes); confirmBtnNo.removeEventListener('click', onNo); }; confirmBtnYes.addEventListener('click', onYes, { once: true }); confirmBtnNo.addEventListener('click', onNo, { once: true }); });
+
+        // --- 4. SETUP EVENT LISTENERS ---
+        function setupEventListeners() { 
+             document.getElementById('create-post-bar').addEventListener('click', () => { window.location.href = 'create.html'; });
+             feedContainer.addEventListener('click', (event) => {
+                 const likeButton = event.target.closest('.like-button'); if (likeButton) { toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; }
+                 const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; }
+                 const toggleButton = event.target.closest('.toggle-comments-button'); if (toggleButton) { toggleCommentsSection(toggleButton.dataset.postId); return; }
+                 const submitButton = event.target.closest('.comment-submit-button'); if (submitButton) { handleCommentSubmit(submitButton.dataset.postId); return; }
+                 const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } 
+                 const deleteCommentButton = event.target.closest('.delete-comment-button'); if (deleteCommentButton) { handleDeleteComment(deleteCommentButton.dataset.commentId, deleteCommentButton.dataset.postId, deleteCommentButton); return; }
+                 const deletePostButton = event.target.closest('.delete-post-button'); if (deletePostButton) { handleDeletePost(deletePostButton.dataset.postId, deletePostButton); return; }
+             });
+        }
+
+        // --- Caching Utility Functions ---
+        function setCache(key, data, ttlMinutes) {
+            try {
+                const item = {
+                    data: data,
+                    timestamp: Date.now(),
+                    expires: Date.now() + ttlMinutes * 60 * 1000
+                };
+                localStorage.setItem(key, JSON.stringify(item));
+            } catch (e) {
+                console.error("Error setting cache:", e);
+            }
+        }
+        function getCache(key) {
+            try {
+                const itemStr = localStorage.getItem(key);
+                if (!itemStr) return null;
+                const item = JSON.parse(itemStr);
+                if (Date.now() > item.expires) {
+                    localStorage.removeItem(key); 
+                    return null;
+                }
+                return item.data;
+            } catch (e) {
+                console.error("Error getting cache:", e);
+                return null;
+            }
         }
         
-        // --- 4. DATA LOADING FUNCTIONS ---
-        async function loadProfileData(authId) { /* ... (keep existing) ... */ 
-             profileLoading.style.display = 'block'; profileContent.classList.add('hidden');
+        // --- Shimmer/Skeleton Loader Functions ---
+        function renderShimmers(container, count = 3) {
+            container.innerHTML = Array(count).fill(createPostShimmerHTML()).join('');
+        }
+        function createPostShimmerHTML() {
+            return `
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="flex items-center space-x-3 p-4">
+                    <div class="w-10 h-10 rounded-full shimmer-wrapper flex-shrink-0"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 w-1/3 rounded shimmer-wrapper"></div>
+                        <div class="h-3 w-1/4 rounded shimmer-wrapper"></div>
+                    </div>
+                </div>
+                <div class="p-4 space-y-2">
+                     <div class="h-4 w-full rounded shimmer-wrapper"></div>
+                     <div class="h-4 w-5/6 rounded shimmer-wrapper"></div>
+                </div>
+                <div class="h-12 border-t border-gray-100 dark:border-gray-700 shimmer-wrapper"></div>
+            </div>
+            `;
+        }
+
+        // --- 5. FETCH POSTS (with Caching & Shimmers) ---
+        async function fetchPosts() { 
+             if (!currentAuthUser) return; 
+             
+             const cacheKey = 'birlaone_feed';
+             const cachedData = getCache(cacheKey);
+             let isCacheRendered = false;
+
+             if (cachedData) {
+                 console.log("Loading feed from cache.");
+                 const processedPosts = cachedData.posts;
+                 currentFeedData = JSON.stringify(processedPosts);
+                 renderPosts(processedPosts); 
+                 isCacheRendered = true;
+             } else {
+                 renderShimmers(feedContainer, 3);
+             }
+
              try {
-                 const { data, error } = await _supabase.from('users').select('id, auth_id, name, img, course, bio, friend_count, tick, instagram, linkedin, role, mob, email').eq('auth_id', authId).single();
+                 const { data: posts, error } = await _supabase
+                     .from('posts')
+                     .select(`
+                         id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, 
+                         users:user_id (id, name, img, tick, auth_id), 
+                         likes!left (user_id), 
+                         poll_votes!left (user_id, selected_option_index) 
+                     `)
+                     .eq('likes.user_id', currentAuthUser.id)
+                     .eq('poll_votes.user_id', currentAuthUser.id)
+                     .order('created_at', { ascending: false }); 
+
                  if (error) throw error; 
-                 if (!data) throw new Error(`User profile not found.`);
-                 currentUserProfile = data; 
-                 document.title = data.name || 'My Profile';
-                 document.getElementById('profile-picture').src = data.img || `https://placehold.co/100x100/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : '?'}`;
-                 document.getElementById('profile-name').textContent = data.name || 'Campus User';
-                 document.getElementById('profile-role').textContent = data.role || 'Role Not Set';
-                 document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
-                 document.getElementById('profile-friend-count-box').textContent = data.friend_count ?? 0;
-                 document.getElementById('profile-course-box').textContent = data.course?.toUpperCase() || '-';
-                 document.getElementById('profile-student-id').textContent = data.id || 'Not Set';
-                 document.getElementById('profile-course').textContent = data.course?.toUpperCase() || 'Not Set';
-                 document.getElementById('profile-mobile').textContent = data.mob || 'Not Set';
-                 document.getElementById('profile-email').textContent = data.email || 'Not Set';
-                 const tickElement = document.getElementById('profile-tick');
-                 if (data.tick && tickImages[data.tick.toLowerCase()]) { tickElement.src = tickImages[data.tick.toLowerCase()]; tickElement.alt = `${data.tick} Tick`; tickElement.classList.remove('hidden'); } 
-                 else { tickElement.classList.add('hidden'); }
-                 const instaSpan = document.getElementById('profile-instagram');
-                 const instaUsername = extractSocialId(data.instagram, 'instagram.com');
-                 if (instaUsername) { instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">${instaUsername}</a>`; instaSpan.className = 'font-medium text-primary-600'; } 
-                 else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
-                 const linkedSpan = document.getElementById('profile-linkedin');
-                 const linkedHandle = extractSocialId(data.linkedin, 'linkedin.com/in/'); 
-                 if (linkedHandle) { const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; linkedSpan.className = 'font-medium text-blue-600'; } 
-                 else { linkedSpan.textContent = 'Not Set'; linkedSpan.className = 'font-medium text-gray-400 italic'; }
-                 profileLoading.style.display = 'none';
-                 profileContent.classList.remove('hidden');
-             } catch (error) { showError(`Error loading profile: ${error.message}`); }
-        }
-        async function loadMyPosts(userAuthId) { /* ... (keep existing) ... */ 
-             postsLoading.style.display = 'block'; userPostsContainer.innerHTML = ''; 
-             try { 
-                 const { data: posts, error } = await _supabase.from('posts')
-                     .select(`*, users:user_id (name, img, tick), likes!left(user_id), poll_votes!left(user_id, selected_option_index)`) 
-                     .eq('user_id', userAuthId)
-                     .eq('likes.user_id', userAuthId)
-                     .eq('poll_votes.user_id', userAuthId)
-                     .order('created_at', { ascending: false });
-                 if (error) throw error; 
-                 postsLoading.style.display = 'none'; 
-                 if (posts.length === 0) { userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">You haven't posted yet.</p>`; } 
-                 else { 
-                     const processedPosts = posts.map(post => ({
-                         ...post,
-                         currentUserLiked: (post.likes?.length > 0),
-                         currentUserPollVote: (post.poll_votes?.length > 0 ? post.poll_votes[0].selected_option_index : null)
-                     }));
-                     const postsHtml = processedPosts.map(post => createFullPostHTML(post, true)).join(''); 
-                     userPostsContainer.innerHTML = postsHtml; 
-                     feather.replace(); 
-                 } 
-             } catch (error) { console.error("Error fetching user posts:", error); postsLoading.innerHTML = `<p class="text-center text-red-500">Could not load posts.</p>`; }
-        }
-        async function loadFriendRequestsCount(userAuthId) { /* ... (keep existing) ... */ 
-             try { const { count, error } = await _supabase.from('friend_requests').select('*', { count: 'exact', head: true }).eq('receiver_id', userAuthId).eq('status', 'pending'); if (error) throw error; if (count > 0) { friendRequestsCount.textContent = count; friendRequestsCount.classList.remove('hidden'); friendRequestsCount.classList.add('flex'); } else { friendRequestsCount.classList.add('hidden'); friendRequestsCount.classList.remove('flex'); } } catch (error) { console.error("Error fetching friend request count:", error.message); }
-        }
-        function extractSocialId(value, platformBase) { /* ... (keep existing) ... */ 
-             if (!value || value === 'EMPTY') return null; try { if (value.includes(platformBase)) { const url = new URL(value.startsWith('http') ? value : `https://${value}`); let path = url.pathname.replace(/^\/|\/$/g, ''); const base = platformBase.replace(/\/$/g, ''); if (path.startsWith(base)) { path = path.substring(base.length); } return path.replace(/^\/|\/$/g, '').split('/').pop(); } } catch (e) { console.warn("Could not parse social URL:", value); } return value.replace(/^@/, '');
+
+                 const processedPosts = posts.map(post => ({ ...post, currentUserLiked: post.likes.length > 0, currentUserPollVote: post.poll_votes.length > 0 ? post.poll_votes[0].selected_option_index : null }));
+                 
+                 const newDataString = JSON.stringify(processedPosts);
+                 
+                 if (!isCacheRendered || newDataString !== currentFeedData) {
+                     console.log("Rendering fresh data from Supabase.");
+                     currentFeedData = newDataString;
+                     renderPosts(processedPosts); 
+                     setCache(cacheKey, { posts: processedPosts }, CACHE_TTL_MINUTES);
+                 } else {
+                     console.log("Cache is up-to-date.");
+                 }
+
+             } catch (error) { 
+                 console.error("Error fetching posts:", error.message); 
+                 if (!isCacheRendered) {
+                     feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading posts.</p>`; 
+                 }
+             }
         }
 
-        // --- 5. POST HTML & ACTIONS ---
-        function createFullPostHTML(post, isOwnPost = false) { 
+        // --- 6. RENDER POSTS (with Animations) ---
+        function renderPosts(posts) { 
+             if (!posts || posts.length === 0) { 
+                 feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet.</p>`; 
+                 return; 
+             } 
+             const postsHtml = posts.map(post => createPostHTML(post)).join(''); 
+             feedContainer.innerHTML = postsHtml; 
+
+             const postElements = feedContainer.querySelectorAll('.post-item-enter');
+             postElements.forEach((post, index) => {
+                setTimeout(() => {
+                     requestAnimationFrame(() => {
+                         post.classList.add('post-item-enter-active');
+                     });
+                }, index * 50);
+             });
+             
+             feather.replace(); 
+        }
+
+        // --- 7. CREATE POST HTML (with Animation Class) ---
+        function createPostHTML(post) { 
              const authorName = post.is_anonymous ? 'Campus Confession' : (post.users?.name || 'Unknown User'); 
-             const authorAvatar = post.is_anonymous ? `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>` : `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0">`; 
-             let tickHtml = ''; const tickType = post.users?.tick?.toLowerCase(); if (!post.is_anonymous && tickType && tickImages[tickType]) { tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; }
              const postTimestamp = formatTimeAgo(post.created_at); 
-             
-             // REQUEST: Add delete button if isOwnPost is true
-             const deleteButtonHtml = isOwnPost ? `
-                <button class="delete-post-btn p-1 rounded-full text-gray-500 hover:text-danger-600 hover:bg-danger-50 dark:text-gray-400 dark:hover:text-danger-500 dark:hover:bg-danger-900/20" 
-                        data-post-id="${post.id}" 
-                        data-media-url="${post.media_url || ''}"
-                        title="Delete post">
-                    <i data-feather="trash-2" class="w-5 h-5"></i>
-                </button>
-             ` : '';
+             const isLiked = post.currentUserLiked; 
+             const likeClass = isLiked ? 'liked text-red-500' : 'text-gray-600'; 
+             const userVotedIndex = post.currentUserPollVote; 
 
-             const isLikedByViewer = post.currentUserLiked; 
-             const likeClass = isLikedByViewer ? 'liked text-red-500' : 'text-gray-600'; 
-             const viewerVotedIndex = post.currentUserPollVote; 
-             let postBody = ''; 
+             let tickHtml = ''; 
+             const tickType = post.users?.tick?.toLowerCase(); 
+             if (!post.is_anonymous && tickType && tickImages[tickType]) { 
+                 tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; 
+             }
              
-             // REQUEST: Format post content
+             const authorId = post.users?.id;
+             const authorAuthId = post.users?.auth_id;
+             let authorAvatar = '';
+             let authorNameHtml = '';
+
+             if (post.is_anonymous) {
+                authorAvatar = `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>`;
+                authorNameHtml = `<p class="font-semibold text-white inline">${authorName}</p>`;
+             } else if (authorId) { 
+                const avatarImg = `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 transition-transform hover:scale-105 object-cover">`;
+                authorAvatar = `<a href="profile.html?user_id=${authorId}">${avatarImg}</a>`;
+                authorNameHtml = `<a href="profile.html?user_id=${authorId}" class="font-semibold text-gray-900 inline hover:underline">${authorName}</a>`;
+             } else {
+                authorAvatar = `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 object-cover">`;
+                authorNameHtml = `<p class="font-semibold text-gray-900 inline">${authorName}</p>`;
+             }
+ 
+             let deleteButtonHtml = '';
+             if (!post.is_anonymous && authorAuthId === currentAuthUser?.id) {
+                 deleteButtonHtml = `
+                 <button class="delete-post-button ml-2 p-2 text-gray-400 hover:text-danger-600 dark:text-gray-500 dark:hover:text-danger-500 transition-colors" 
+                         data-post-id="${post.id}" 
+                         title="Delete post">
+                     <i data-feather="trash-2" class="w-5 h-5"></i>
+                 </button>
+                 `;
+             }
+
+             let postBody = ''; 
              let displayContent = post.content || '';
              displayContent = displayContent
                  .replace(/__(.*?)__/g, '<u>$1</u>')
@@ -518,285 +609,510 @@
                      break; 
                  case 'poll': 
                      const pollOptionsHtml = (post.poll_options || []).map((option, index) => { 
-                         const isDisabled = false; // Polls always votable on own profile
                          return ` <button class="poll-option-button w-full text-left rounded-xl p-3 font-medium text-gray-900 relative transition-colors border border-gray-300 hover:bg-gray-100 cursor-pointer" data-post-id="${post.id}" data-option-index="${index}" > <div class="absolute inset-0 bg-primary-300/50 rounded-lg poll-bar-fg" style="width: 0%;"></div> <span class="relative z-10">${option.option} (0%)</span> </button> `; 
                      }).join(''); 
                      postBody = ` <div class="px-4 pb-3 font-semibold text-lg text-gray-900">${displayContent}</div> <div class="px-4 pb-4 space-y-3 poll-options-container" data-post-id="${post.id}">${pollOptionsHtml}</div> `; 
-                     setTimeout(() => { const container = userPostsContainer.querySelector(`.poll-options-container[data-post-id="${post.id}"]`); if(container) updatePollUI(post.id, container, viewerVotedIndex); }, 0); 
+                     setTimeout(() => { 
+                         const container = document.querySelector(`.poll-options-container[data-post-id="${post.id}"]`); 
+                         if(container) updatePollUI(post.id, container, userVotedIndex); 
+                     }, 0); 
                      break; 
                  case 'text': 
-                 case 'anonymous': // Show anonymous posts on own profile too
+                 case 'anonymous':
                  default: 
                      postBody = `<div class="px-4 py-2 pb-4 text-gray-800 text-base">${displayContent}</div>`; 
                      break;
              } 
              const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; 
-             const headerText = post.is_anonymous ? 'text-white' : 'text-gray-900'; 
              const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500'; 
-             const likeButtonHtml = `<button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLikedByViewer}"> <i data-feather="heart" class="engagement-icon ${isLikedByViewer ? 'fill-current' : ''}"></i> <span class="like-count text-sm font-medium">${post.like_count}</span> </button>`;
-             const commentButtonHtml = `<a href="post.html?id=${post.id}#comments-section-wrapper" class="flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors"> <i data-feather="message-square" class="engagement-icon"></i> <span class="comment-count text-sm font-medium">${post.comment_count}</span> </a>`;
-             const shareButtonHtml = `<button class="share-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> <i data-feather="share-2" class="engagement-icon"></i> <span class="text-sm font-medium">Share</span> </button>`;
              
-             return ` <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden" id="post-${post.id}"> <div class="flex items-center space-x-3 p-4 ${headerClass}"> ${authorAvatar} <div class="flex-1"> <p class="font-semibold ${headerText} inline">${authorName}</p> ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> </div> ${deleteButtonHtml} </div> ${postBody} <div class="flex justify-around border-t border-gray-100"> ${likeButtonHtml} ${commentButtonHtml} ${shareButtonHtml} </div> </div> `;
+             return ` 
+             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden post-item-enter" id="post-${post.id}"> 
+                 <div class="flex items-center space-x-3 p-4 ${headerClass}"> 
+                     ${authorAvatar} 
+                     <div class="flex-1"> 
+                         ${authorNameHtml} 
+                         ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> 
+                     </div> 
+                     ${deleteButtonHtml} </div> 
+                 ${postBody} 
+                 <div class="flex justify-around border-t border-gray-100"> 
+                     <button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLiked}"> 
+                         <i data-feather="heart" class="engagement-icon ${isLiked ? 'fill-current' : ''}"></i> 
+                         <span class="like-count text-sm font-medium">${post.like_count}</span> 
+                     </button> 
+                     <button class="toggle-comments-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> 
+                         <i data-feather="message-square" class="engagement-icon"></i> 
+                         <span class="comment-count text-sm font-medium">${post.comment_count}</span> 
+                     </button> 
+                     <button class="share-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> 
+                         <i data-feather="share-2" class="engagement-icon"></i> 
+                         <span class="text-sm font-medium">Share</span> 
+                     </button> 
+                 </div> 
+                 <div id="comments-section-${post.id}" class="hidden p-4 border-t border-gray-100 space-y-3"> 
+                     <div id="comments-list-${post.id}" class="space-y-3 max-h-60 overflow-y-auto no-scrollbar"> 
+                         <p class="text-sm text-gray-500">Loading comments...</p> 
+                     </div> 
+                     <div class="flex items-center space-x-2 pt-2 border-t border-gray-100"> 
+                         <img src="${currentUserProfile?.img || `https://placehold.co/32x32/A8E063/305B1C?text=${currentUserProfile?.name ? currentUserProfile.name.charAt(0) : 'U'}`}" alt="You" class="w-8 h-8 rounded-full bg-gray-200 object-cover"> 
+                         <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." class="flex-1 bg-gray-100 rounded-full py-2 px-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary-600"> 
+                         <button class="comment-submit-button p-2 text-primary-600 hover:bg-primary-50 rounded-full" data-post-id="${post.id}"> 
+                             <i data-feather="send" class="w-5 h-5"></i> 
+                         </button> 
+                     </div> 
+                 </div> 
+             </div> 
+             `;
         }
-        async function handleDeletePost(postId, mediaUrl) { /* ... (keep existing) ... */ 
-            const didConfirm = await showConfirm("Delete Post?", "Are you sure you want to permanently delete this post?", "Delete");
-            if (!didConfirm) return;
+
+        // --- 8. LIKE/UNLIKE LOGIC ---
+        async function toggleLike(postId, isLiked, buttonElement) { 
+             if (!currentAuthUser || buttonElement.disabled) return; 
+             buttonElement.disabled = true; 
+             const likeIcon = buttonElement.querySelector('svg.feather-heart'); 
+             const countSpan = buttonElement.querySelector('.like-count');
+             let currentCount = parseInt(countSpan.textContent);
+              if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } 
+              else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; }
+             try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } 
+                   else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; }
+             } catch (error) { console.error("Error toggling like in DB:", error.message);
+                  if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } 
+                  else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; }
+             } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); }
+        }
+
+        // --- 9. HELPER: Time Ago ---
+        function formatTimeAgo(dateString) { 
+              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
+        }
+
+        // --- 10 & 11. REALTIME LIKE ---
+        function subscribeToLikeChanges() { 
+             if (likesSubscription) { _supabase.removeChannel(likesSubscription); }
+             likesSubscription = _supabase.channel('public:likes').on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, handleRealtimeLikeUpdate).subscribe();
+        }
+        function handleRealtimeLikeUpdate(payload) { 
+              const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'likes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const userId = record.user_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const likeButton = postElement.querySelector(`.like-button[data-post-id="${postId}"]`); const countSpan = likeButton?.querySelector('.like-count'); const likeIcon = likeButton?.querySelector('svg.feather-heart'); if (!likeButton || !countSpan || !likeIcon) return; 
+              (async () => { try { const { data, error } = await _supabase.from('posts').select('like_count').eq('id', postId).single(); if (error) throw error; if (data) { countSpan.textContent = data.like_count; } if (userId === currentAuthUser?.id) { const isNowLiked = eventType === 'INSERT'; likeButton.dataset.liked = isNowLiked.toString(); likeButton.classList.toggle('liked', isNowLiked); likeButton.classList.toggle('text-red-500', isNowLiked); likeButton.classList.toggle('text-gray-600', !isNowLiked); likeIcon.style.fill = isNowLiked ? 'currentColor' : 'none'; } } catch(err) { console.error("Error fetching updated like count:", err); } })();
+        }
+
+        // --- 12 & 13. POLL VOTE LOGIC ---
+        async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { 
+             if (!currentAuthUser) return;
+             const isCurrentlySelected = clickedButton.classList.contains('border-primary-600');
+             let operation = 'upsert'; 
+             if (isCurrentlySelected) { operation = 'delete'; }
+             optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true);
+             try {
+                 if (operation === 'delete') {
+                     const { error: deleteError } = await _supabase.from('poll_votes').delete().match({ post_id: postId, user_id: currentAuthUser.id });
+                     if (deleteError) throw deleteError;
+                     await updatePollUI(postId, optionsContainer, null); 
+                 } else {
+                     const { error: upsertError } = await _supabase.from('poll_votes').upsert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex }, { onConflict: 'post_id, user_id' });
+                     if (upsertError) throw upsertError;
+                     await updatePollUI(postId, optionsContainer, optionIndex); 
+                 }
+             } catch (error) { 
+                 console.error(`Error performing poll vote ${operation}:`, error.message); 
+                 showToast(`Could not ${operation === 'delete' ? 'remove' : 'record'} your vote.`, 'error');
+                 await updatePollUI(postId, optionsContainer, null); 
+             } 
+        }
+        async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { 
+              if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = false; button.classList.add('hover:bg-gray-100', 'cursor-pointer'); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Error updating poll UI for post ${postId}:`, error.message); }
+        }
+
+        // --- 14. COMMENTS LOGIC ---
+        async function toggleCommentsSection(postId) { 
+              const commentsSection = document.getElementById(`comments-section-${postId}`); const commentsList = document.getElementById(`comments-list-${postId}`); if (!commentsSection || !commentsList) return; const isHidden = commentsSection.classList.contains('hidden'); if (isHidden) { commentsSection.classList.remove('hidden'); commentsList.innerHTML = '<p class="text-sm text-gray-500">Loading comments...</p>'; feather.replace(); try { const { data: comments, error } = await _supabase.from('comments').select(`id, content, created_at, user_id, users:user_id (name, img, tick)`).eq('post_id', postId).is('parent_comment_id', null).order('created_at', { ascending: true }); if (error) throw error; renderComments(postId, comments); } catch (error) { console.error("Error fetching comments:", error.message); commentsList.innerHTML = '<p class="text-sm text-red-500">Error loading comments.</p>'; } } else { commentsSection.classList.add('hidden'); }
+        }
+        function renderComments(postId, comments) { 
+             const commentsList = document.getElementById(`comments-list-${postId}`); 
+             if (!commentsList) return; 
+             if (comments.length === 0) { 
+                 commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>'; 
+                 return; 
+             } 
+             commentsList.innerHTML = comments.map(comment => { 
+                 const commenterName = comment.users?.name || 'Unknown User'; 
+                 const commenterAvatar = comment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; 
+                 const commentTime = formatTimeAgo(comment.created_at); 
+                 const deleteButtonHtml = (comment.user_id === currentUserProfile?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${comment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : ''; 
+                 let commenterTickHtml = ''; 
+                 const commenterTickType = comment.users?.tick?.toLowerCase(); 
+                 if (commenterTickType && tickImages[commenterTickType]) { 
+                     commenterTickHtml = `<img src="${tickImages[commenterTickType]}" alt="${commenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
+                 }
+                 return ` 
+                   <div class="comment-item flex items-start space-x-2" data-comment-id="${comment.id}"> 
+                       <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> 
+                       <div class="flex-1 bg-gray-100 rounded-xl p-2"> 
+                           <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> 
+                           ${commenterTickHtml} <p class="text-sm text-gray-700">${comment.content}</p> 
+                       </div> 
+                       <div class="flex items-center flex-shrink-0 self-center"> 
+                           <span class="text-xs text-gray-400">${commentTime}</span> 
+                           ${deleteButtonHtml} 
+                       </div> 
+                   </div> 
+                 `; 
+             }).join(''); 
+             feather.replace();
+        }
+        async function handleCommentSubmit(postId) { 
+              if (!currentAuthUser) return; const input = document.getElementById(`comment-input-${postId}`); const content = input.value.trim(); if (!content) return; const submitButton = document.querySelector(`.comment-submit-button[data-post-id="${postId}"]`); submitButton.disabled = true; const originalIconHTML = submitButton.innerHTML; submitButton.innerHTML = '<div class="spinner w-5 h-5 border-t-primary-600"></div>'; try { const { data: newComment, error } = await _supabase.from('comments').insert({ post_id: postId, user_id: currentUserProfile.id, content: content }).select(`*, users:user_id (name, img, tick)`).single(); if (error) throw error; const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList) { const noComments = commentsList.querySelector('p'); if (noComments && commentsList.children.length <= 1) { commentsList.innerHTML = ''; } const commenterName = newComment.users?.name || 'Unknown User'; const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; const commentTime = formatTimeAgo(newComment.created_at); const deleteButtonHtml = `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>`; 
+                   let newCommenterTickHtml = ''; 
+                   const newCommenterTickType = newComment.users?.tick?.toLowerCase(); 
+                   if (newCommenterTickType && tickImages[newCommenterTickType]) { 
+                       newCommenterTickHtml = `<img src="${tickImages[newCommenterTickType]}" alt="${newCommenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
+                   }
+                  const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${newCommenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; commentsList.insertAdjacentHTML('beforeend', newCommentHtml); commentsList.scrollTop = commentsList.scrollHeight; feather.replace(); } input.value = ''; const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = parseInt(countSpan.textContent) + 1; } } catch (error) { console.error("Error submitting comment:", error.message); showToast("Could not post comment.", "error"); } finally { submitButton.disabled = false; submitButton.innerHTML = originalIconHTML; const restoredIcon = submitButton.querySelector('i[data-feather="send"]'); if(restoredIcon) feather.replace({ 'data-feather': 'send'}); }
+        }
+        async function handleDeleteComment(commentId, postId, buttonElement) {
+             if (!currentAuthUser) return;
+             if (!confirm("Are you sure you want to delete this comment?")) return; 
+             buttonElement.disabled = true; const commentElement = buttonElement.closest('.comment-item'); 
+             try { const { error } = await _supabase.from('comments').delete().match({ id: commentId, user_id: currentUserProfile.id }); if (error) throw error;
+                 if (commentElement) { commentElement.style.opacity = '0'; commentElement.style.transition = 'opacity 0.3s ease-out'; setTimeout(() => { commentElement.remove(); const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList && commentsList.children.length === 0) { commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>'; } }, 300); }
+                 const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1); }
+                  showToast("Comment deleted", "success");
+             } catch (error) { 
+                 console.error("Error deleting comment:", error.message); 
+                 showToast("Could not delete comment.", "error");
+                 buttonElement.disabled = false; 
+             }
+        }
+
+        // --- 15. DELETE POST LOGIC ---
+        async function handleDeletePost(postId, buttonElement) {
+            if (!currentAuthUser) return;
+            if (!confirm("Are you sure you want to delete this post? This action cannot be undone.")) return;
+            buttonElement.disabled = true;
             const postElement = document.getElementById(`post-${postId}`);
-            postElement.style.opacity = '0.5';
             try {
-                const { error: deletePostError } = await _supabase.from('posts').delete().match({ id: postId }).eq('user_id', currentAuthUser.id); 
-                if (deletePostError) throw deletePostError;
-                if (mediaUrl && !mediaUrl.startsWith('https://res.cloudinary')) { 
-                    const url = new URL(mediaUrl);
-                    const path = url.pathname.split('/public/posts_media/')[1]; 
-                    if (path) {
-                        const { error: deleteStorageError } = await _supabase.storage.from('posts_media').remove([path]); 
-                        if (deleteStorageError) { console.error("Could not delete file from storage:", deleteStorageError.message); showToast("Post deleted, but media file cleanup failed.", 'error'); }
-                    }
-                } else if (mediaUrl && mediaUrl.startsWith('https://res.cloudinary')) {
-                    console.log("Skipping Cloudinary media deletion from frontend.");
-                }
-                postElement.remove();
-                showToast("Post deleted", 'success');
-                if (userPostsContainer.querySelectorAll('div[id^="post-"]').length === 0) {
-                     userPostsContainer.innerHTML = `<p class="text-center text-gray-500 py-6">You haven't posted yet.</p>`;
+                const { error } = await _supabase
+                    .from('posts')
+                    .delete()
+                    .match({ id: postId });
+                if (error) throw error;
+                showToast("Post deleted successfully.", "success");
+                if (postElement) {
+                    postElement.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                    postElement.style.opacity = '0';
+                    postElement.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        postElement.remove();
+                        if (feedContainer.querySelectorAll('div[id^="post-"]').length === 0) {
+                            feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet.</p>`;
+                        }
+                    }, 300);
                 }
             } catch (error) {
                 console.error("Error deleting post:", error.message);
-                showToast("Could not delete post.", 'error');
-                postElement.style.opacity = '1';
+                showToast(`Error: ${error.message}`, 'error');
+                buttonElement.disabled = false;
             }
         }
-        
-        // --- 6. EVENT LISTENERS ---
-        function setupEventListeners() { /* ... (Updated) ... */ 
-            document.getElementById('edit-profile-btn').addEventListener('click', openEditProfileModal);
-            document.getElementById('profile-picture-btn').addEventListener('click', openImageUploadModal);
-            friendRequestsBtn.addEventListener('click', openFriendRequestsModal);
-            document.getElementById('close-requests-modal').addEventListener('click', () => friendRequestsModal.classList.remove('active'));
-            friendRequestsModal.addEventListener('click', (e) => { if (e.target === friendRequestsModal) friendRequestsModal.classList.remove('active'); });
-            document.getElementById('close-edit-modal').addEventListener('click', () => editProfileModal.classList.remove('active'));
-            document.getElementById('cancel-edit-btn').addEventListener('click', () => editProfileModal.classList.remove('active'));
-            saveProfileBtn.addEventListener('click', saveProfile);
-            document.getElementById('close-upload-modal').addEventListener('click', closeImageUploadModal);
-            document.getElementById('cancel-upload-btn').addEventListener('click', closeImageUploadModal);
-            imageUploadInput.addEventListener('change', initCropper);
-            saveImageBtn.addEventListener('click', uploadCroppedImage);
-            
-            // REQUEST: Add listener for friends count button
-            profileFriendsCountBtn.addEventListener('click', openFriendsModal);
-            document.getElementById('close-friends-modal').addEventListener('click', closeFriendsModal);
-            friendsModal.addEventListener('click', (e) => { if (e.target === friendsModal) closeFriendsModal(); });
 
-            userPostsContainer.addEventListener('click', (event) => { 
-                 const likeButton = event.target.closest('.like-button'); if (likeButton) { toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; } 
-                 const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; } 
-                 const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; }
-                 const deleteButton = event.target.closest('.delete-post-btn'); if (deleteButton) { handleDeletePost(deleteButton.dataset.postId, deleteButton.dataset.mediaUrl); return; }
-            });
+        // --- 16 & 17. SHARE LOGIC ---
+        async function handleShare(postId) {
+              const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800, div.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); }
         }
-        
-        // --- 7. EDIT PROFILE MODAL ---
-        function openEditProfileModal() { /* ... (keep existing) ... */ 
-             if (!currentUserProfile) return;
-             document.getElementById('edit-bio').value = currentUserProfile.bio || '';
-             document.getElementById('edit-instagram').value = extractSocialId(currentUserProfile.instagram, 'instagram.com') || '';
-             document.getElementById('edit-linkedin').value = extractSocialId(currentUserProfile.linkedin, 'linkedin.com/in/') || '';
-             editProfileModal.classList.add('active');
-             feather.replace();
+        function fallbackCopyToClipboard(text) { 
+             copyToClipboard(text).then(() => { 
+                 showToast("Web Share not available. Link copied!", 'success');
+             }).catch(err => { 
+                 console.error('Failed to copy link: ', err); 
+                 showToast("Failed to copy link.", 'error');
+             }); 
         }
-        async function saveProfile() { /* ... (keep existing) ... */ 
-            const bio = document.getElementById('edit-bio').value;
-            const instagram = document.getElementById('edit-instagram').value;
-            const linkedin = document.getElementById('edit-linkedin').value;
-            setButtonLoading(saveProfileBtn, true);
-            try {
-                const { data, error } = await _supabase.from('users')
-                    .update({
-                        bio: bio,
-                        instagram: instagram ? `https://www.instagram.com/${instagram.replace(/^@/, '')}` : 'EMPTY',
-                        linkedin: linkedin ? `https://www.linkedin.com/in/${linkedin}` : 'EMPTY'
-                    })
-                    .eq('auth_id', currentAuthUser.id)
-                    .select().single();
-                if (error) throw error;
-                currentUserProfile = data;
-                document.getElementById('profile-bio').textContent = data.bio || 'No bio provided.';
-                const instaSpan = document.getElementById('profile-instagram');
-                const instaUsername = extractSocialId(data.instagram, 'instagram.com');
-                if (instaUsername) { instaSpan.innerHTML = `<a href="https://instagram.com/${instaUsername}" target="_blank" class="text-primary-600 hover:underline">${instaUsername}</a>`; instaSpan.className = 'font-medium text-primary-600'; } 
-                else { instaSpan.textContent = 'Not Set'; instaSpan.className = 'font-medium text-gray-400 italic'; }
-                const linkedSpan = document.getElementById('profile-linkedin');
-                const linkedHandle = extractSocialId(data.linkedin, 'linkedin.com/in/'); 
-                if (linkedHandle) { const linkedInUrl = `https://linkedin.com/in/${linkedHandle}`; linkedSpan.innerHTML = `<a href="${linkedInUrl}" target="_blank" class="text-blue-600 hover:underline">${linkedHandle}</a>`; linkedSpan.className = 'font-medium text-blue-600'; } 
-                else { linkedSpan.textContent = 'Not Set'; linkedSpan.className = 'font-medium text-gray-400 italic'; }
-                showToast("Profile updated!", 'success');
-                editProfileModal.classList.remove('active');
-            } catch (error) { console.error("Error saving profile:", error.message); showToast("Could not save profile.", 'error'); } 
-            finally { setButtonLoading(saveProfileBtn, false); }
-        }
-        
-        // --- 8. FRIEND REQUESTS MODAL ---
-        async function openFriendRequestsModal() { /* ... (keep existing) ... */ 
-            requestsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading requests...</p>';
-            friendRequestsModal.classList.add('active');
-            try {
-                const { data: requests, error } = await _supabase.from('friend_requests')
-                    .select('id, sender_id, users:sender_id (id, auth_id, name, img, tick)')
-                    .eq('receiver_id', currentAuthUser.id).eq('status', 'pending');
-                if (error) throw error;
-                if (requests.length === 0) { requestsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">No pending friend requests.</p>'; return; }
-                requestsModalBody.innerHTML = requests.map(req => {
-                    const sender = req.users; if (!sender) return ''; 
-                    const tickType = sender.tick?.toLowerCase();
-                    const tickHtml = (tickType && tickImages[tickType]) ? `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1.5">` : '';
-                    return `
-                      <div class="flex items-center space-x-3 p-2" id="request-row-${req.id}">
-                          <img src="${sender.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${sender.name ? sender.name.charAt(0) : '?'}`}" alt="${sender.name}" class="w-10 h-10 rounded-full bg-gray-200">
-                          <div class="flex-1 flex items-center">
-                              <span class="font-medium text-gray-800">${sender.name || 'User'}</span>
-                              ${tickHtml}
-                          </div>
-                          <div class="flex space-x-2">
-                              <button class="decline-request-btn p-2 bg-white border border-danger-500 text-danger-500 rounded-lg hover:bg-danger-50" data-request-id="${req.id}"><i data-feather="x" class="w-5 h-5"></i></button>
-                              <button class="accept-request-btn p-2 bg-green-500 text-white rounded-lg hover:bg-green-600" data-request-id="${req.id}"><i data-feather="check" class="w-5 h-5"></i></button>
-                          </div>
-                      </div>`;
-                }).join('');
-                requestsModalBody.querySelectorAll('.accept-request-btn').forEach(btn => { btn.addEventListener('click', (e) => acceptRequestInModal(e.currentTarget.dataset.requestId, e.currentTarget)); });
-                requestsModalBody.querySelectorAll('.decline-request-btn').forEach(btn => { btn.addEventListener('click', (e) => declineRequestInModal(e.currentTarget.dataset.requestId, e.currentTarget)); });
-                feather.replace();
-            } catch (error) { console.error("Error fetching requests:", error.message); requestsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading requests.</p>'; }
-        }
-        async function acceptRequestInModal(requestId, buttonEl) { /* ... (keep existing) ... */ 
-             setButtonLoading(buttonEl, true, true);
-             try {
-                 const { error } = await _supabase.rpc('accept_and_create_friendship', { request_id_to_accept: requestId });
-                 if (error) throw error; 
-                 showToast("Friend added!", 'success');
-                 document.getElementById(`request-row-${requestId}`).remove();
-                 await loadFriendRequestsCount(currentAuthUser.id);
-                 await loadProfileData(currentAuthUser.id); // Reload profile to update friend count
-             } catch(error) { console.error("Error accepting request:", error.message); showToast("Could not accept request.", 'error'); setButtonLoading(buttonEl, false, true, 'check'); }
-        }
-        async function declineRequestInModal(requestId, buttonEl) { /* ... (keep existing) ... */ 
-             setButtonLoading(buttonEl, true, true);
-             try { 
-                 const { error } = await _supabase.from('friend_requests').delete().eq('id', requestId).eq('receiver_id', currentAuthUser.id);
-                 if (error) throw error; 
-                 showToast("Request declined", 'success'); 
-                 document.getElementById(`request-row-${requestId}`).remove();
-                 await loadFriendRequestsCount(currentAuthUser.id);
-             } catch(error) { console.error("Error declining request:", error.message); showToast("Could not decline request.", 'error'); setButtonLoading(buttonEl, false, true, 'x'); } 
+        function copyToClipboard(text) { 
+              return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); 
         }
 
-        // --- REQUEST: Friends List Modal Functions (Corrected Query) ---
-        async function openFriendsModal() {
-             if (!currentUserProfile) return;
-             friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">Loading...</p>';
-             friendsModal.classList.add('active');
-             feather.replace();
+        // --- 18 & 19. REALTIME POLL VOTE ---
+        function subscribeToPollVoteChanges() { 
+             if (pollVotesSubscription) { _supabase.removeChannel(pollVotesSubscription); }
+             pollVotesSubscription = _supabase.channel('public:poll_votes').on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, handleRealtimePollUpdate).subscribe();
+        }
+        function handleRealtimePollUpdate(payload) { 
+              const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'poll_votes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const optionsContainer = postElement.querySelector(`.poll-options-container[data-post-id="${postId}"]`); if (optionsContainer) { updatePollUI(postId, optionsContainer, null); }
+        }
 
-             try {
-                 // FIX: Removed .eq('status', 'accepted')
-                 const { data: friendships, error: friendsError } = await _supabase.from('friendships')
-                     .select(` u1:user1_id (id, auth_id, name, img, tick), u2:user2_id (id, auth_id, name, img, tick) `)
-                     .or(`user1_id.eq.${currentUserProfile.auth_id},user2_id.eq.${currentUserProfile.auth_id}`); 
-
-                 if (friendsError) throw friendsError;
-
-                 if (friendships.length === 0) {
-                     friendsModalBody.innerHTML = '<p class="text-gray-500 text-center py-4">You have no friends yet.</p>';
-                     return;
+        // --- 20 & 21. REALTIME COMMENTS ---
+        function subscribeToCommentChanges() {
+             if (commentsSubscription) { _supabase.removeChannel(commentsSubscription); }
+             commentsSubscription = _supabase.channel('public:comments')
+                 .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, handleRealtimeCommentUpdate)
+                 .subscribe();
+        }
+        function handleRealtimeCommentUpdate(payload) {
+             const { eventType, new: newRecord, old: oldRecord, table } = payload;
+             if (table !== 'comments') return; 
+             const record = eventType === 'DELETE' ? oldRecord : newRecord;
+             if (!record || !record.post_id) return;
+             const postId = record.post_id;
+             const commentId = record.id;
+             const postElement = document.getElementById(`post-${postId}`);
+             if (postElement) {
+                 const countSpan = postElement.querySelector('.comment-count');
+                 if (countSpan) {
+                     _supabase.from('posts').select('comment_count').eq('id', postId).single().then(({data, error}) => {
+                         if (!error && data) countSpan.textContent = data.comment_count;
+                     });
                  }
-
-                 const friends = friendships.map(f => f.u1.auth_id === currentUserProfile.auth_id ? f.u2 : f.u1);
-
-                 friends.sort((a, b) => (a.name || '').localeCompare(b.name || '')); // Alphabetical sort
-
-                 friendsModalBody.innerHTML = friends.map(friend => {
-                     const tickType = friend.tick?.toLowerCase();
-                     const tickHtml = (tickType && tickImages[tickType]) 
-                         ? `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1.5">` 
-                         : '';
-                     
-                     // Link to their profile using their public ID
-                     const profileLink = `profile.html?id=${friend.id}`; 
-
-                     return `
-                       <a href="${profileLink}" class="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                           <img src="${friend.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${friend.name ? friend.name.charAt(0) : '?'}`}" alt="${friend.name}" class="w-10 h-10 rounded-full bg-gray-200">
-                           <div class="flex-1 flex items-center">
-                               <span class="font-medium text-gray-800 dark:text-gray-200">${friend.name || 'User'}</span>
-                               ${tickHtml}
-                           </div>
-                       </a> 
-                     `;
-                 }).join('');
-
-                 feather.replace();
-
-             } catch (error) { 
-                 console.error("Error fetching friends:", error); 
-                 friendsModalBody.innerHTML = '<p class="text-red-500 text-center py-4">Error loading friends.</p>'; 
-             } 
-        }
-        function closeFriendsModal() { friendsModal.classList.remove('active'); friendsModalBody.innerHTML = ''; }
-
-        // --- 9. IMAGE UPLOAD & CROP ---
-        function openImageUploadModal() { /* ... (keep existing) ... */ 
-            imageUploadModal.classList.add('active'); feather.replace();
-        }
-        function closeImageUploadModal() { /* ... (keep existing) ... */ 
-            if (cropper) { cropper.destroy(); cropper = null; } cropperContainer.style.display = 'none'; cropperImage.src = ''; imageUploadInput.value = ''; saveImageBtn.disabled = true; imageUploadModal.classList.remove('active');
-        }
-        function initCropper(e) { /* ... (keep existing) ... */ 
-            const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { cropperImage.src = event.target.result; cropperContainer.style.display = 'block'; if (cropper) { cropper.destroy(); } cropper = new Cropper(cropperImage, { aspectRatio: 1, viewMode: 1, background: false, autoCropArea: 0.8, responsive: true, checkOrientation: false }); saveImageBtn.disabled = false; }; reader.readAsDataURL(file);
-        }
-        async function uploadCroppedImage() { /* ... (keep existing) ... */ 
-             if (!cropper || !currentUserProfile) return; setButtonLoading(saveImageBtn, true); cropper.getCroppedCanvas({ width: 512, height: 512, imageSmoothingQuality: 'high' }).toBlob(async (blob) => { if (!blob) { showToast("Error processing image.", 'error'); setButtonLoading(saveImageBtn, false); return; } const filePath = `public/${currentAuthUser.id}/${Date.now()}.png`; try { const { data: uploadData, error: uploadError } = await _supabase.storage.from('avatars').upload(filePath, blob, { cacheControl: '3600', upsert: false }); if (uploadError) throw uploadError; const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(uploadData.path); if (!urlData.publicUrl) { throw new Error("Could not get public URL."); } const { error: updateUserError } = await _supabase.from('users').update({ img: urlData.publicUrl }).eq('auth_id', currentAuthUser.id); if (updateUserError) throw updateUserError; document.getElementById('profile-picture').src = urlData.publicUrl; currentUserProfile.img = urlData.publicUrl; showToast("Profile picture updated!", 'success'); closeImageUploadModal(); } catch (error) { console.error("Error uploading image:", error.message); showToast(`Upload failed: ${error.message}`, 'error'); } finally { setButtonLoading(saveImageBtn, false); } }, 'image/png');
+             }
+             const commentsSection = document.getElementById(`comments-section-${postId}`);
+             if (commentsSection && !commentsSection.classList.contains('hidden')) {
+                 const commentsList = document.getElementById(`comments-list-${postId}`);
+                 const existingCommentElement = commentsList?.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+                 if (eventType === 'INSERT' && !existingCommentElement) {
+                     _supabase.from('comments').select(`*, users:user_id (name, img, tick)`).eq('id', commentId).single().then(({data: newComment, error}) => {
+                         if (!error && newComment && commentsList) {
+                             const noComments = commentsList.querySelector('p');
+                             if (noComments && commentsList.children.length <= 1) { commentsList.innerHTML = ''; }
+                             const commenterName = newComment.users?.name || 'Unknown User'; 
+                             const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`;
+                             const commentTime = formatTimeAgo(newComment.created_at);
+                             const deleteButtonHtml = (newComment.user_id === currentUserProfile?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : '';
+                             let commenterTickHtml = ''; 
+                             const commenterTickType = newComment.users?.tick?.toLowerCase(); 
+                             if (commenterTickType && tickImages[commenterTickType]) { 
+                                 commenterTickHtml = `<img src="${tickImages[commenterTickType]}" alt="${commenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
+                             }
+                             const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${newCommenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; 
+                             commentsList.insertAdjacentHTML('beforeend', newCommentHtml); 
+                             commentsList.scrollTop = commentsList.scrollHeight; 
+                             feather.replace();
+                         }
+                     });
+                 } else if (eventType === 'DELETE' && existingCommentElement) {
+                     existingCommentElement.style.opacity = '0';
+                     existingCommentElement.style.transition = 'opacity 0.3s ease-out';
+                     setTimeout(() => { 
+                         existingCommentElement.remove(); 
+                         if (commentsList && commentsList.children.length === 0) {
+                             commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>';
+                         }
+                     }, 300);
+                 } 
+             }
         }
 
-        // --- 10. POST ACTIONS (Like, Poll, Share) ---
-        async function toggleLike(postId, isLiked, buttonElement) { /* ... (keep existing) ... */ 
-             if (!currentAuthUser || buttonElement.disabled) return; buttonElement.disabled = true; const likeIcon = buttonElement.querySelector('svg.feather-heart'); const countSpan = buttonElement.querySelector('.like-count'); let currentCount = parseInt(countSpan.textContent); if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; } try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; } } catch (error) { console.error("Like Error:", error.message); if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; } } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); } 
+        // --- SIDEBAR FUNCTIONS ---
+        function setupSidebarListeners() {
+            if (!sidebarToggleBtn) return;
+            sidebarToggleBtn.addEventListener('click', openSidebar);
+            sidebarBackdrop.addEventListener('click', closeSidebar);
+            logoutBtn.addEventListener('click', handleLogout);
+            themeToggle.addEventListener('change', handleThemeToggle);
         }
-        async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { /* ... (keep existing) ... */ 
-             if (!currentAuthUser) return; const isCurrentlySelected = clickedButton.classList.contains('border-primary-600'); let operation = 'upsert'; if (isCurrentlySelected) { operation = 'delete'; } optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true); try { if (operation === 'delete') { const { error: deleteError } = await _supabase.from('poll_votes').delete().match({ post_id: postId, user_id: currentAuthUser.id }); if (deleteError) throw deleteError; await updatePollUI(postId, optionsContainer, null); } else { const { error: upsertError } = await _supabase.from('poll_votes').upsert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex }, { onConflict: 'post_id, user_id' }); if (upsertError) throw upsertError; await updatePollUI(postId, optionsContainer, optionIndex); } } catch (error) { console.error(`Poll Vote Error (${operation}):`, error.message); showToast(`Could not ${operation === 'delete' ? 'remove' : 'record'} vote.`, 'error'); await updatePollUI(postId, optionsContainer, null); } 
+        function openSidebar() {
+            closeNotificationPanel();
+            sidebar.classList.remove('hidden');
+            sidebarBackdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+            feather.replace();
         }
-        async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { /* ... (keep existing) ... */ 
-             if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = !currentAuthUser; button.classList.toggle('hover:bg-gray-100', !!currentAuthUser); button.classList.toggle('cursor-pointer', !!currentAuthUser); button.classList.toggle('opacity-70', !currentAuthUser); button.classList.toggle('!cursor-not-allowed', !currentAuthUser); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Poll UI Update Error (${postId}):`, error.message); } 
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+            setTimeout(() => {
+                sidebar.classList.add('hidden');
+            }, 300);
         }
-        async function handleShare(postId) { /* ... (keep existing) ... */ 
-             const shareUrl = `${location.origin}/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentEl = postElement.querySelector('.text-gray-800'); if (contentEl && contentEl.textContent.trim().length > 0) { shareText = contentEl.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Share Error:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); } 
+        async function handleLogout() {
+            showToast("Logging you out...", 'success');
+            const { error } = await _supabase.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error.message);
+                showToast(error.message, 'error');
+            } else {
+                localStorage.removeItem('theme');
+                localStorage.removeItem('birlaone_feed');
+                localStorage.removeItem('birlaone_popular');
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('birlaone_search_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                window.location.href = 'login.html';
+            }
         }
-        function fallbackCopyToClipboard(text) { /* ... (keep existing) ... */ 
-             copyToClipboard(text).then(() => { showToast("Web Share not available. Link copied!", 'success'); }).catch(err => { console.error('Copy Error:', err); showToast("Failed to copy link.", 'error'); }); 
-        }
-        function copyToClipboard(text) { /* ... (keep existing) ... */ 
-             return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); 
-        }
-        
-        // --- 11. GENERAL HELPERS ---
-        function showError(message) { /* ... (keep existing) ... */ 
-             profileLoading.innerHTML = `<p class="text-center text-red-500 font-semibold pt-16">${message}</p>`; profileLoading.style.display = 'block'; profileContent.classList.add('hidden'); loginPrompt.style.display = 'none'; postsLoading.innerHTML = ''; 
-        }
-        function formatTimeAgo(dateString) { /* ... (keep existing) ... */ 
-             const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
-        }
-        function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) { /* ... (keep existing) ... */ 
-            buttonEl.disabled = isLoading; const textEl = buttonEl.querySelector('.button-text'); const spinnerEl = buttonEl.querySelector('.button-spinner'); if (isSmall) { const iconEl = buttonEl.querySelector('i[data-feather]'); if (isLoading) { if (iconEl) iconEl.style.display = 'none'; if (!spinnerEl) { const spinner = document.createElement('div'); spinner.className = 'spinner button-spinner w-5 h-5'; buttonEl.prepend(spinner); } else { spinnerEl.style.display = 'block'; } } else { const existingSpinner = buttonEl.querySelector('.button-spinner'); if (existingSpinner) existingSpinner.remove(); if (iconEl) { iconEl.style.display = 'block'; } else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); } } } else { if (textEl) textEl.style.display = isLoading ? 'none' : 'block'; if (spinnerEl) spinnerEl.style.display = isLoading ? 'block' : 'none'; }
+        function populateSidebar(profileData) {
+            if (!profileData) return;
+            document.getElementById('sidebar-user-avatar').src = profileData.img || `https://placehold.co/64x64/A8E063/305B1C?text=${profileData.name ? profileData.name.charAt(0) : 'U'}`;
+            document.getElementById('sidebar-user-name').textContent = profileData.name || 'Campus User';
+            const tickContainer = document.getElementById('sidebar-user-tick-container');
+            tickContainer.innerHTML = '';
+            const tickType = profileData.tick?.toLowerCase();
+            if (tickType && tickImages[tickType]) {
+                const tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`;
+                tickContainer.innerHTML = tickHtml;
+            }
+            const qrContainer = document.getElementById('sidebar-qr-code-img');
+            qrContainer.innerHTML = '';
+            if (profileData.id) { 
+                // The qrcode.js library will generate a <canvas> and <img>
+                // The new CSS will ensure they fill the `aspect-square` container
+                new QRCode(qrContainer, {
+                    text: String(profileData.id),
+                    width: 256, // The library uses this for density
+                    height: 256,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID available for QR code.</p>';
+            }
         }
 
-        // --- REQUEST: THEME FUNCTION ---
+        // --- THEME TOGGLE FUNCTIONS ---
         function initializeTheme() {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
+                if (themeToggle) themeToggle.checked = true;
             } else {
                 document.documentElement.classList.remove('dark');
+                if (themeToggle) themeToggle.checked = false;
             }
-            // Note: The toggle button itself is handled in feed.html's sidebar
+        }
+        function handleThemeToggle(e) {
+            if (e.target.checked) {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            }
+        }
+
+        // --- NOTIFICATION FUNCTIONS ---
+        function setupNotificationListeners() {
+             if (!notificationBellBtn) return;
+             notificationBellBtn.addEventListener('click', toggleNotificationPanel);
+             closeNotificationPanelBtn.addEventListener('click', closeNotificationPanel);
+             markAllReadBtn.addEventListener('click', markAllAsRead);
+             notificationBackdrop.addEventListener('click', closeNotificationPanel);
+        }
+        function toggleNotificationPanel() {
+             const isHidden = notificationPanel.classList.contains('hidden');
+             if (isHidden) { 
+                closeSidebar();
+                openNotificationPanel(); 
+                fetchNotifications(); 
+            } else { 
+                closeNotificationPanel(); 
+            }
+        }
+        function openNotificationPanel() {
+             notificationPanel.classList.remove('hidden'); notificationBackdrop.classList.remove('hidden'); requestAnimationFrame(() => { notificationPanel.classList.remove('translate-x-full'); });
+        }
+        function closeNotificationPanel() {
+             notificationPanel.classList.add('translate-x-full'); notificationBackdrop.classList.add('hidden'); setTimeout(() => { notificationPanel.classList.add('hidden'); }, 300);
+        }
+        async function fetchUnreadCount() {
+             if (!currentAuthUser) return; try { const { data, error } = await _supabase.rpc('get_unread_notifications_count'); if (error) throw error; updateBadge(data); } catch (error) { console.error("Error fetching unread count:", error.message); }
+        }
+        async function fetchNotifications() {
+             if (!currentAuthUser) return; notificationsLoading.style.display = 'block'; noNotifications.style.display = 'none'; notificationList.innerHTML = ''; try { const { data, error } = await _supabase.rpc('get_my_notifications'); if (error) throw error; notificationsLoading.style.display = 'none'; if (!data || data.length === 0) { noNotifications.style.display = 'block'; } else { renderNotifications(data); } } catch (error) { console.error("Error fetching notifications:", error.message); notificationsLoading.style.display = 'none'; notificationList.innerHTML = '<p class="text-center text-red-500 py-4">Could not load notifications.</p>'; }
+        }
+        function renderNotifications(notifications) {
+             notificationList.innerHTML = '';
+             const localTickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
+             notifications.forEach((notif, index) => {
+                 const div = document.createElement('div');
+                 div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors notification-item-enter ${!notif.is_read ? 'bg-primary-50' : 'bg-white'} hover:bg-gray-100`;
+                 div.dataset.notificationId = notif.id;
+                 const senderAvatar = notif.sender_img
+                     ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">`
+                     : `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">?</div>`;
+                 const tickType = notif.sender_tick?.toLowerCase();
+                 const tickHtml = (tickType && localTickImages[tickType])
+                         ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`
+                         : '';
+                 const timeAgo = formatTimeAgo(notif.created_at);
+                 const contentHtml = `
+                     <p class="text-sm text-gray-800">
+                         ${notif.sender_name ? `<strong class="font-medium">${notif.sender_name}</strong>${tickHtml} ` : ''}
+                         ${notif.content_preview || `Notification type: ${notif.type}`}
+                     </p>
+                     <p class="text-xs text-gray-500 mt-0.5">${timeAgo}</p>
+                 `;
+                 const isDirectLink = notif.link && !notif.link.includes('myprofile.html'); 
+                 const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">'; 
+                 const linkWrapperEnd = isDirectLink ? '</a>' : '</div>';
+                 div.innerHTML = `
+                     ${senderAvatar}
+                     ${linkWrapperStart}
+                         ${contentHtml}
+                     ${linkWrapperEnd}
+                     ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
+                 `;
+                 div.addEventListener('click', (e) => {
+                     if (isDirectLink && !e.target.closest('.w-2.h-2')) {
+                         markSingleAsRead(notif.id); 
+                     } else {
+                          if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
+                               window.location.href = notif.link;
+                          }
+                          if (!notif.is_read) {
+                             markSingleAsRead(notif.id, div);
+                          }
+                     }
+                 });
+                 notificationList.appendChild(div);
+                 setTimeout(() => {
+                    requestAnimationFrame(() => { 
+                        div.classList.add('notification-item-enter-active'); 
+                    });
+                 }, index * 30);
+             });
+             feather.replace();
+        }
+        async function markSingleAsRead(notificationId, elementToUpdate = null) {
+             if (!currentAuthUser) return;
+             const notificationElement = elementToUpdate || notificationList.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
+             const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
+             if (!unreadDot) return; 
+            try {
+                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
+                if (error) throw error;
+                if (notificationElement) {
+                    notificationElement.classList.remove('bg-primary-50');
+                    notificationElement.classList.add('bg-white');
+                    unreadDot.remove();
+                }
+                fetchUnreadCount();
+            } catch (error) {
+                console.error("Error marking notification read:", error.message);
+                showToast("Could not mark notification as read.", 'error');
+            }
+        }
+        async function markAllAsRead() {
+             if (!currentAuthUser) return; setButtonLoading(markAllReadBtn, true); try { const { error } = await _supabase.rpc('mark_all_notifications_read'); if (error) throw error; notificationList.querySelectorAll('.notification-item.bg-primary-50').forEach(el => { el.classList.remove('bg-primary-50'); el.classList.add('bg-white'); const unreadDot = el.querySelector('.w-2.h-2.bg-primary-500'); if (unreadDot) unreadDot.remove(); }); updateBadge(0); showToast("All notifications marked as read.", 'success'); } catch (error) { console.error("Error marking all notifications read:", error.message); showToast("Could not mark all as read.", 'error'); } finally { setButtonLoading(markAllReadBtn, false); }
+        }
+        function setupRealtimeNotifications() {
+              if (!currentAuthUser) return; if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } notificationSubscription = _supabase .channel('public:notifications') .on( 'postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => { console.log('New notification received:', payload.new); fetchUnreadCount(); showToast(payload.new.content_preview || 'You have a new notification!', 'success'); if (!notificationPanel.classList.contains('hidden')) { fetchNotifications(); } } ) .subscribe(); window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
+        }
+        function updateBadge(count) {
+             if (!notificationBadge) return; if (count > 0) { notificationBadge.textContent = count > 9 ? '9+' : count; notificationBadge.classList.remove('hidden'); } else { notificationBadge.classList.add('hidden'); }
+        }
+
+        // --- Utility: Toast ---
+         function showToast(message, type = 'success') {
+             const toast = document.createElement('div'); const iconName = type === 'success' ? 'check-circle' : 'alert-circle'; toast.className = `toast toast-${type}`; toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`; toastContainer.appendChild(toast); feather.replace(); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 3000);
+         }
+
+         // --- Utility: Button Loading ---
+         function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) {
+              buttonEl.disabled = isLoading; const textEl = buttonEl.querySelector('.button-text'); const spinnerEl = buttonEl.querySelector('.button-spinner'); if (isSmall) { const iconEl = buttonEl.querySelector('i[data-feather]'); if (isLoading) { if (iconEl) iconEl.style.display = 'none'; if (!spinnerEl) { const spinner = document.createElement('div'); spinner.className = 'spinner button-spinner w-5 h-5'; buttonEl.prepend(spinner); } else { spinnerEl.style.display = 'block'; } } else { const existingSpinner = buttonEl.querySelector('.button-spinner'); if (existingSpinner) existingSpinner.remove(); if (iconEl) { iconEl.style.display = 'block'; } else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); } } } else { const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim(); if (isLoading) { buttonEl.dataset.originalText = originalText; buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>'; } else { buttonEl.innerHTML = originalText; delete buttonEl.dataset.originalText; feather.replace(); } }
         }
 
     </script>
