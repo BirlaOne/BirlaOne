@@ -159,82 +159,80 @@
             });
         }
 
-        // --- Search Logic ---
-        async function performSearch(searchTerm) {
-            if (!searchTerm) {
-                // Show popular if search is cleared
-                popularSection.style.display = 'block';
-                searchResultsSection.style.display = 'none';
-                return;
-            }
+      // --- Search Logic ---
+         async function performSearch(searchTerm) {
+             if (!searchTerm) {
+                 // Show popular if search is cleared
+                 popularSection.style.display = 'block';
+                 searchResultsSection.style.display = 'none';
+                 return;
+             }
 
-            popularSection.style.display = 'none';
-            searchResultsSection.style.display = 'block';
-            searchResultsList.innerHTML = ''; // Clear previous results
-            searchLoading.style.display = 'block';
-            noResults.style.display = 'none';
+             popularSection.style.display = 'none';
+             searchResultsSection.style.display = 'block';
+             searchResultsList.innerHTML = ''; // Clear previous results
+             searchLoading.style.display = 'block';
+             noResults.style.display = 'none';
 
-            try {
-                // CHANGED: Added 's_permission' to select
-                const { data: users, error } = await _supabase.from('users')
-                    .select('id, auth_id, name, img, course, tick, s_permission') 
-                    .ilike('name', `%${searchTerm}%`) // Case-insensitive search
-                    // CHANGED: Replaced .neq() with .or() to conditionally include self
-                    .or(`auth_id.neq.${currentAuthUser.id},and(auth_id.eq.${currentAuthUser.id},s_permission.eq.yes)`)
-                    .limit(10);
-                
-                if (error) throw error;
+             try {
+                 const { data: users, error } = await _supabase.from('users')
+                     .select('id, auth_id, name, img, course, tick, s_permission')
+                     .ilike('name', `%${searchTerm}%`) // Case-insensitive search
+                     // CHANGED: Only show users with permission set to 'yes'
+                     .eq('s_permission', 'yes')
+                     .limit(10);
+                 
+                 if (error) throw error;
 
-                if (users.length === 0) {
-                    noResults.style.display = 'block';
-                } else {
-                    // Filter out self from friendship check, as it's not needed
-                    const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
-                    const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
-                    renderUserList(users, searchResultsList, friendshipStatuses);
-                }
+                 if (users.length === 0) {
+                     noResults.style.display = 'block';
+                 } else {
+                     // Filter out self from friendship check, as it's not needed
+                     const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
+                     const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
+                     renderUserList(users, searchResultsList, friendshipStatuses);
+                 }
 
-            } catch (error) {
-                console.error("Error searching users:", error);
-                searchResultsList.innerHTML = '<p class="text-center text-red-500">Error performing search.</p>';
-            } finally {
-                searchLoading.style.display = 'none';
-            }
-        }
+             } catch (error) {
+                 console.error("Error searching users:", error);
+                 searchResultsList.innerHTML = '<p class="text-center text-red-500">Error performing search.</p>';
+             } finally {
+                 searchLoading.style.display = 'none';
+             }
+         }
 
 
         // --- Fetch Popular Users ---
-        async function fetchPopularUsers() {
-            popularLoading.style.display = 'block';
-            popularUsersList.innerHTML = ''; // Clear previous
-            try {
-                // CHANGED: Added 's_permission' to select
-                const { data: users, error } = await _supabase.from('users')
-                    .select('id, auth_id, name, img, course, tick, friend_count, s_permission')
-                    .gt('friend_count', 0) // Friend count > 0
-                    // CHANGED: Replaced .neq() with .or() to conditionally include self
-                    .or(`auth_id.neq.${currentAuthUser.id},and(auth_id.eq.${currentAuthUser.id},s_permission.eq.yes)`)
-                    .order('friend_count', { ascending: false }) // Highest first
-                    .limit(10); // Limit results
+         async function fetchPopularUsers() {
+             popularLoading.style.display = 'block';
+             popularUsersList.innerHTML = ''; // Clear previous
+             try {
+       _           const { data: users, error } = await _supabase.from('users')
+                     .select('id, auth_id, name, img, course, tick, friend_count, s_permission')
+                     .gt('friend_count', 0) // Friend count > 0
+                     // CHANGED: Only show users with permission set to 'yes'
+                     .eq('s_permission', 'yes')
+                     .order('friend_count', { ascending: false }) // Highest first
+                     .limit(10); // Limit results
 
-                if (error) throw error;
-                
-                if (users.length > 0) {
-                    // Filter out self from friendship check, as it's not needed
-                    const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
-                    const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
-                    renderUserList(users, popularUsersList, friendshipStatuses);
-                } else {
-                    popularUsersList.innerHTML = '<p class="text-center text-gray-500">No popular users found yet.</p>';
-                }
+                 if (error) throw error;
+                 
+                 if (users.length > 0) {
+                     // Filter out self from friendship check, as it's not needed
+                     const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
+                     const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
+                     renderUserList(users, popularUsersList, friendshipStatuses);
+                 } else {
+                     popularUsersList.innerHTML = '<p class="text-center text-gray-500">No popular users found yet.</p>';
+                 }
 
-            } catch (error) {
-                console.error("Error fetching popular users:", error);
-                popularUsersList.innerHTML = '<p class="text-center text-red-500">Could not load popular users.</p>';
-            } finally {
-                popularLoading.style.display = 'none';
-            }
-        }
+             } catch (error) {
+                 console.error("Error fetching popular users:", error);
+                 popularUsersList.innerHTML = '<p class="text-center text-red-500">Could not load popular users.</p>';
+             } finally {
+                 popularLoading.style.display = 'none';
+             }
+         }
 
         // --- Render User List ---
         function renderUserList(users, container, friendshipStatuses) {
