@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="https://i.ibb.co/N6QNPW56/logo-1-modified.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Web App Manifest (for PWA-like features) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
     <title>BirlaOne Search</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://unpkg.com/feather-icons"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,10 +45,21 @@
         .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
         .tick-mark-search { width: 1rem; height: 1rem; vertical-align: middle; margin-left: 4px; display: inline-block; }
         .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin { to { transform: rotate(300deg); } }
         button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* Toast Notifications */
+        /* --- Shimmer Loader Styles --- */
+        .shimmer-wrapper {
+            animation: shimmer 1.5s infinite linear;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* --- Toast Notifications --- */
         #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
         .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
         .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
@@ -66,30 +78,32 @@
             <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 space-y-4">
                 <h1 class="text-3xl font-bold text-gray-900">Search</h1>
                 <div class="relative flex items-center">
-                    <i data-feather="search" class="absolute left-4 w-5 h-5 text-gray-400"></i>
-                    <input id="search-input" type="text" placeholder="Search for students..." class="w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pr-4 pl-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
+                    <i data-feather="search" class="absolute left-4 w-5 h-5 text-gray-400 z-10"></i>
+                    <input id="search-input" type="text" placeholder="Search for students..." class="relative w-full bg-gray-100 border border-gray-200 rounded-xl py-3 pr-4 pl-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
                 </div>
             </div>
 
             <div class="p-4 space-y-4">
+                <!-- Popular Section -->
                 <div id="popular-section">
                     <h2 class="text-lg font-semibold text-gray-700 mb-3">Popular</h2>
-                    <div id="popular-users-list" class="space-y-3">
-                        <div id="popular-loading" class="text-center text-gray-500 py-4">Loading popular users...</div>
-                        </div>
+                    <!-- Shimmer loaders will be injected here -->
+                    <div id="popular-users-list" class="space-y-3"></div>
                 </div>
 
+                <!-- Search Results Section -->
                 <div id="search-results-section" class="hidden">
                      <h2 class="text-lg font-semibold text-gray-700 mb-3">Results</h2>
+                     <!-- Shimmer loaders or "no results" will be injected here -->
                      <div id="search-results-list" class="space-y-3">
-                         <div id="search-loading" class="text-center text-gray-500 py-4 hidden">Searching...</div>
                          <div id="no-results" class="text-center text-gray-500 py-4 hidden">No users found.</div>
-                         </div>
+                     </div>
                 </div>
             </div>
 
         </main>
 
+        <!-- Bottom Nav -->
         <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
             <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"> <i data-feather="layout"></i> </a>
             <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Feed"> <i data-feather="file-text"></i> </a>
@@ -100,7 +114,8 @@
 
     </div>
 
-     <div id="toast-container"></div>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 
     <script>
         // --- Supabase Client & Globals ---
@@ -111,15 +126,14 @@
         let currentAuthUser = null;
         let searchTimeout;
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
+        const CACHE_TTL_MINUTES = 30; // Cache data for 30 minutes
 
         // --- DOM Elements ---
         const searchInput = document.getElementById('search-input');
         const popularSection = document.getElementById('popular-section');
         const popularUsersList = document.getElementById('popular-users-list');
-        const popularLoading = document.getElementById('popular-loading');
         const searchResultsSection = document.getElementById('search-results-section');
         const searchResultsList = document.getElementById('search-results-list');
-        const searchLoading = document.getElementById('search-loading');
         const noResults = document.getElementById('no-results');
         const toastContainer = document.getElementById('toast-container');
 
@@ -127,6 +141,18 @@
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', async () => {
             feather.replace(); // Initial icon render
+
+            // --- Service Worker Registration ---
+            // Note: This requires a 'sw.js' file in your root directory.
+            // I can help generate that file in a follow-up.
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    }).catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            }
 
             const { data: { session }, error } = await _supabase.auth.getSession();
             if (error || !session) { 
@@ -144,8 +170,17 @@
             // Search Input Listener with Debounce
             searchInput.addEventListener('input', () => {
                 clearTimeout(searchTimeout);
+                const searchTerm = searchInput.value.trim();
+                
+                // Show popular if search is cleared
+                if (!searchTerm) {
+                    popularSection.style.display = 'block';
+                    searchResultsSection.style.display = 'none';
+                    return;
+                }
+                
                 searchTimeout = setTimeout(() => {
-                    performSearch(searchInput.value.trim());
+                    performSearch(searchTerm);
                 }, 300); // Wait 300ms after user stops typing
             });
 
@@ -159,78 +194,184 @@
             });
         }
 
+        // --- Caching Utility Functions ---
+
+        /**
+         * Sets data in localStorage with a timestamp and TTL.
+         * @param {string} key - The key for the cache.
+         * @param {any} data - The data to store.
+         * @param {number} ttlMinutes - Time-to-live in minutes.
+         */
+        function setCache(key, data, ttlMinutes) {
+            try {
+                const item = {
+                    data: data,
+                    timestamp: Date.now(),
+                    expires: Date.now() + ttlMinutes * 60 * 1000
+                };
+                localStorage.setItem(key, JSON.stringify(item));
+            } catch (e) {
+                console.error("Error setting cache:", e);
+                // Can happen if localStorage is full
+            }
+        }
+
+        /**
+         * Gets data from localStorage if it exists and hasn't expired.
+         * @param {string} key - The key for the cache.
+         * @returns {any|null} The cached data or null.
+         */
+        function getCache(key) {
+            try {
+                const itemStr = localStorage.getItem(key);
+                if (!itemStr) {
+                    return null;
+                }
+                const item = JSON.parse(itemStr);
+                if (Date.now() > item.expires) {
+                    localStorage.removeItem(key); // Cache expired
+                    return null;
+                }
+                return item.data;
+            } catch (e) {
+                console.error("Error getting cache:", e);
+                return null;
+            }
+        }
+
+
+        // --- Shimmer/Skeleton Loader Functions ---
+
+        /**
+         * Renders a number of shimmer placeholders into a container.
+         * @param {HTMLElement} container - The list element to fill.
+         * @param {number} count - The number of shimmer items to create.
+         */
+        function renderShimmers(container, count = 3) {
+            container.innerHTML = Array(count).fill(createUserItemShimmerHTML()).join('');
+        }
+
+        /**
+         * Returns the HTML for a single shimmer placeholder item.
+         */
+        function createUserItemShimmerHTML() {
+            return `
+                <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-2xl overflow-hidden">
+                    <div class="flex-shrink-0">
+                        <div class="w-14 h-14 rounded-full shimmer-wrapper"></div>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-2">
+                        <div class="h-5 w-3/4 rounded shimmer-wrapper"></div>
+                        <div class="h-4 w-1/2 rounded shimmer-wrapper"></div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full shimmer-wrapper"></div>
+                    </div>
+                </div>
+            `;
+        }
+
         // --- Search Logic ---
         async function performSearch(searchTerm) {
-            if (!searchTerm) {
-                // Show popular if search is cleared
-                popularSection.style.display = 'block';
-                searchResultsSection.style.display = 'none';
+            popularSection.style.display = 'none';
+            searchResultsSection.style.display = 'block';
+            noResults.style.display = 'none';
+
+            const cacheKey = `birlaone_search_${searchTerm.toLowerCase()}`;
+            const cachedResults = getCache(cacheKey);
+
+            if (cachedResults) {
+                console.log("Loading search from cache:", searchTerm);
+                if (cachedResults.length === 0) {
+                    noResults.style.display = 'block';
+                    searchResultsList.innerHTML = '';
+                } else {
+                    renderUserList(cachedResults.users, searchResultsList, cachedResults.statuses);
+                }
                 return;
             }
 
-            popularSection.style.display = 'none';
-            searchResultsSection.style.display = 'block';
-            searchResultsList.innerHTML = ''; // Clear previous results
-            searchLoading.style.display = 'block';
-            noResults.style.display = 'none';
+            // --- Show Shimmers ---
+            renderShimmers(searchResultsList, 4);
 
             try {
-                // **UPDATED:** Added 's_permission' to select and .eq() filter
                 const { data: users, error } = await _supabase.from('users')
                     .select('id, auth_id, name, img, course, tick, s_permission')
-                    .ilike('name', `%${searchTerm}%`) // Case-insensitive search
-                    .eq('s_permission', 'yes') // Only show users with permission set to 'yes'
+                    .ilike('name', `%${searchTerm}%`)
+                    .eq('s_permission', 'yes')
                     .limit(10);
                 
                 if (error) throw error;
 
                 if (users.length === 0) {
                     noResults.style.display = 'block';
+                    searchResultsList.innerHTML = ''; // Clear shimmers
+                    setCache(cacheKey, { users: [], statuses: {} }, CACHE_TTL_MINUTES); // Cache empty result
                 } else {
-                    // Filter out self from friendship check, as it's not needed
                     const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
                     const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
+                    
+                    // Cache the results
+                    setCache(cacheKey, { users, statuses: friendshipStatuses }, CACHE_TTL_MINUTES);
+                    
+                    // Render the results
                     renderUserList(users, searchResultsList, friendshipStatuses);
                 }
 
             } catch (error) {
                 console.error("Error searching users:", error);
                 searchResultsList.innerHTML = '<p class="text-center text-red-500">Error performing search.</p>';
-            } finally {
-                searchLoading.style.display = 'none';
             }
+            // 'finally' block removed as shimmers are replaced by content or error
         }
 
 
         // --- Fetch Popular Users ---
         async function fetchPopularUsers() {
-            popularLoading.style.display = 'block';
-            popularUsersList.innerHTML = ''; // Clear previous
+            const cacheKey = 'birlaone_popular';
+            const cachedData = getCache(cacheKey);
+
+            if (cachedData) {
+                console.log("Loading popular users from cache.");
+                if (cachedData.users.length > 0) {
+                    renderUserList(cachedData.users, popularUsersList, cachedData.statuses);
+                } else {
+                    popularUsersList.innerHTML = '<p class="text-center text-gray-500">No popular users found yet.</p>';
+                }
+                return;
+            }
+
+            // --- Show Shimmers ---
+            renderShimmers(popularUsersList, 3);
+            
             try {
-                // **UPDATED:** Added 's_permission' to select and .eq() filter
+                // Query is already optimized (selects specific columns, filters, orders, limits)
                 const { data: users, error } = await _supabase.from('users')
                     .select('id, auth_id, name, img, course, tick, friend_count, s_permission')
-                    .gt('friend_count', 0) // Friend count > 0
-                    .eq('s_permission', 'yes') // Only show users with permission set to 'yes'
-                    .order('friend_count', { ascending: false }) // Highest first
-                    .limit(10); // Limit results
+                    .gt('friend_count', 0)
+                    .eq('s_permission', 'yes')
+                    .order('friend_count', { ascending: false })
+                    .limit(10); 
 
                 if (error) throw error;
                 
                 if (users.length > 0) {
-                    // Filter out self from friendship check, as it's not needed
                     const otherUserIds = users.filter(u => u.auth_id !== currentAuthUser.id).map(u => u.auth_id);
                     const friendshipStatuses = await checkMultipleFriendshipStatuses(otherUserIds);
+                    
+                    // Cache the data
+                    setCache(cacheKey, { users, statuses: friendshipStatuses }, CACHE_TTL_MINUTES);
+                    
+                    // Render the data
                     renderUserList(users, popularUsersList, friendshipStatuses);
                 } else {
                     popularUsersList.innerHTML = '<p class="text-center text-gray-500">No popular users found yet.</p>';
+                    setCache(cacheKey, { users: [], statuses: {} }, CACHE_TTL_MINUTES); // Cache empty result
                 }
 
             } catch (error) {
                 console.error("Error fetching popular users:", error);
                 popularUsersList.innerHTML = '<p class="text-center text-red-500">Could not load popular users.</p>';
-            } finally {
-                popularLoading.style.display = 'none';
             }
         }
 
@@ -241,8 +382,8 @@
         }
         
         // --- Create Single User Item HTML ---
+        // (This function remains unchanged, as its logic is core to the app)
         function createUserItemHTML(user, status) {
-            // **UPDATED:** Check if the rendered user is the current logged-in user
             const isCurrentUser = user.auth_id === currentAuthUser.id;
             
             const profileUrl = `profile.html?id=${user.id}`;
@@ -254,7 +395,6 @@
             const courseText = user.course ? user.course.toUpperCase() : 'Course not set';
             
             let actionButtonHtml = '';
-            // **UPDATED:** Added logic for 'isCurrentUser'
             if (isCurrentUser) {
                 actionButtonHtml = `
                     <span class="p-2 rounded-full text-primary-700 bg-primary-100 font-semibold text-sm px-3">
@@ -271,12 +411,11 @@
                         <i data-feather="check" class="w-5 h-5"></i>
                     </button>`;
             }
-            // No button for 'friends' or 'pending_received' (they need to accept on their end)
 
             return `
                 <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-2xl">
                     <a href="${profileUrl}" class="flex-shrink-0">
-                        <img src="${avatarUrl}" alt="${user.name}" class="w-14 h-14 rounded-full border-2 border-primary-200">
+                        <img src="${avatarUrl}" alt="${user.name}" class="w-14 h-14 rounded-full border-2 border-primary-200 object-cover">
                     </a>
                     <a href="${profileUrl}" class="flex-1 min-w-0">
                         <p class="font-semibold text-gray-900 truncate flex items-center">
@@ -292,12 +431,13 @@
         }
 
         // --- Friendship Status Checking ---
+        // (This function is already well-optimized by using .in.() and remains unchanged)
         async function checkMultipleFriendshipStatuses(targetUserIds) {
             if (!currentAuthUser || targetUserIds.length === 0) return {};
 
             const myAuthId = currentAuthUser.id;
             const statuses = {};
-            targetUserIds.forEach(id => statuses[id] = 'none'); // Default state
+            targetUserIds.forEach(id => statuses[id] = 'none'); 
 
             try {
                 // Check existing friendships
@@ -311,7 +451,7 @@
                     if (statuses[friendId]) statuses[friendId] = 'friends';
                 });
 
-                // Check pending friend requests (where status is not already 'friends')
+                // Check pending friend requests
                 const userIdsToCheckRequests = targetUserIds.filter(id => statuses[id] === 'none');
                 if (userIdsToCheckRequests.length > 0) {
                     const { data: requests, error: reqError } = await _supabase.from('friend_requests')
@@ -322,7 +462,7 @@
                     if (reqError) throw reqError;
                     requests.forEach(req => {
                         const otherUserId = req.sender_id === myAuthId ? req.receiver_id : req.sender_id;
-                        if (statuses[otherUserId] === 'none') { // Check again, might have become friend via another check
+                        if (statuses[otherUserId] === 'none') {
                             statuses[otherUserId] = req.sender_id === myAuthId ? 'pending_sent' : 'pending_received';
                         }
                     });
@@ -336,11 +476,12 @@
 
 
         // --- Send Friend Request ---
+        // (This function remains unchanged, as its logic is core to the app)
         async function sendFriendRequest(targetAuthId, buttonElement) {
             if (!currentAuthUser || !targetAuthId) return;
 
             buttonElement.disabled = true;
-            buttonElement.innerHTML = '<div class="spinner w-5 h-5 mx-auto"></div>'; // Show spinner
+            buttonElement.innerHTML = '<div class="spinner w-5 h-5 mx-auto"></div>'; 
 
             try {
                 const { error } = await _supabase.from('friend_requests').insert({
@@ -350,9 +491,9 @@
                 });
 
                 if (error) {
-                    if (error.code === '23505') { // Unique constraint violation (already exists)
+                    if (error.code === '23505') { 
                         showToast("Friend request already sent.", 'success');
-                         buttonElement.innerHTML = '<i data-feather="check" class="w-5 h-5"></i>'; // Show requested icon
+                         buttonElement.innerHTML = '<i data-feather="check" class="w-5 h-5"></i>';
                          buttonElement.title = "Request Sent";
                          buttonElement.classList.replace('bg-primary-100', 'bg-gray-200');
                          buttonElement.classList.replace('text-primary-600', 'text-gray-500');
@@ -363,7 +504,7 @@
                     }
                 } else {
                     showToast("Friend request sent!", 'success');
-                    buttonElement.innerHTML = '<i data-feather="check" class="w-5 h-5"></i>'; // Show requested icon
+                    buttonElement.innerHTML = '<i data-feather="check" class="w-5 h-5"></i>';
                     buttonElement.title = "Request Sent";
                     buttonElement.classList.replace('bg-primary-100', 'bg-gray-200');
                     buttonElement.classList.replace('text-primary-600', 'text-gray-500');
@@ -374,7 +515,6 @@
             } catch (error) {
                 console.error("Error sending friend request:", error);
                 showToast("Could not send friend request.", 'error');
-                // Restore original button on error
                 buttonElement.innerHTML = '<i data-feather="user-plus" class="w-5 h-5"></i>';
                 buttonElement.disabled = false;
                 feather.replace();
@@ -382,6 +522,7 @@
         }
 
         // --- Toast Notification ---
+        // (This function remains unchanged)
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
