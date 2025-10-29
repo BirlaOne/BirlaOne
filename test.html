@@ -527,6 +527,50 @@
             <div id="toast-container"></div>
         </div>
     </div>
+<script>
+/* ==============================
+   🔹 SIDEBAR SLIDE ANIMATION CONTROL
+   ============================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+  const toggleBtn = document.getElementById('sidebar-toggle-btn');
+
+  if (!sidebar || !sidebarBackdrop || !toggleBtn) return;
+
+  // ✅ Open sidebar with slide animation
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.remove('closing');
+    sidebar.classList.add('active', 'opening');
+    sidebarBackdrop.classList.remove('hidden');
+    sidebarBackdrop.classList.add('fade-in');
+
+    sidebar.addEventListener('animationend', () => {
+      sidebar.classList.remove('opening');
+    }, { once: true });
+  });
+
+  // ✅ Close sidebar with slide animation (click backdrop)
+  sidebarBackdrop.addEventListener('click', closeSidebar);
+
+  function closeSidebar() {
+    sidebar.classList.remove('opening');
+    sidebar.classList.add('closing');
+    sidebarBackdrop.classList.add('hidden');
+
+    sidebar.addEventListener('animationend', () => {
+      sidebar.classList.remove('active', 'closing');
+    }, { once: true });
+  }
+
+  // Optional: close sidebar with ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+      closeSidebar();
+    }
+  });
+});
+</script>
 
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
