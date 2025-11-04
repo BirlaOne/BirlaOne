@@ -341,7 +341,7 @@
                             <i data-feather="refresh-ccw" class="text-green-600 dark:text-green-400 h-5 w-5"></i>
                         </div>
                         <div>
-                            <span id="recycled-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
+                            <span id="recycled-value" class="text-4xl font-bold text-gray-900 dark:text-white">0</span>
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">kg</span>
                         </div>
                     </div>
@@ -358,6 +358,7 @@
                     </div>
                     
                 </div>
+
                 <div class="space-y-3">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
                         <i data-feather="star" class="text-yellow-500 dark:text-yellow-400"></i>
@@ -559,15 +560,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
         let currentDashboardData = null; // Store stringified dashboard data for comparison
 
-        // --- *** MODIFICATION: Role Icon Map (replaces logo map) *** ---
-        const roleIconMap = {
-            'CR': { title: 'CR', icon: 'user-check', color: 'text-blue-500' },
-            'cr': { title: 'CR', icon: 'user-check', color: 'text-blue-500' },
-            'GreenClub': { title: 'Green Club', icon: 'leaf', color: 'text-green-500' },
-            'NCC': { title: 'NCC', icon: 'shield', color: 'text-red-500' },
-            'NSS': { title: 'NSS', icon: 'heart', color: 'text-blue-600' },
-            'Kalamandal': { title: 'Kalamandal', icon: 'music', color: 'text-purple-500' },
-            'Club Head': { title: 'Club Head', icon: 'users', color: 'text-orange-500' } // Added from mock-up
+        // --- Role & Badge Mappings ---
+        // *** MODIFIED: Reverted to use image URLs as requested ***
+        const roleDetails = {
+            'CR': { title: 'CR', img: 'https://i.ibb.co/gLzWCL5v/image.png' },
+            'cr': { title: 'CR', img: 'https://i.ibb.co/gLzWCL5v/image.png' },
+            'GreenClub': { title: 'GreenClub', img: 'https://i.ibb.co/ycNjQ86Z/image-1.png' },
+            'NCC': { title: 'NCC', img: 'https://i.ibb.co/gMgsw8mf/image.png' },
+            'NSS': { title: 'NSS', img: 'https://i.ibb.co/9HPmxFTk/image.png' },
+            'Kalamandal': { title: 'Kalamandal', img: 'https://i.ibb.co/ymyYD80T/Whats-App-Image-2025-11-04-at-11-44-23.jpg' }
         };
 
 
@@ -700,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchDashboardData(authId) {
             if (!authId) return;
 
-            const cacheKey = 'birlaone_dashboard_data_v3'; // Changed cache key
+            const cacheKey = 'birlaone_dashboard_data_v2'; 
             const cachedData = getCache(cacheKey);
             let isCacheRendered = false;
 
@@ -718,9 +719,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Fetch fresh profile data from OLD project
+                // *** MODIFIED: Added recycled_kg to select ***
                 const { data: profileData, error: profileError } = await _supabase
                     .from('users')
-                    .select('id, auth_id, name, img, tick, course, friend_count') // 'id' is public student_id, 'course' is needed
+                    .select('id, auth_id, name, img, tick, course, friend_count, recycled_kg') 
                     .eq('auth_id', authId)
                     .single();
 
@@ -728,9 +730,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!profileData) throw new Error("User profile not found.");
 
                 // --- NEW: Fetch data from the SECOND Supabase project ---
-                const studentId = profileData.id; // Public ID (e.g., 5207872)
-                const userCourse = profileData.course; // e.g., 'sybaf'
-                const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+                const studentId = profileData.id; 
+                const userCourse = profileData.course; 
+                const today = new Date().toISOString().split('T')[0]; 
 
                 // 1. Fetch Roles
                 const { data: rolesData, error: rolesError } = await _supabase2
@@ -757,7 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (rolesError) {
                     console.error("Error fetching roles:", rolesError.message);
-                    throw rolesError; // Throw to stop execution if query fails
+                    throw rolesError; 
                 }
                 if (lecturesError) {
                     console.error("Error fetching lectures:", lecturesError.message);
@@ -774,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     roles: rolesData || [],
                     lectures: lecturesData || [],
                     activities: eventsData || [],
-                    recycledKg: 12.5, // Placeholder from old code, user didn't ask to change
+                    // Note: recycled_kg is now inside profileData
                 };
                 
                 // --- Log User Data (runs in background) ---
@@ -804,7 +806,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Error fetching dashboard data:", error.message);
                 if (!isCacheRendered) {
-                    // Show error only if we couldn't load anything
                     shimmerLoader.innerHTML = `<p class="text-center text-red-500 p-10">Could not load dashboard data. Check console.</p>`;
                 }
                  showToast("Could not refresh dashboard data.", "error");
@@ -816,39 +817,49 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // --- Update Main Cards ---
             friendsCountValue.textContent = data.profile.friend_count ?? 0;
-            recycledValue.textContent = data.recycledKg ?? '--';
-            // Removed: academicScoreValue, netWorthValue updates
+            // *** MODIFIED: Read from profile.recycled_kg, default to 0 ***
+            recycledValue.textContent = data.profile.recycled_kg ?? 0;
 
             // --- 1. Render Roles & Badges ---
             if (data.roles && data.roles.length > 0) {
                 rolesBadgesContent.innerHTML = ''; // Clear 'Loading...'
-                rolesBadgesContent.classList.remove('italic', 'text-center', 'p-4'); // Remove loading styles
+                rolesBadgesContent.className = ''; // Reset container styles
+                
                 const scrollContainer = document.createElement('div');
                 scrollContainer.className = 'flex space-x-3 overflow-x-auto no-scrollbar pb-2';
                 
-                // Subtitle map - We will use the user's course as the subtitle
-                const userCourseSubtitle = data.profile.course ? data.profile.course.toUpperCase() : 'Member';
+                // Subtitle map for roles
+                const subtitleMap = {
+                    'CR': data.profile.course ? data.profile.course.toUpperCase() : 'Representative',
+                    'GreenClub': 'Green Club',
+                    'NCC': 'NCC Cadet',
+                    'NSS': 'NSS Volunteer',
+                    'Kalamandal': 'Kalamandal Member'
+                };
 
                 data.roles.forEach(role => {
                     let roleKey = role.role; 
                     if (roleKey === 'cr') roleKey = 'CR'; // Normalize
                     
-                    // *** MODIFICATION: Use roleIconMap ***
-                    const detail = roleIconMap[roleKey] || { title: role.role, icon: 'award', color: 'text-gray-500' };
-                    
-                    // Use course for CR, or a default for other roles
-                    const subTitle = (roleKey === 'CR' || roleKey === 'cr') ? userCourseSubtitle : detail.title; 
+                    // *** MODIFIED: Use image map from roleDetails ***
+                    const detail = roleDetails[roleKey] || { title: role.role, img: null };
+                    const subTitle = subtitleMap[roleKey] || detail.title; 
 
                     const card = document.createElement('div');
-                    // *** MODIFICATION: Changed padding and min-width to better match mock-up ***
-                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-3 flex-shrink-0 w-auto min-w-[180px]';
+                    // *** MODIFIED: Use rounded-lg for card (from mock-up) ***
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center space-x-3 flex-shrink-0 w-auto min-w-[160px]';
 
-                    // *** MODIFICATION: Replaced <img> with <i> for icons ***
-                    let iconHtml = `
-                        <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                            <i data-feather="${detail.icon}" class="w-5 h-5 ${detail.color}"></i>
-                        </div>
-                    `;
+                    // *** MODIFIED: Build iconHTML using img tags ***
+                    let iconHtml;
+                    if (detail.img) {
+                        // Use rounded-full for the image itself
+                        iconHtml = `<img src="${detail.img}" alt="${detail.title}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">`;
+                    } else {
+                        // Fallback to line art icon if no image URL found
+                        iconHtml = `<div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                        <i data-feather="award" class="w-5 h-5 text-gray-600 dark:text-gray-400"></i>
+                                    </div>`;
+                    }
 
                     card.innerHTML = `
                         ${iconHtml}
@@ -862,12 +873,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 rolesBadgesContent.appendChild(scrollContainer);
             } else {
                 rolesBadgesContent.innerHTML = 'No Roles Assigned';
-                rolesBadgesContent.classList.add('italic', 'text-center', 'p-4');
+                rolesBadgesContent.className = 'text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center';
             }
+
 
             // --- 2. Render Lectures ---
             if (data.lectures && data.lectures.length > 0) {
-                lecturesContent.innerHTML = ''; // Clear 'Loading...'
+                lecturesContent.innerHTML = ''; 
                 lecturesContent.classList.remove('italic', 'text-center', 'p-4');
                 const container = document.createElement('div');
                 container.className = 'space-y-3';
@@ -880,12 +892,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = document.createElement('div');
                     card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
                     
+                    // Logic with divider (from previous fix)
                     card.innerHTML = `
                         <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
                             <span class="text-sm font-medium text-primary-600 dark:text-primary-400">${month}</span>
                             <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
                         </div>
-                        <div class="flex-1 min-w-0">
+                        <div class="flex-1 min-w-0 pl-4 border-l border-gray-200 dark:border-gray-700">
                             <p class="text-base font-bold text-gray-900 dark:text-white truncate">${lecture.subject_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${lecture.prof_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
@@ -897,13 +910,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 lecturesContent.innerHTML = 'No Upcoming Lectures';
                 lecturesContent.classList.add('italic', 'text-center', 'p-4');
-                // *** ADDED: Style the "empty" state to match mock-up ***
-                lecturesContent.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-center text-gray-500 dark:text-gray-400 italic';
             }
 
             // --- 3. Render Activities (Events) ---
             if (data.activities && data.activities.length > 0) {
-                activitiesContent.innerHTML = ''; // Clear 'Loading...'
+                activitiesContent.innerHTML = ''; 
                 activitiesContent.classList.remove('italic', 'text-center', 'p-4');
                 const container = document.createElement('div');
                 container.className = 'space-y-3';
@@ -916,12 +927,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = document.createElement('div');
                     card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
                     
+                    // Logic with divider (from previous fix)
                     card.innerHTML = `
                         <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
                             <span class="text-sm font-medium text-green-600 dark:text-green-400">${month}</span>
                             <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
                         </div>
-                        <div class="flex-1 min-w-0">
+                        <div class="flex-1 min-w-0 pl-4 border-l border-gray-200 dark:border-gray-700">
                             <p class="text-base font-bold text-gray-900 dark:text-white truncate">${event.event_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Organized by: ${event.organizer_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
@@ -933,8 +945,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 activitiesContent.innerHTML = 'No Upcoming Activities';
                 activitiesContent.classList.add('italic', 'text-center', 'p-4');
-                // *** ADDED: Style the "empty" state to match mock-up ***
-                activitiesContent.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-center text-gray-500 dark:text-gray-400 italic';
             }
 
             // Re-render icons for new content
@@ -1000,9 +1010,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Clear theme and caches on logout
                 localStorage.removeItem('theme');
-                localStorage.removeItem('birlaone_dashboard_data_v3'); // Clear new cache
-                localStorage.removeItem('birlaone_dashboard_data_v2'); 
-                localStorage.removeItem('birlaone_dashboard_data');
+                localStorage.removeItem('birlaone_dashboard_data_v2'); // Clear new cache
+                localStorage.removeItem('birlaone_dashboard_data'); // Clear old cache
                 localStorage.removeItem('birlaone_feed'); // Clear other related caches if they exist
                 localStorage.removeItem('birlaone_popular');
                 Object.keys(localStorage).forEach(key => {
@@ -1167,7 +1176,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 div.innerHTML = `
                     ${senderAvatar}
                     ${linkWrapperStart}${contentHtml}${linkWrapperEnd}
-                    ${!notf.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
+                    ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
                 `;
                 div.addEventListener('click', (e) => {
                     if (isDirectLink && !e.target.closest('.w-2.h-2')) { markSingleAsRead(notif.id); } 
@@ -1245,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateBadge(count) {
              if (!notificationBadge) return;
             if (count > 0) {
-                notificationBadge.textContent = count > 9 ? '9+' : count;
+                notificationBadge.textContent = count > 9 ? '9+' : '9+';
                 notificationBadge.classList.remove('hidden');
             } else {
                 notificationBadge.classList.add('hidden');
