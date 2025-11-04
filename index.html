@@ -88,8 +88,8 @@
     button:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ==============================
-       🔹 ENHANCED SIDEBAR STYLES
-       ============================== */
+     * 🔹 ENHANCED SIDEBAR STYLES
+     * ============================== */
     #sidebar {
         position: fixed;
         inset-y: 0;
@@ -209,8 +209,8 @@
     }
 
     /* ==============================
-       🌙 DARK MODE SUPPORT
-       ============================== */
+     * 🌙 DARK MODE SUPPORT
+     * ============================== */
     :root { color-scheme: light; }
     :root.dark { color-scheme: dark; }
     .dark body { background-color: #111827; }
@@ -247,8 +247,8 @@
     .dark .sidebar-menu-item.logout:hover { background-color: rgba(239, 68, 68, 0.15); }
 
     /* ==============================
-       📱 RESPONSIVE SIDEBAR (MOBILE)
-       ============================== */
+     * 📱 RESPONSIVE SIDEBAR (MOBILE)
+     * ============================== */
     @media (max-width: 640px) {
         #sidebar {
             width: 260px;
@@ -283,19 +283,14 @@
 
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-slate-800">
 
-        <!-- Shimmer Loader -->
         <div id="shimmer-loader" class="absolute inset-0 z-50 bg-white dark:bg-gray-900 pt-20 pb-24 px-4 overflow-hidden">
-            <!-- Header Shimmer -->
             <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-24 h-6 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
             </div>
-            <!-- Content Shimmer -->
             <div class="space-y-6">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                     <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                     <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                 </div>
@@ -303,7 +298,6 @@
                     <div class="h-5 w-1/3 shimmer-wrapper rounded-full mb-3"></div>
                     <div class="h-20 shimmer-wrapper rounded-2xl"></div>
                 </div>
-                <div class="h-32 shimmer-wrapper rounded-2xl"></div>
                 <div class="space-y-3">
                     <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
                     <div class="h-20 shimmer-wrapper rounded-2xl"></div>
@@ -313,7 +307,6 @@
                     <div class="h-20 shimmer-wrapper rounded-2xl"></div>
                 </div>
             </div>
-            <!-- Bottom Nav Shimmer -->
             <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
@@ -323,11 +316,9 @@
             </div>
         </div>
         
-        <!-- App Content (Initially Hidden) -->
         <div id="app-content" class="hidden">
-            <!-- Header (z-30) -->
             <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
-               
+                
                 <button id="sidebar-toggle-btn" class="p-2 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90">
                     <i data-feather="menu" class="text-gray-700 dark:text-gray-300"></i>
                 </button>
@@ -343,16 +334,6 @@
             <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar bg-slate-50 dark:bg-gray-900">
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Academic Score</h2>
-                            <i data-feather="award" class="text-primary-600 dark:text-primary-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="academic-score-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ 100</span>
-                        </div>
-                    </div>
                     
                     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
                         <div class="flex justify-between items-center">
@@ -376,16 +357,6 @@
                         </div>
                     </div>
                     
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Net Worth</h2>
-                            <i data-feather="credit-card" class="text-indigo-500 dark:text-indigo-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="net-worth-value" class="text-4xl font-bold text-gray-900 dark:text-white">₹--</span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Personal Wealth</p>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="space-y-3">
@@ -401,7 +372,7 @@
                 <div class="space-y-3">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
                         <i data-feather="book-open" class="text-primary-600 dark:text-primary-400"></i>
-                        <span>Scheduled Lectures</span>
+                        <span>Today's Lectures</span>
                     </h2>
                      <div id="lectures-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
                             Loading...
@@ -413,14 +384,13 @@
                         <i data-feather="calendar" class="text-green-600 dark:text-green-400"></i>
                         <span>Upcoming Activities</span>
                     </h2>
-                    <div id="activities-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                     <div id="activities-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
                             Loading...
                     </div>
                 </div>
 
             </main>
 
-            <!-- Bottom Nav (z-30) -->
             <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
                 <a href="index.html" class="flex flex-col items-center justify-center p-2 text-primary-600 dark:text-primary-400 rounded-lg bottom-nav-icon" aria-label="Dashboard">
                     <i data-feather="layout" class="stroke-[2.5px]"></i>
@@ -439,7 +409,6 @@
                 </a>
             </nav>
 
-            <!-- Notification Panel (z-50) -->
             <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl border-l border-gray-200 dark:border-gray-700 z-50 flex flex-col transform translate-x-full">
                 <div class="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
                     <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Notifications</h3>
@@ -458,7 +427,6 @@
                 </div>
             </div>
             
-            <!-- Sidebar (z-50) -->
             <nav id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full p-4 space-y-6 overflow-y-auto no-scrollbar">
                 <div class="profile-qr-card p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border border-gray-200 dark:border-gray-600 space-y-4">
                     <div class="flex flex-col items-center space-y-2">
@@ -484,7 +452,7 @@
                         <span>Change Password</span>
                         <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
                     </a>
-                   
+                    
                     <hr class="my-4 border-gray-100 dark:border-gray-700">
                     <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">More</h3>
                     <a href="about.html" class="sidebar-menu-item">
@@ -520,7 +488,6 @@
                 </div>
             </nav>
 
-            <!-- Backdrops (z-40) -->
             <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
             <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
 
@@ -529,8 +496,8 @@
     </div>
 <script>
 /* ==============================
-   🔹 SIDEBAR SLIDE ANIMATION CONTROL
-   ============================== */
+ * 🔹 SIDEBAR SLIDE ANIMATION CONTROL
+ * ============================== */
 document.addEventListener('DOMContentLoaded', () => {
   const sidebar = document.getElementById('sidebar');
   const sidebarBackdrop = document.getElementById('sidebar-backdrop');
@@ -574,10 +541,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <script>
         // --- 1. SUPABASE CLIENT SETUP ---
+        // Client for OLD project (Auth, User Profile)
         const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Client for NEW project (Roles, Lectures, Events)
+        const SUPABASE_URL_NEW = "https://qbtxcpyjceemqdqipcdd.supabase.co";
+        const SUPABASE_KEY_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFidHhjcHlqY2VlbXFkcWlwY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MjQ3ODYsImV4cCI6MjA3NzAwMDc4Nn0.xlYnj-EKqXcqFlYdx4Us1iEI2OoRV2IjtAyLIG6PVok";
+        const _supabase2 = createClient(SUPABASE_URL_NEW, SUPABASE_KEY_NEW);
+
 
         // --- Global variables ---
         let currentAuthUser = null;
@@ -586,14 +560,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
         let currentDashboardData = null; // Store stringified dashboard data for comparison
 
+        // --- Role & Badge Mappings ---
+        const roleDetails = {
+            'CR': { title: 'CR', img: 'https://i.ibb.co/gLzWCL5v/image.png' },
+            'BirlaOne': { title: 'BirlaOne', img: 'https://i.ibb.co/RkMw5gBz/logo.png' },
+            'GreenClub': { title: 'GreenClub', img: 'https://i.ibb.co/ycNjQ86Z/image-1.png' },
+            'Green Club': { title: 'Green Club', img: 'https://i.ibb.co/ycNjQ86Z/image-1.png' }, // Added entry for "Green Club"
+            'NCC': { title: 'NCC', img: 'https://i.ibb.co/gMgsw8mf/image.png' },
+            'NSS': { title: 'NSS', img: 'https://i.ibb.co/9HPmxFTk/image.png' },
+            'Kalamandal': { title: 'Kalamandal', img: 'https://i.ibb.co/ymyYD80T/Whats-App-Image-2025-11-04-at-11-44-23.jpg' }
+        };
+
+
         // --- DOM Elements ---
         const shimmerLoader = document.getElementById('shimmer-loader');
         const appContent = document.getElementById('app-content');
         const friendsCountValue = document.getElementById('friends-count-value');
-        // Add elements for other dashboard data if needed later
-        const academicScoreValue = document.getElementById('academic-score-value');
         const recycledValue = document.getElementById('recycled-value');
-        const netWorthValue = document.getElementById('net-worth-value');
         const rolesBadgesContent = document.getElementById('roles-badges-content');
         const lecturesContent = document.getElementById('lectures-content');
         const activitiesContent = document.getElementById('activities-content');
@@ -682,14 +665,14 @@ document.addEventListener('DOMContentLoaded', () => {
         function hideShimmerShowApp(delay = 0) {
              setTimeout(() => {
                  if (shimmerLoader && appContent) {
-                     shimmerLoader.style.transition = 'opacity 0.4s ease-out';
-                     shimmerLoader.style.opacity = '0';
-                     setTimeout(() => {
-                         shimmerLoader.style.display = 'none';
-                         appContent.classList.remove('hidden');
-                         appContent.classList.add('fade-in');
-                         feather.replace(); // Render icons now
-                     }, 400); 
+                      shimmerLoader.style.transition = 'opacity 0.4s ease-out';
+                      shimmerLoader.style.opacity = '0';
+                      setTimeout(() => {
+                           shimmerLoader.style.display = 'none';
+                           appContent.classList.remove('hidden');
+                           appContent.classList.add('fade-in');
+                           feather.replace(); // Render icons now
+                      }, 400); 
                  }
              }, delay);
         }
@@ -718,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchDashboardData(authId) {
             if (!authId) return;
 
-            const cacheKey = 'birlaone_dashboard_data';
+            const cacheKey = 'birlaone_dashboard_data_v2'; 
             const cachedData = getCache(cacheKey);
             let isCacheRendered = false;
 
@@ -735,35 +718,68 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // Fetch fresh profile data
+                // Fetch fresh profile data from OLD project
                 const { data: profileData, error: profileError } = await _supabase
                     .from('users')
-                    .select('id, auth_id, name, img, tick, course, friend_count') // Added img, tick for sidebar
+                    .select('id, auth_id, name, img, tick, course, friend_count') 
                     .eq('auth_id', authId)
                     .single();
 
                 if (profileError) throw profileError;
+                if (!profileData) throw new Error("User profile not found.");
+
+                // --- NEW: Fetch data from the SECOND Supabase project ---
+                const studentId = profileData.id; 
+                const userCourse = profileData.course; 
+                const today = new Date().toISOString().split('T')[0]; 
+
+                // 1. Fetch Roles
+                // *** MODIFIED: Select 'title' and 'role' ***
+                const { data: rolesData, error: rolesError } = await _supabase2
+                    .from('roles')
+                    .select('title, role') 
+                    .eq('student_id', studentId);
+
+                // 2. Fetch Lectures
+                const { data: lecturesData, error: lecturesError } = await _supabase2
+                    .from('lectures')
+                    .select('subject_name, prof_name, date, start_time, end_time')
+                    .eq('course', userCourse)
+                    .gte('date', today) 
+                    .order('date', { ascending: true })
+                    .order('start_time', { ascending: true });
+
+                // 3. Fetch Events (Activities)
+                const { data: eventsData, error: eventsError } = await _supabase2
+                    .from('events')
+                    .select('event_name, organizer_name, date, start_time, end_time')
+                    .gte('date', today) 
+                    .order('date', { ascending: true })
+                    .order('start_time', { ascending: true });
                 
-                // --- Placeholder: Fetch other dashboard data here if needed ---
-                // e.g., const { data: lecturesData, error: lecturesError } = await _supabase...
-                // e.g., const { data: rolesData, error: rolesError } = await _supabase...
-                // For now, we'll just use profile data and placeholders
+                if (rolesError) {
+                    console.error("Error fetching roles:", rolesError.message);
+                    throw rolesError; 
+                }
+                if (lecturesError) {
+                    console.error("Error fetching lectures:", lecturesError.message);
+                    throw lecturesError;
+                }
+                if (eventsError) {
+                    console.error("Error fetching events:", eventsError.message);
+                    throw eventsError;
+                }
+                
+                // --- Combine all data ---
                 const dashboardData = {
                     profile: profileData,
-                    // lectures: lecturesData || [], // Example
-                    // roles: rolesData || [], // Example
-                    // activities: [], // Example
-                    // academicScore: 85, // Example
-                    // recycledKg: 12.5, // Example
-                    // netWorth: 5000 // Example
+                    roles: rolesData || [],
+                    lectures: lecturesData || [],
+                    activities: eventsData || [],
                 };
                 
                 // --- Log User Data (runs in background) ---
-                if (profileData) {
-                    logUserData(profileData); // Log fresh data
-                } else {
-                     console.warn("User profile data not found for logging.");
-                }
+                logUserData(profileData); // Log fresh data
 
                 const newDataString = JSON.stringify(dashboardData);
 
@@ -775,22 +791,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     populateSidebar(dashboardData.profile); // Update sidebar
                     setCache(cacheKey, dashboardData, CACHE_TTL_MINUTES);
                     if (!isCacheRendered) {
-                         hideShimmerShowApp(300); // Slight delay after fetch if no cache
+                        hideShimmerShowApp(300); // Slight delay after fetch if no cache
                     } else {
                         feather.replace(); // Re-render icons if only updating UI
                     }
                 } else {
-                     console.log("Dashboard cache is up-to-date.");
-                     if (!isCacheRendered) {
-                         hideShimmerShowApp(300); // Still need to show app if cache was expired but data is same
-                     }
+                    console.log("Dashboard cache is up-to-date.");
+                    if (!isCacheRendered) {
+                        hideShimmerShowApp(300); // Still need to show app if cache was expired but data is same
+                    }
                 }
 
             } catch (error) {
                 console.error("Error fetching dashboard data:", error.message);
                 if (!isCacheRendered) {
-                    // Show error only if we couldn't load anything
-                    shimmerLoader.innerHTML = '<p class="text-center text-red-500 p-10">Could not load dashboard data.</p>';
+                    shimmerLoader.innerHTML = `<p class="text-center text-red-500 p-10">Could not load dashboard data. Check console.</p>`;
                 }
                  showToast("Could not refresh dashboard data.", "error");
             }
@@ -801,40 +816,140 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // --- Update Main Cards ---
             friendsCountValue.textContent = data.profile.friend_count ?? 0;
-            // Update other cards with real data or placeholders
-            academicScoreValue.textContent = data.academicScore ?? '--';
-            recycledValue.textContent = data.recycledKg ?? '--';
-            netWorthValue.textContent = `₹${data.netWorth ?? '--'}`;
+            recycledValue.textContent = '--'; // Reverted to placeholder
 
-            // --- Update Sections ---
-             // Roles & Badges (Placeholder - replace with actual rendering logic)
-            rolesBadgesContent.textContent = data.roles?.length > 0 ? 'Display roles here' : 'No Roles Assigned';
-            rolesBadgesContent.classList.remove('italic', 'text-center'); // Adjust styling if content exists
-            
-            // Lectures (Placeholder)
-            lecturesContent.textContent = data.lectures?.length > 0 ? 'Display lectures here' : 'No Lectures Scheduled';
-             lecturesContent.classList.remove('italic', 'text-center');
+            // --- 1. Render Roles & Badges ---
+            if (data.roles && data.roles.length > 0) {
+                rolesBadgesContent.innerHTML = ''; // Clear 'Loading...'
+                rolesBadgesContent.className = ''; // Reset container styles
+                
+                const scrollContainer = document.createElement('div');
+                scrollContainer.className = 'flex space-x-3 overflow-x-auto no-scrollbar pb-2';
+                
+                data.roles.forEach(role => {
+                    // *** MODIFIED: Get title and subtitle from role object ***
+                    let roleTitle = role.title; // e.g., "CR", "Green Club"
+                    let roleSubTitle = role.role; // e.g., "SYBAF", "Co-ordinator"
 
-            // Activities (Placeholder)
-            activitiesContent.textContent = data.activities?.length > 0 ? 'Display activities here' : 'No Upcoming Activities';
-             activitiesContent.classList.remove('italic', 'text-center');
+                    // Use the title to look up the image
+                    const detail = roleDetails[roleTitle] || { title: roleTitle, img: null };
 
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center space-x-3 flex-shrink-0 w-auto min-w-[160px]';
+
+                    let iconHtml;
+                    if (detail.img) {
+                        iconHtml = `<img src="${detail.img}" alt="${detail.title}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">`;
+                    } else {
+                        // Fallback to line art icon if no image URL found
+                        iconHtml = `<div class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                        <i data-feather="award" class="w-5 h-5 text-gray-600 dark:text-gray-400"></i>
+                                    </div>`;
+                    }
+
+                    // *** MODIFIED: Use roleTitle and roleSubTitle ***
+                    card.innerHTML = `
+                        ${iconHtml}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${roleTitle}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${roleSubTitle}</p>
+                        </div>
+                    `;
+                    scrollContainer.appendChild(card);
+                });
+                rolesBadgesContent.appendChild(scrollContainer);
+            } else {
+                rolesBadgesContent.innerHTML = 'No Roles Assigned';
+                rolesBadgesContent.className = 'text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center';
+            }
+
+
+            // --- 2. Render Lectures ---
+            if (data.lectures && data.lectures.length > 0) {
+                lecturesContent.innerHTML = ''; 
+                lecturesContent.classList.remove('italic', 'text-center', 'p-4');
+                const container = document.createElement('div');
+                container.className = 'space-y-3';
+
+                data.lectures.forEach(lecture => {
+                    const { month, day } = formatEventDate(lecture.date);
+                    const startTime = formatLectureTime(lecture.start_time);
+                    const endTime = formatLectureTime(lecture.end_time);
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
+                    
+                    card.innerHTML = `
+                        <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
+                            <span class="text-sm font-medium text-primary-600 dark:text-primary-400">${month}</span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
+                        </div>
+                        <div class="flex-1 min-w-0 pl-4 border-l border-gray-200 dark:border-gray-700">
+                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${lecture.subject_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${lecture.prof_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                lecturesContent.appendChild(container);
+            } else {
+                lecturesContent.innerHTML = 'No Upcoming Lectures';
+                lecturesContent.classList.add('italic', 'text-center', 'p-4');
+            }
+
+            // --- 3. Render Activities (Events) ---
+            if (data.activities && data.activities.length > 0) {
+                activitiesContent.innerHTML = ''; 
+                activitiesContent.classList.remove('italic', 'text-center', 'p-4');
+                const container = document.createElement('div');
+                container.className = 'space-y-3';
+
+                data.activities.forEach(event => {
+                    const { month, day } = formatEventDate(event.date);
+                    const startTime = formatLectureTime(event.start_time);
+                    const endTime = formatLectureTime(event.end_time);
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
+                    
+                    card.innerHTML = `
+                        <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
+                            <span class="text-sm font-medium text-green-600 dark:text-green-400">${month}</span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
+                        </div>
+                        <div class="flex-1 min-w-0 pl-4 border-l border-gray-200 dark:border-gray-700">
+                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${event.event_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Organized by: ${event.organizer_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                activitiesContent.appendChild(container);
+            } else {
+                activitiesContent.innerHTML = 'No Upcoming Activities';
+                activitiesContent.classList.add('italic', 'text-center', 'p-4');
+            }
+
+            // Re-render icons for new content
+            feather.replace();
         }
 
         // --- 7. LOG USER DATA ---
         async function logUserData(userData) {
              if (!userData || !userData.auth_id) {
-                 console.error("Cannot log data: User Auth ID is missing."); return;
+                  console.error("Cannot log data: User Auth ID is missing."); return;
              }
              try {
-                 const { error: logError } = await _supabase.from('logs').insert({
-                     time: new Date().toISOString(),
-                     user_id: userData.auth_id,
-                     Name: userData.name || 'N/A',
-                     course: userData.course || 'N/A',
-                 });
-                 if (logError) { console.error("Error inserting into logs table:", logError.message); } 
-                 else { console.log("User data logged successfully."); }
+                  const { error: logError } = await _supabase.from('logs').insert({ // Log to OLD project
+                       time: new Date().toISOString(),
+                       user_id: userData.auth_id,
+                       Name: userData.name || 'N/A',
+                       course: userData.course || 'N/A',
+                  });
+                  if (logError) { console.error("Error inserting into logs table:", logError.message); } 
+                  else { console.log("User data logged successfully."); }
              } catch (error) { console.error("Exception during logging:", error.message); }
         }
 
@@ -880,7 +995,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Clear theme and caches on logout
                 localStorage.removeItem('theme');
-                localStorage.removeItem('birlaone_dashboard_data');
+                localStorage.removeItem('birlaone_dashboard_data_v2'); // Clear new cache
+                localStorage.removeItem('birlaone_dashboard_data'); // Clear old cache
                 localStorage.removeItem('birlaone_feed'); // Clear other related caches if they exist
                 localStorage.removeItem('birlaone_popular');
                 Object.keys(localStorage).forEach(key => {
@@ -900,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const qrContainer = document.getElementById('sidebar-qr-code-img');
 
             if (!avatarEl || !nameEl || !tickContainer || !qrContainer) {
-                 console.warn("Sidebar profile elements not found.");
+                 console.warn("Sidebar elements not found.");
                  return;
             }
             if (!profileData) {
@@ -925,17 +1041,17 @@ document.addEventListener('DOMContentLoaded', () => {
             qrContainer.innerHTML = ''; // Clear previous QR or spinner
             if (profileData.id) { // Use public integer ID
                  try {
-                     new QRCode(qrContainer, {
-                         text: String(profileData.id),
-                         width: 256,
-                         height: 256,
-                         colorDark : "#000000",
-                         colorLight : "#ffffff",
-                         correctLevel : QRCode.CorrectLevel.H
-                     });
+                      new QRCode(qrContainer, {
+                           text: String(profileData.id),
+                           width: 256,
+                           height: 256,
+                           colorDark : "#000000",
+                           colorLight : "#ffffff",
+                           correctLevel : QRCode.CorrectLevel.H
+                      });
                  } catch (e) {
-                      console.error("Error generating QR code:", e);
-                      qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
+                       console.error("Error generating QR code:", e);
+                       qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
                  }
             } else {
                 qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID available for QR code.</p>';
@@ -984,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchUnreadCount() {
             if (!currentAuthUser) return;
             try {
-                const { data, error } = await _supabase.rpc('get_unread_notifications_count');
+                const { data, error } = await _supabase.rpc('get_unread_notifications_count'); // From OLD project
                 if (error) throw error;
                 updateBadge(data);
             } catch (error) {
@@ -1000,13 +1116,13 @@ document.addEventListener('DOMContentLoaded', () => {
             notificationList.innerHTML = ''; 
 
             try {
-                const { data, error } = await _supabase.rpc('get_my_notifications');
+                const { data, error } = await _supabase.rpc('get_my_notifications'); // From OLD project
                 if (error) throw error;
                 notificationsLoading.style.display = 'none';
                  if (!data || (Array.isArray(data) && data.length === 0)) {
-                     noNotifications.style.display = 'block';
+                      noNotifications.style.display = 'block';
                  } else {
-                     renderNotifications(data);
+                      renderNotifications(data);
                  }
             } catch (error) {
                 console.error("Error fetching notifications:", error.message);
@@ -1051,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (isDirectLink && !e.target.closest('.w-2.h-2')) { markSingleAsRead(notif.id); } 
                     else {
                          if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
-                             if (!window.location.pathname.endsWith('myprofile.html')) { window.location.href = notif.link; }
+                              if (!window.location.pathname.endsWith('myprofile.html')) { window.location.href = notif.link; }
                          }
                          if (!notif.is_read) { markSingleAsRead(notif.id, div); }
                     }
@@ -1068,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
             if (!unreadDot) return;
             try {
-                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
+                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId }); // From OLD project
                 if (error) throw error;
                 if (notificationElement) {
                     notificationElement.classList.remove('bg-primary-50', 'dark:bg-gray-700');
@@ -1086,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!currentAuthUser || !markAllReadBtn) return;
             setButtonLoading(markAllReadBtn, true);
             try {
-                const { error } = await _supabase.rpc('mark_all_notifications_read');
+                const { error } = await _supabase.rpc('mark_all_notifications_read'); // From OLD project
                 if (error) throw error;
                 notificationList?.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
                     el.classList.remove('bg-primary-50', 'dark:bg-gray-700');
@@ -1106,16 +1222,16 @@ document.addEventListener('DOMContentLoaded', () => {
         function setupRealtimeNotifications() {
              if (!currentAuthUser) return;
              if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
-             notificationSubscription = _supabase.channel('public:notifications')
+             notificationSubscription = _supabase.channel('public:notifications') // From OLD project
                  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => {
-                     console.log('New notification received:', payload.new);
-                     fetchUnreadCount();
-                     showToast(payload.new.content_preview || 'You have a new notification!', 'success');
-                     if (notificationPanel && !notificationPanel.classList.contains('hidden')) { fetchNotifications(); }
+                      console.log('New notification received:', payload.new);
+                      fetchUnreadCount();
+                      showToast(payload.new.content_preview || 'You have a new notification!', 'success');
+                      if (notificationPanel && !notificationPanel.classList.contains('hidden')) { fetchNotifications(); }
                  })
                  .subscribe((status, err) => {
-                      if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
-                      if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
+                       if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
+                       if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
                  });
              window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
         }
@@ -1131,6 +1247,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- 10. HELPER FUNCTIONS ---
+        function formatLectureTime(timeStr) {
+            if (!timeStr) return '';
+            try {
+                const [hours, minutes] = timeStr.split(':');
+                const date = new Date(0, 0, 0, hours, minutes);
+                return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            } catch (e) {
+                console.error("Error formatting time:", e);
+                return timeStr;
+            }
+        }
+
+        function formatEventDate(dateStr) {
+            if (!dateStr) return { month: '', day: '' };
+            try {
+                // Use T00:00:00 to ensure it's interpreted as local time, not UTC
+                const date = new Date(dateStr + 'T00:00:00'); 
+                return {
+                    month: date.toLocaleDateString('en-US', { month: 'short' }),
+                    day: date.toLocaleDateString('en-US', { day: '2-digit' })
+                };
+            } catch (e) {
+                console.error("Error formatting date:", e);
+                return { month: '??', day: '??' };
+            }
+        }
+
         function formatTimeAgo(dateString) {
              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
@@ -1155,13 +1298,13 @@ document.addEventListener('DOMContentLoaded', () => {
              buttonEl.disabled = isLoading;
              const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
               if (isLoading) {
-                 buttonEl.dataset.originalText = originalText;
-                 buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
-             } else {
-                 buttonEl.innerHTML = originalText;
-                 delete buttonEl.dataset.originalText;
-                 feather.replace(); 
-             }
+                   buttonEl.dataset.originalText = originalText;
+                   buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
+              } else {
+                   buttonEl.innerHTML = originalText;
+                   delete buttonEl.dataset.originalText;
+                   feather.replace(); 
+              }
         }
 
     </script>
