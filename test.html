@@ -358,7 +358,6 @@
                     </div>
                     
                 </div>
-
                 <div class="space-y-3">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
                         <i data-feather="star" class="text-yellow-500 dark:text-yellow-400"></i>
@@ -560,59 +559,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
         let currentDashboardData = null; // Store stringified dashboard data for comparison
 
-        // --- Role & Badge Mappings ---
-        // *** MODIFIED: To match Image 1 (mock-up) UI style ***
-        const roleDetails = {
-            'CR': { 
-                title: 'CR', 
-                subtitle: 'CS 2nd Year', // From Image 1
-                icon: 'user-check', 
-                iconBg: 'bg-blue-100 dark:bg-blue-900/30', 
-                iconColor: 'text-blue-600 dark:text-blue-400' 
-            },
-            'cr': { // Add 'cr' variant
-                title: 'CR', 
-                subtitle: 'CS 2nd Year', 
-                icon: 'user-check', 
-                iconBg: 'bg-blue-100 dark:bg-blue-900/30', 
-                iconColor: 'text-blue-600 dark:text-blue-400' 
-            },
-            'Club Head': { // From Image 1
-                title: 'Club Head', 
-                subtitle: 'ACM Club', 
-                icon: 'users', 
-                iconBg: 'bg-green-100 dark:bg-green-900/30', 
-                iconColor: 'text-green-600 dark:text-green-400' 
-            },
-            // Add fallbacks for user's other roles
-            'GreenClub': { 
-                title: 'GreenClub', 
-                subtitle: 'Green Club', 
-                icon: 'leaf', 
-                iconBg: 'bg-primary-100 dark:bg-primary-900/30', 
-                iconColor: 'text-primary-600 dark:text-primary-400' 
-            },
-            'NCC': { 
-                title: 'NCC', 
-                subtitle: 'NCC Cadet', 
-                icon: 'shield', 
-                iconBg: 'bg-red-100 dark:bg-red-900/30', 
-                iconColor: 'text-red-600 dark:text-red-400' 
-            },
-            'NSS': { 
-                title: 'NSS', 
-                subtitle: 'NSS Volunteer', 
-                icon: 'heart', 
-                iconBg: 'bg-pink-100 dark:bg-pink-900/30', 
-                iconColor: 'text-pink-600 dark:text-pink-400' 
-            },
-            'Kalamandal': { 
-                title: 'Kalamandal', 
-                subtitle: 'Kalamandal Member', 
-                icon: 'music', 
-                iconBg: 'bg-purple-100 dark:bg-purple-900/30', 
-                iconColor: 'text-purple-600 dark:text-purple-400' 
-            }
+        // --- *** MODIFICATION: Role Icon Map (replaces logo map) *** ---
+        const roleIconMap = {
+            'CR': { title: 'CR', icon: 'user-check', color: 'text-blue-500' },
+            'cr': { title: 'CR', icon: 'user-check', color: 'text-blue-500' },
+            'GreenClub': { title: 'Green Club', icon: 'leaf', color: 'text-green-500' },
+            'NCC': { title: 'NCC', icon: 'shield', color: 'text-red-500' },
+            'NSS': { title: 'NSS', icon: 'heart', color: 'text-blue-600' },
+            'Kalamandal': { title: 'Kalamandal', icon: 'music', color: 'text-purple-500' },
+            'Club Head': { title: 'Club Head', icon: 'users', color: 'text-orange-500' } // Added from mock-up
         };
 
 
@@ -745,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchDashboardData(authId) {
             if (!authId) return;
 
-            const cacheKey = 'birlaone_dashboard_data_v2'; 
+            const cacheKey = 'birlaone_dashboard_data_v3'; // Changed cache key
             const cachedData = getCache(cacheKey);
             let isCacheRendered = false;
 
@@ -765,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fetch fresh profile data from OLD project
                 const { data: profileData, error: profileError } = await _supabase
                     .from('users')
-                    .select('id, auth_id, name, img, tick, course, friend_count') 
+                    .select('id, auth_id, name, img, tick, course, friend_count') // 'id' is public student_id, 'course' is needed
                     .eq('auth_id', authId)
                     .single();
 
@@ -773,9 +728,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!profileData) throw new Error("User profile not found.");
 
                 // --- NEW: Fetch data from the SECOND Supabase project ---
-                const studentId = profileData.id; 
-                const userCourse = profileData.course; 
-                const today = new Date().toISOString().split('T')[0]; 
+                const studentId = profileData.id; // Public ID (e.g., 5207872)
+                const userCourse = profileData.course; // e.g., 'sybaf'
+                const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
 
                 // 1. Fetch Roles
                 const { data: rolesData, error: rolesError } = await _supabase2
@@ -802,7 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (rolesError) {
                     console.error("Error fetching roles:", rolesError.message);
-                    throw rolesError; 
+                    throw rolesError; // Throw to stop execution if query fails
                 }
                 if (lecturesError) {
                     console.error("Error fetching lectures:", lecturesError.message);
@@ -819,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     roles: rolesData || [],
                     lectures: lecturesData || [],
                     activities: eventsData || [],
-                    recycledKg: 12.5, 
+                    recycledKg: 12.5, // Placeholder from old code, user didn't ask to change
                 };
                 
                 // --- Log User Data (runs in background) ---
@@ -849,6 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error("Error fetching dashboard data:", error.message);
                 if (!isCacheRendered) {
+                    // Show error only if we couldn't load anything
                     shimmerLoader.innerHTML = `<p class="text-center text-red-500 p-10">Could not load dashboard data. Check console.</p>`;
                 }
                  showToast("Could not refresh dashboard data.", "error");
@@ -861,40 +817,36 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- Update Main Cards ---
             friendsCountValue.textContent = data.profile.friend_count ?? 0;
             recycledValue.textContent = data.recycledKg ?? '--';
+            // Removed: academicScoreValue, netWorthValue updates
 
             // --- 1. Render Roles & Badges ---
-            // *** MODIFIED: Logic to remove container card style if roles exist ***
             if (data.roles && data.roles.length > 0) {
                 rolesBadgesContent.innerHTML = ''; // Clear 'Loading...'
-                rolesBadgesContent.className = ''; // Reset container styles
-                
+                rolesBadgesContent.classList.remove('italic', 'text-center', 'p-4'); // Remove loading styles
                 const scrollContainer = document.createElement('div');
                 scrollContainer.className = 'flex space-x-3 overflow-x-auto no-scrollbar pb-2';
                 
-                // Use profile course for CR subtitle if mock-up doesn't match
-                if(roleDetails['CR']) roleDetails['CR'].subtitle = data.profile.course ? data.profile.course.toUpperCase() : 'Representative';
-                if(roleDetails['cr']) roleDetails['cr'].subtitle = data.profile.course ? data.profile.course.toUpperCase() : 'Representative';
+                // Subtitle map - We will use the user's course as the subtitle
+                const userCourseSubtitle = data.profile.course ? data.profile.course.toUpperCase() : 'Member';
 
                 data.roles.forEach(role => {
-                    let roleKey = role.role;
+                    let roleKey = role.role; 
+                    if (roleKey === 'cr') roleKey = 'CR'; // Normalize
                     
-                    // Use the new global roleDetails map
-                    const detail = roleDetails[roleKey] || { 
-                        title: role.role, 
-                        subtitle: 'Member', 
-                        icon: 'award', 
-                        iconBg: 'bg-gray-100 dark:bg-gray-700', 
-                        iconColor: 'text-gray-600 dark:text-gray-400' 
-                    };
+                    // *** MODIFICATION: Use roleIconMap ***
+                    const detail = roleIconMap[roleKey] || { title: role.role, icon: 'award', color: 'text-gray-500' };
+                    
+                    // Use course for CR, or a default for other roles
+                    const subTitle = (roleKey === 'CR' || roleKey === 'cr') ? userCourseSubtitle : detail.title; 
 
                     const card = document.createElement('div');
-                    // *** MODIFIED: rounded-lg to match Image 1 ***
-                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center space-x-3 flex-shrink-0 w-auto min-w-[160px]';
+                    // *** MODIFICATION: Changed padding and min-width to better match mock-up ***
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-3 flex-shrink-0 w-auto min-w-[180px]';
 
-                    // *** MODIFIED: New icon HTML based on Image 1 ***
-                    const iconHtml = `
-                        <div class="w-10 h-10 rounded-lg ${detail.iconBg} flex items-center justify-center flex-shrink-0">
-                            <i data-feather="${detail.icon}" class="w-5 h-5 ${detail.iconColor}"></i>
+                    // *** MODIFICATION: Replaced <img> with <i> for icons ***
+                    let iconHtml = `
+                        <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                            <i data-feather="${detail.icon}" class="w-5 h-5 ${detail.color}"></i>
                         </div>
                     `;
 
@@ -902,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${iconHtml}
                         <div class="flex-1 min-w-0">
                             <p class="text-base font-bold text-gray-900 dark:text-white truncate">${detail.title}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${detail.subtitle}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${subTitle}</p>
                         </div>
                     `;
                     scrollContainer.appendChild(card);
@@ -910,14 +862,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 rolesBadgesContent.appendChild(scrollContainer);
             } else {
                 rolesBadgesContent.innerHTML = 'No Roles Assigned';
-                // *** MODIFIED: Ensure container IS a card if no roles ***
-                rolesBadgesContent.className = 'text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center';
+                rolesBadgesContent.classList.add('italic', 'text-center', 'p-4');
             }
-
 
             // --- 2. Render Lectures ---
             if (data.lectures && data.lectures.length > 0) {
-                lecturesContent.innerHTML = ''; 
+                lecturesContent.innerHTML = ''; // Clear 'Loading...'
                 lecturesContent.classList.remove('italic', 'text-center', 'p-4');
                 const container = document.createElement('div');
                 container.className = 'space-y-3';
@@ -930,13 +880,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = document.createElement('div');
                     card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
                     
-                    // *** MODIFIED: Added divider ***
                     card.innerHTML = `
                         <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
                             <span class="text-sm font-medium text-primary-600 dark:text-primary-400">${month}</span>
                             <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
                         </div>
-                        <div class="flex-1 min-w-0 pl-4 border-l border-gray-200 dark:border-gray-700">
+                        <div class="flex-1 min-w-0">
                             <p class="text-base font-bold text-gray-900 dark:text-white truncate">${lecture.subject_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${lecture.prof_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
@@ -948,11 +897,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 lecturesContent.innerHTML = 'No Upcoming Lectures';
                 lecturesContent.classList.add('italic', 'text-center', 'p-4');
+                // *** ADDED: Style the "empty" state to match mock-up ***
+                lecturesContent.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-center text-gray-500 dark:text-gray-400 italic';
             }
 
             // --- 3. Render Activities (Events) ---
             if (data.activities && data.activities.length > 0) {
-                activitiesContent.innerHTML = ''; 
+                activitiesContent.innerHTML = ''; // Clear 'Loading...'
                 activitiesContent.classList.remove('italic', 'text-center', 'p-4');
                 const container = document.createElement('div');
                 container.className = 'space-y-3';
@@ -965,13 +916,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = document.createElement('div');
                     card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
                     
-                    // *** MODIFIED: Added divider ***
                     card.innerHTML = `
                         <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
                             <span class="text-sm font-medium text-green-600 dark:text-green-400">${month}</span>
                             <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
                         </div>
-                        <div class="flex-1 min-w-0 pl-4 border-l border-gray-200 dark:border-gray-700">
+                        <div class="flex-1 min-w-0">
                             <p class="text-base font-bold text-gray-900 dark:text-white truncate">${event.event_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Organized by: ${event.organizer_name}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
@@ -983,6 +933,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 activitiesContent.innerHTML = 'No Upcoming Activities';
                 activitiesContent.classList.add('italic', 'text-center', 'p-4');
+                // *** ADDED: Style the "empty" state to match mock-up ***
+                activitiesContent.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-center text-gray-500 dark:text-gray-400 italic';
             }
 
             // Re-render icons for new content
@@ -1048,8 +1000,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Clear theme and caches on logout
                 localStorage.removeItem('theme');
-                localStorage.removeItem('birlaone_dashboard_data_v2'); // Clear new cache
-                localStorage.removeItem('birlaone_dashboard_data'); // Clear old cache
+                localStorage.removeItem('birlaone_dashboard_data_v3'); // Clear new cache
+                localStorage.removeItem('birlaone_dashboard_data_v2'); 
+                localStorage.removeItem('birlaone_dashboard_data');
                 localStorage.removeItem('birlaone_feed'); // Clear other related caches if they exist
                 localStorage.removeItem('birlaone_popular');
                 Object.keys(localStorage).forEach(key => {
@@ -1075,13 +1028,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!profileData) {
                  // Optionally set defaults if profile data is missing after load attempt
                  nameEl.textContent = 'User';
-                 avatarEl.src = 'https_placehold.co/64x64/cccccc/969696?text=U';
+                 avatarEl.src = 'https://placehold.co/64x64/cccccc/969696?text=U';
                  tickContainer.innerHTML = '';
                  qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID.</p>';
                  return;
             }
 
-            avatarEl.src = profileData.img || `https_placehold.co/64x64/A8E063/305B1C?text=${profileData.name ? profileData.name.charAt(0) : 'U'}`;
+            avatarEl.src = profileData.img || `https://placehold.co/64x64/A8E063/305B1C?text=${profileData.name ? profileData.name.charAt(0) : 'U'}`;
             nameEl.textContent = profileData.name || 'Campus User';
 
             tickContainer.innerHTML = ''; // Clear previous tick
@@ -1214,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 div.innerHTML = `
                     ${senderAvatar}
                     ${linkWrapperStart}${contentHtml}${linkWrapperEnd}
-                    ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
+                    ${!notf.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
                 `;
                 div.addEventListener('click', (e) => {
                     if (isDirectLink && !e.target.closest('.w-2.h-2')) { markSingleAsRead(notif.id); } 
