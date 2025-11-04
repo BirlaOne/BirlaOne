@@ -7,12 +7,12 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
-    <title>BirlaOne Feed</title>
+    <title>BirlaOne Dashboard</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>    
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,24 +21,23 @@
     
     <script>
         tailwind.config = {
-            darkMode: 'class',
+            darkMode: 'class', // Enabled dark mode class strategy
             theme: {
-                extend: { 
+                extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         logo: ['Pacifico', 'cursive'],
                     },
                     colors: {
                         'primary': {
-                            '50': '#f7fbf4','100': '#eef8e9','200': '#dcf1d3','300': '#c3e7b3',
-                            '400': '#a6d98e','500': '#87c964','600': '#56ab2f','700': '#458a26',
-                            '800': '#396f21','900': '#305b1c','950': '#1a320f',
+                            '50': '#f7fbf4', '100': '#eef8e9', '200': '#dcf1d3', '300': '#c3e7b3',
+                            '400': '#a6d98e', '500': '#87c964', '600': '#56ab2f', '700': '#458a26',
+                            '800': '#396f21', '900': '#305b1c', '950': '#1a320f',
                         },
-                         'danger': {
-                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a',
-                            '300': '#e57373', '400': '#ef5350', '500': '#f44336',
-                            '600': '#e53935', '700': '#d32f2f', '800': '#c62828',
-                            '900': '#b71c1c', '950': '#8d1111',
+                         'danger': { 
+                            '50': '#ffebee', '100': '#ffcdd2', '200': '#ef9a9a', '300': '#e57373',
+                            '400': '#ef5350', '500': '#f44336', '600': '#e53935', '700': '#d32f2f',
+                            '800': '#c62828', '900': '#b71c1c', '950': '#8d1111',
                         }
                     }
                 },
@@ -47,423 +46,539 @@
     </script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .fade-in { animation: fadeIn 0.4s ease-in-out; }
-        .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
-        .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
-        .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
-        .liked svg.feather-heart, .liked i[data-feather="heart"] { fill: #ef4444; color: #ef4444; stroke: #ef4444; }
-        .engagement-icon { width: 20px; height: 20px; }
-        .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .poll-option-button { min-height: 44px; }
-        .poll-bar-fg { height: 100%; transition: width 0.3s ease-in-out; }
-        .delete-comment-button svg.feather { width: 16px; height: 16px; } 
-        .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
-        #notification-panel { transition: transform 0.3s ease-in-out; }
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .fade-in { animation: fadeIn 0.4s ease-in-out; }
+    .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.03); }
+    .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(0, 0, 0, 0.03); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    i[data-feather], svg.feather { width: 24px; height: 24px; stroke: currentColor; }
+    .bottom-nav-icon i[data-feather], .bottom-nav-icon svg.feather { width: 28px; height: 28px; }
+    .spinner { border: 2px solid rgba(0, 0, 0, 0.1); border-left-color: #56ab2f; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .post-tick-mark { width: 1rem; height: 1rem; vertical-align: -0.125em; margin-left: 4px; display: inline-block; }
+    #notification-panel { transition: transform 0.3s ease-in-out; }
+    .notification-item-enter { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .notification-item-enter-active { opacity: 1; transform: translateY(0); }
 
-        /* --- Fluid Load-in Animations --- */
-        .notification-item-enter, .post-item-enter {
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .notification-item-enter-active, .post-item-enter-active {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* --- Shimmer Loader Styles --- */
+    .shimmer-wrapper {
+        animation: shimmer 1.5s infinite linear;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+    }
+    @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    .dark .shimmer-wrapper {
+        background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+        background-size: 200% 100%;
+    }
 
-         #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
-         .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
-         .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
-         .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
-         .toast.show { opacity: 1; }
-         .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
-         @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-         button:disabled { opacity: 0.6; cursor: not-allowed; }
+    /* --- Toast Notifications --- */
+    #toast-container { position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; pointer-events: none; }
+    .toast { display: flex; align-items: center; width: 100%; max-width: 400px; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); animation: toast-in 0.3s ease-in-out; opacity: 0; pointer-events: all; }
+    .toast.toast-success { background-color: #305b1c; color: #eef8e9; }
+    .toast.toast-error { background-color: #b71c1c; color: #ffcdd2; }
+    .toast.show { opacity: 1; }
+    .toast-icon { width: 20px; height: 20px; margin-right: 0.75rem; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* --- Shimmer Loader Styles --- */
-        .shimmer-wrapper {
-            animation: shimmer 1.5s infinite linear;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .dark .shimmer-wrapper {
-            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-            background-size: 200% 100%;
-        }
+    /* ==============================
+        🔹 ENHANCED SIDEBAR STYLES
+        ============================== */
+    #sidebar {
+        position: fixed;
+        inset-y: 0;
+        left: 0;
+        z-index: 50;
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        background-color: #ffffff;
+        border-right: 1px solid #e5e7eb;
+        transform: translateX(-100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 1rem;
+    }
 
-        /* ==============================
-           🔹 ENHANCED SIDEBAR STYLES
-           ============================== */
+    #sidebar.active {
+        transform: translateX(0);
+    }
+
+    .sidebar-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        color: #374151;
+        font-weight: 500;
+        transition: background-color 0.25s ease, color 0.25s ease;
+        text-decoration: none;
+    }
+
+    .sidebar-menu-item span {
+        flex: 1;
+        font-size: 0.95rem;
+        letter-spacing: 0.2px;
+    }
+
+    .sidebar-menu-item:hover {
+        background-color: #f3f4f6;
+    }
+
+    .sidebar-menu-item i[data-feather] {
+        width: 20px;
+        height: 20px;
+        color: #4b5563;
+        flex-shrink: 0;
+    }
+
+    .sidebar-menu-item-arrow {
+        margin-left: auto;
+        color: #9ca3af;
+    }
+
+    /* Section headings */
+    #sidebar h3 {
+        padding-left: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9ca3af;
+        margin-top: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    #sidebar hr {
+        border-color: #e5e7eb;
+        margin: 1rem 0;
+    }
+
+    .profile-qr-card {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+
+    .sidebar-menu-item.logout {
+        color: #ef4444;
+    }
+
+    .sidebar-menu-item.logout:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    /* --- Sidebar Slide Animations --- */
+    @keyframes slideInLeft {
+        from { transform: translateX(-100%); }
+        to { transform: translateX(0); }
+    }
+    @keyframes slideOutLeft {
+        from { transform: translateX(0); }
+        to { transform: translateX(-100%); }
+    }
+
+    #sidebar.opening {
+        animation: slideInLeft 0.35s ease forwards;
+    }
+    #sidebar.closing {
+        animation: slideOutLeft 0.3s ease forwards;
+    }
+
+    /* --- Sidebar QR Code Wrapper --- */
+    #sidebar-qr-code-img {
+        background: white;
+        padding: 10px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #sidebar-qr-code-img img,
+    #sidebar-qr-code-img canvas {
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 6px;
+    }
+
+    /* ==============================
+        🌙 DARK MODE SUPPORT
+        ============================== */
+    :root { color-scheme: light; }
+    :root.dark { color-scheme: dark; }
+    .dark body { background-color: #111827; }
+    .dark .bg-slate-50 { background-color: #111827; }
+    .dark .bg-white { background-color: #1f2937; }
+    .dark .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(255, 255, 255, 0.03); border-bottom: 1px solid #374151; }
+    .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151; }
+    .dark .text-gray-900 { color: #f9fafb; }
+    .dark .text-gray-800 { color: #f3f4f6; }
+    .dark .text-gray-700 { color: #d1d5db; }
+    .dark .text-gray-600 { color: #9ca3af; }
+    .dark .text-gray-500 { color: #6b7280; }
+    .dark .text-gray-400 { color: #9ca3af; }
+    .dark .border-gray-100 { border-color: #374151; }
+    .dark .border-gray-200 { border-color: #374151; }
+    .dark .bg-gray-50 { background-color: #374151; }
+    .dark .bg-gray-100 { background-color: #374151; }
+    .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
+    .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
+    .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
+    .dark .bg-black\/30 { background-color: rgba(0, 0, 0, 0.5); }
+    .dark .text-primary-600 { color: #a6d98e; }
+    .dark .font-logo.text-primary-600 { color: #a6d98e; }
+    .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
+    .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
+    .dark #sidebar { background-color: #1f2937; border-color: #374151; }
+    .dark .sidebar-menu-item { color: #d1d5db; }
+    .dark .sidebar-menu-item:hover { background-color: #374151; }
+    .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
+    .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
+    .dark #sidebar-user-avatar { border-color: #374151; }
+    .dark .sidebar-menu-item-arrow { color: #6b7280; }
+    .dark .sidebar-menu-item.logout { color: #ef5350; }
+    .dark .sidebar-menu-item.logout:hover { background-color: rgba(239, 68, 68, 0.15); }
+
+    /* ==============================
+        📱 RESPONSIVE SIDEBAR (MOBILE)
+        ============================== */
+    @media (max-width: 640px) {
         #sidebar {
-            position: fixed;
-            inset-y: 0;
-            left: 0;
-            z-index: 50;
-            width: 300px;
-            display: flex;
-            flex-direction: column;
-            background-color: #ffffff;
-            border-right: 1px solid #e5e7eb;
-            transform: translateX(-100%);
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 1rem;
-        }
-
-        #sidebar.active {
-            transform: translateX(0);
+            width: 260px;
+            padding: 0.75rem;
         }
 
         .sidebar-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            color: #374151;
-            font-weight: 500;
-            transition: background-color 0.25s ease, color 0.25s ease;
-            text-decoration: none;
-        }
-
-        .sidebar-menu-item span {
-            flex: 1;
-            font-size: 0.95rem;
-            letter-spacing: 0.2px;
-        }
-
-        .sidebar-menu-item:hover {
-            background-color: #f3f4f6;
+            padding: 0.65rem 0.75rem;
+            gap: 0.75rem;
+            font-size: 0.9rem;
         }
 
         .sidebar-menu-item i[data-feather] {
-            width: 20px;
-            height: 20px;
-            color: #4b5563;
-            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
         }
 
-        .sidebar-menu-item-arrow {
-            margin-left: auto;
-            color: #9ca3af;
-        }
-
-        /* Section headings */
         #sidebar h3 {
-            padding-left: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #9ca3af;
-            margin-top: 1rem;
-            margin-bottom: 0.25rem;
-        }
-
-        #sidebar hr {
-            border-color: #e5e7eb;
-            margin: 1rem 0;
+            padding-left: 0.75rem;
+            font-size: 0.7rem;
+            margin-top: 0.75rem;
         }
 
         .profile-qr-card {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 1rem;
-            padding: 1rem;
+            padding: 0.75rem;
         }
+    }
+</style>
 
-        .sidebar-menu-item.logout {
-            color: #ef4444;
-        }
-
-        .sidebar-menu-item.logout:hover {
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-
-        /* --- Sidebar Slide Animations --- */
-        @keyframes slideInLeft {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(0); }
-        }
-        @keyframes slideOutLeft {
-            from { transform: translateX(0); }
-            to { transform: translateX(-100%); }
-        }
-
-        #sidebar.opening {
-            animation: slideInLeft 0.35s ease forwards;
-        }
-        #sidebar.closing {
-            animation: slideOutLeft 0.3s ease forwards;
-        }
-
-        /* --- Sidebar QR Code Wrapper --- */
-        #sidebar-qr-code-img {
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #sidebar-qr-code-img img,
-        #sidebar-qr-code-img canvas {
-            width: 100% !important;
-            height: 100% !important;
-            border-radius: 6px;
-        }
-
-        /* ==============================
-           📱 RESPONSIVE SIDEBAR (MOBILE)
-           ============================== */
-        @media (max-width: 640px) {
-            #sidebar {
-                width: 260px;
-                padding: 0.75rem;
-            }
-
-            .sidebar-menu-item {
-                padding: 0.65rem 0.75rem;
-                gap: 0.75rem;
-                font-size: 0.9rem;
-            }
-
-            .sidebar-menu-item i[data-feather] {
-                width: 18px;
-                height: 18px;
-            }
-
-            #sidebar h3 {
-                padding-left: 0.75rem;
-                font-size: 0.7rem;
-                margin-top: 0.75rem;
-            }
-
-            .profile-qr-card {
-                padding: 0.75rem;
-            }
-        }
-
-
-        /* --- Dark Mode Styles --- */
-        :root { color-scheme: light; }
-        :root.dark { color-scheme: dark; }
-        .dark body { background-color: #111827; }
-        .dark .bg-slate-50 { background-color: #111827; }
-        .dark .bg-white { background-color: #1f2937; }
-        .dark .top-nav-shadow { box-shadow: 0 4px 10px -1px rgba(255, 255, 255, 0.03); border-bottom: 1px solid #374151; }
-        .dark .bottom-nav-shadow { box-shadow: 0 -4px 10px -1px rgba(255, 255, 255, 0.03); border-top: 1px solid #374151;}
-        .dark .text-gray-900 { color: #f9fafb; }
-        .dark .text-gray-800 { color: #f3f4f6; }
-        .dark .text-gray-700 { color: #d1d5db; }
-        .dark .text-gray-600 { color: #9ca3af; }
-        .dark .text-gray-500 { color: #6b7280; }
-        .dark .text-gray-400 { color: #9ca3af; }
-        .dark .border-gray-100 { border-color: #374151; }
-        .dark .border-gray-200 { border-color: #374151; }
-        .dark .bg-gray-50 { background-color: #374151; }
-        .dark .bg-gray-100 { background-color: #374151; }
-        .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
-        .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
-        .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
-        .dark .bg-black\/30 { background-color: rgba(0, 0, 0, 0.5); }
-        .dark .text-primary-600 { color: #a6d98e; }
-        .dark .font-logo.text-primary-600 { color: #a6d98e; }
-        .dark .bottom-nav-icon.text-primary-600 { color: #a6d98e; }
-        .dark .bottom-nav-icon.text-gray-400 { color: #9ca3af; }
-        /* Sidebar Dark */
-        .dark #sidebar { background-color: #1f2937; border-color: #374151; }
-        .dark .sidebar-menu-item { color: #d1d5db; }
-        .dark .sidebar-menu-item:hover { background-color: #374151; }
-        .dark .sidebar-menu-item i[data-feather] { color: #9ca3af; }
-        .dark .profile-qr-card { background-color: #374151; border-color: #4b5563; }
-        .dark #sidebar-user-avatar { border-color: #374151; }
-        .dark #sidebar-qr-code-img { background: white; }
-        .dark .sidebar-menu-item-arrow { color: #6b7280; }
-        .dark .text-danger-600 { color: #ef5350; }
-        .dark .hover\:\!bg-danger-50:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
-        .dark .sidebar-menu-item i.text-danger-600 { color: #ef5350 !important; }
-        .dark .sidebar-menu-item.logout { color: #ef5350; }
-        .dark .sidebar-menu-item.logout:hover { background-color: rgba(239, 68, 68, 0.15); }
-        /* Feed Dark */
-        .dark .bg-gray-800 { background-color: #374151; }
-        .dark .text-white { color: #f9fafb; }
-        .dark .comment-item .bg-gray-100 { background-color: #374151; }
-        .dark input[type="text"].bg-gray-100 { background-color: #4b5563; }
-        .dark .liked { color: #f44336; }
-        .dark .liked svg.feather-heart { fill: #f44336; color: #f44336; }
-        .dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.1); }
-        .dark .poll-option-button { border-color: #4b5563; }
-        .dark .poll-option-button.bg-primary-100 { background-color: #396f21; }
-        .dark .poll-option-button.border-primary-600 { border-color: #56ab2f; }
-        /* Notification Dark */
-        .dark #notification-panel { background-color: #1f2937; border-color: #374151; }
-        .dark .bg-primary-50 { background-color: #374150; }
-        .dark .hover\:bg-primary-50:hover { background-color: #374151; }
-        .dark .text-primary-600.font-medium { color: #a6d98e; }
-        /* Toast Dark */
-        .dark .toast.toast-success { background-color: #a6d98e; color: #1a320f; }
-        .dark .toast.toast-error { background-color: #ef9a9a; color: #8d1111; }
-    </style>
 </head>
 <body class="antialiased">
 
-    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-slate-50">
+    <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-slate-800">
 
-        <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
-            <button id="sidebar-toggle-btn" class="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
-                <i data-feather="menu" class="text-gray-700"></i>
-            </button>
-            <h1 class="text-3xl font-logo text-primary-600">BirlaOne</h1>
-            <button id="notification-bell-btn" class="relative p-2 rounded-full transition-all hover:bg-gray-100 active:scale-90">
-                <i data-feather="bell" class="text-gray-700"></i>
-                <span id="notification-badge" class="hidden absolute top-1 right-1 block h-4 w-4 rounded-full bg-red-500 text-white text-[10px] leading-tight text-center ring-2 ring-white">
-                    0
-                </span>
-            </button>
-        </header>
-
-        <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar">
-            
-            <div id="create-post-bar" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-200 flex items-center space-x-3 cursor-pointer hover:bg-gray-50 transition-colors">
-                 <img id="user-avatar-post-bar" src="https://placehold.co/40x40/A8E063/305B1C?text=U" alt="Your Profile" class="w-10 h-10 rounded-full bg-gray-200 object-cover">
-                <div class="flex-1 bg-gray-100 rounded-full p-3 text-gray-500">What's on your mind?</div>
-                <div class="p-2 text-gray-500"><i data-feather="image"></i></div>
+        <div id="shimmer-loader" class="absolute inset-0 z-50 bg-white dark:bg-gray-900 pt-20 pb-24 px-4 overflow-hidden">
+            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-24 h-6 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
             </div>
-
-            <div id="feed-posts-container" class="space-y-6">
+            <div class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                 </div>
-
-        </main>
-
-        <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
-            <a href="index.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Dashboard"><i data-feather="layout"></i></a>
-            <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-primary-600 rounded-lg bottom-nav-icon" aria-label="Feed"><i data-feather="file-text" class="stroke-[2.5px]"></i></a>
-            <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Create"><i data-feather="plus-circle"></i></a>
-            <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Search"><i data-feather="search"></i></a>
-            <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 transition-colors bottom-nav-icon" aria-label="Mini Apps"><i data-feather="grid"></i></a>
-        </nav>
-
-        <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl border-l border-gray-200 z-50 flex flex-col transform translate-x-full">
-            <div class="flex justify-between items-center p-3 border-b border-gray-200">
-                <h3 class="font-semibold text-lg text-gray-900">Notifications</h3>
-                <button id="close-notification-panel-btn" class="p-1 rounded-full text-gray-500 hover:bg-gray-100">
-                    <i data-feather="x"></i>
-                </button>
+                <div>
+                    <div class="h-5 w-1/3 shimmer-wrapper rounded-full mb-3"></div>
+                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
+                </div>
+                <div class="h-32 shimmer-wrapper rounded-2xl"></div>
+                <div class="space-y-3">
+                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
+                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
+                </div>
+                <div class="space-y-3">
+                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
+                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
+                </div>
             </div>
-            <div id="notification-list" class="flex-1 overflow-y-auto p-2 space-y-2">
-                <p id="notifications-loading" class="text-center text-gray-500 py-4">Loading...</p>
-                <p id="no-notifications" class="hidden text-center text-gray-500 py-4">No notifications yet.</p>
-            </div>
-            <div class="p-2 border-t border-gray-200">
-                <button id="mark-all-read-btn" class="w-full text-sm text-primary-600 font-medium py-2 hover:bg-primary-50 rounded">
-                    Mark all as read
-                </button>
+            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
+                <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
             </div>
         </div>
         
-        <nav id="sidebar" class="fixed inset-y-0 left-0 z-50 flex flex-col p-4 space-y-6 overflow-y-auto no-scrollbar">
-            
-            <div class="profile-qr-card p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-4">
-                <div class="flex flex-col items-center space-y-2">
-                    <img id="sidebar-user-avatar" src="https://placehold.co/64x64/A8E063/305B1C?text=U" alt="Your Profile" class="w-16 h-16 rounded-full bg-gray-200 border-2 border-white object-cover">
-                    <h2 class="font-bold text-lg text-gray-900 leading-tight text-center">
-                        <span id="sidebar-user-name">Loading...</span>
-                        <span id="sidebar-user-tick-container" class="inline-block"></span>
-                    </h2>
-                </div>
-                <div id="sidebar-qr-code-img" class="w-full h-auto aspect-square">
-                    <div class="spinner"></div>
-                </div>
-            </div>
-
-            <div class="flex-1 space-y-2">
-                <h3>Account</h3>
-                <a href="myprofile.html" class="sidebar-menu-item">
-                    <i data-feather="user"></i>
-                    <span>My Profile</span>
-                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                </a>
-                <a href="change-password.html" class="sidebar-menu-item">
-                    <i data-feather="lock"></i>
-                    <span>Change Password</span>
-                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                </a>
-               
-                <hr>
-
-                <h3>More</h3>
-                <a href="about.html" class="sidebar-menu-item">
-                    <i data-feather="info"></i>
-                    <span>About Us</span>
-                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                </a>
-                <a href="contact.html" class="sidebar-menu-item">
-                    <i data-feather="phone"></i>
-                    <span>Contact Us</span>
-                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                </a>
-                <a href="support.html" class="sidebar-menu-item">
-                    <i data-feather="help-circle"></i>
-                    <span>Help & Support</span>
-                    <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
-                </a>
+        <div id="app-content" class="hidden">
+            <header class="fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm top-nav-shadow p-4 flex justify-between items-center md:max-w-md md:mx-auto h-16">
                 
-                <hr>
-                
-                <div class="sidebar-menu-item">
-                    <i data-feather="moon"></i>
-                    <span>Dark Mode</span>
-                    <label class="relative inline-flex items-center cursor-pointer ml-auto">
-                        <input type="checkbox" value="" id="theme-toggle" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                    </label>
-                </div>
-            </div>
-            
-            <div>
-                <button id="logout-btn" class="sidebar-menu-item w-full logout">
-                    <i data-feather="log-out"></i>
-                    <span>Log Out</span>
+                <button id="sidebar-toggle-btn" class="p-2 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90">
+                    <i data-feather="menu" class="text-gray-700 dark:text-gray-300"></i>
                 </button>
+                <h1 class="text-3xl font-logo text-primary-600 dark:text-primary-400">BirlaOne</h1>
+                <button id="notification-bell-btn" class="relative p-2 rounded-full transition-all hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-90">
+                    <i data-feather="bell" class="text-gray-700 dark:text-gray-300"></i>
+                    <span id="notification-badge" class="hidden absolute top-1 right-1 block h-4 w-4 rounded-full bg-red-500 text-white text-[10px] leading-tight text-center ring-2 ring-white dark:ring-gray-800">
+                        0
+                    </span>
+                </button>
+            </header>
+
+            <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar bg-slate-50 dark:bg-gray-900">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Plastic Recycled</h2>
+                            <i data-feather="refresh-ccw" class="text-green-600 dark:text-green-400 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span id="recycled-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">kg</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Campus Friends</h2>
+                            <i data-feather="users" class="text-purple-500 dark:text-purple-400 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span id="friends-count-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total</span>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                        <i data-feather="star" class="text-yellow-500 dark:text-yellow-400"></i>
+                        <span>Roles & Badges</span>
+                    </h2>
+                    <div id="roles-badges-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center min-h-[5rem] flex items-center justify-center">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                        <i data-feather="book-open" class="text-primary-600 dark:text-primary-400"></i>
+                        <span>Scheduled Lectures</span>
+                    </h2>
+                     <div id="lectures-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center min-h-[5rem] flex items-center justify-center">
+                            Loading...
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
+                        <i data-feather="calendar" class="text-green-600 dark:text-green-400"></i>
+                        <span>Upcoming Activities</span>
+                    </h2>
+                    <div id="activities-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center min-h-[5rem] flex items-center justify-center">
+                            Loading...
+                    </div>
+                </div>
+
+            </main>
+
+            <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm bottom-nav-shadow p-3 flex justify-around items-center md:max-w-md md:mx-auto h-20">
+                <a href="index.html" class="flex flex-col items-center justify-center p-2 text-primary-600 dark:text-primary-400 rounded-lg bottom-nav-icon" aria-label="Dashboard">
+                    <i data-feather="layout" class="stroke-[2.5px]"></i>
+                </a>
+                <a href="feed.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Feed">
+                    <i data-feather="file-text"></i>
+                </a>
+                <a href="create.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Create">
+                    <i data-feather="plus-circle"></i>
+                </a>
+                <a href="search.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Search">
+                    <i data-feather="search"></i>
+                </a>
+                <a href="apps.html" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bottom-nav-icon" aria-label="Mini Apps">
+                    <i data-feather="grid"></i>
+                </a>
+            </nav>
+
+            <div id="notification-panel" class="hidden fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl border-l border-gray-200 dark:border-gray-700 z-50 flex flex-col transform translate-x-full">
+                <div class="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="font-semibold text-lg text-gray-900 dark:text-white">Notifications</h3>
+                    <button id="close-notification-panel-btn" class="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div id="notification-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                    <p id="notifications-loading" class="text-center text-gray-500 dark:text-gray-400 py-4">Loading...</p>
+                    <p id="no-notifications" class="hidden text-center text-gray-500 dark:text-gray-400 py-4">No notifications yet.</p>
+                </div>
+                <div class="p-2 border-t border-gray-200 dark:border-gray-700">
+                    <button id="mark-all-read-btn" class="w-full text-sm text-primary-600 dark:text-primary-400 font-medium py-2 hover:bg-primary-50 dark:hover:bg-gray-700 rounded">
+                        Mark all as read
+                    </button>
+                </div>
             </div>
-        </nav>
+            
+            <nav id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 flex flex-col transform -translate-x-full p-4 space-y-6 overflow-y-auto no-scrollbar">
+                <div class="profile-qr-card p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border border-gray-200 dark:border-gray-600 space-y-4">
+                    <div class="flex flex-col items-center space-y-2">
+                        <img id="sidebar-user-avatar" src="https://placehold.co/64x64/A8E063/305B1C?text=U" alt="Your Profile" class="w-16 h-16 rounded-full bg-gray-200 border-2 border-white dark:border-gray-800 object-cover">
+                        <h2 class="font-bold text-lg text-gray-900 dark:text-white leading-tight text-center">
+                            <span id="sidebar-user-name">Loading...</span>
+                            <span id="sidebar-user-tick-container" class="inline-block"></span>
+                        </h2>
+                    </div>
+                    <div id="sidebar-qr-code-img" class="w-full h-auto aspect-square">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="flex-1 space-y-2">
+                    <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Account</h3>
+                    <a href="myprofile.html" class="sidebar-menu-item">
+                        <i data-feather="user"></i>
+                        <span>My Profile</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <a href="change-password.html" class="sidebar-menu-item">
+                        <i data-feather="lock"></i>
+                        <span>Change Password</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    
+                    <hr class="my-4 border-gray-100 dark:border-gray-700">
+                    <h3 class="px-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">More</h3>
+                    <a href="about.html" class="sidebar-menu-item">
+                        <i data-feather="info"></i>
+                        <span>About Us</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <a href="contact.html" class="sidebar-menu-item">
+                        <i data-feather="phone"></i>
+                        <span>Contact Us</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <a href="support.html" class="sidebar-menu-item">
+                        <i data-feather="help-circle"></i>
+                        <span>Help & Support</span>
+                        <i data-feather="chevron-right" class="sidebar-menu-item-arrow"></i>
+                    </a>
+                    <hr class="my-4 border-gray-100 dark:border-gray-700">
+                    <div class="sidebar-menu-item">
+                        <i data-feather="moon"></i>
+                        <span>Dark Mode</span>
+                        <label class="relative inline-flex items-center cursor-pointer ml-auto">
+                            <input type="checkbox" value="" id="theme-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <button id="logout-btn" class="sidebar-menu-item w-full !text-danger-600 dark:!text-danger-400 hover:!bg-danger-50 dark:hover:!bg-danger-900/30">
+                        <i data-feather="log-out" class="!text-danger-600 dark:!text-danger-400"></i>
+                        <span>Log Out</span>
+                    </button>
+                </div>
+            </nav>
 
-        <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
-        <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+            <div id="notification-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
+            <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/30 z-40"></div>
 
-        <div id="toast-container"></div>
+            <div id="toast-container"></div>
+        </div>
     </div>
+<script>
+/* ==============================
+    🔹 SIDEBAR SLIDE ANIMATION CONTROL
+    ============================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+  const toggleBtn = document.getElementById('sidebar-toggle-btn');
+
+  if (!sidebar || !sidebarBackdrop || !toggleBtn) return;
+
+  // ✅ Open sidebar with slide animation
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.remove('closing');
+    sidebar.classList.add('active', 'opening');
+    sidebarBackdrop.classList.remove('hidden');
+    sidebarBackdrop.classList.add('fade-in');
+
+    sidebar.addEventListener('animationend', () => {
+      sidebar.classList.remove('opening');
+    }, { once: true });
+  });
+
+  // ✅ Close sidebar with slide animation (click backdrop)
+  sidebarBackdrop.addEventListener('click', closeSidebar);
+
+  function closeSidebar() {
+    sidebar.classList.remove('opening');
+    sidebar.classList.add('closing');
+    sidebarBackdrop.classList.add('hidden');
+
+    sidebar.addEventListener('animationend', () => {
+      sidebar.classList.remove('active', 'closing');
+    }, { once: true });
+  }
+
+  // Optional: close sidebar with ESC key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+      closeSidebar();
+    }
+  });
+});
+</script>
 
     <script>
-        // --- 1. SUPABASE CLIENT SETUP ---
+        // --- 1. SUPABASE CLIENTS SETUP ---
         const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // *** NEW: Client for ClassCount Project (Roles, Lectures, Events) ***
+        const SUPABASE_URL_CLASSCOUNT = "https://qbtxcpyjceemqdqipcdd.supabase.co";
+        const SUPABASE_KEY_CLASSCOUNT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFidHhjcHlqY2VlbXFkcWlwY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MjQ3ODYsImV4cCI6MjA3NzAwMDc4Nn0.xlYnj-EKqXcqFlYdx4Us1iEI2OoRV2IjtAyLIG6PVok";
+        const _supabaseClassCount = createClient(SUPABASE_URL_CLASSCOUNT, SUPABASE_KEY_CLASSCOUNT);
+
         // --- Global variables ---
         let currentAuthUser = null;
-        let currentUserProfile = null;
-        let likesSubscription = null; 
-        let pollVotesSubscription = null; 
-        let commentsSubscription = null;
-        const feedContainer = document.getElementById('feed-posts-container');
-        const userAvatarPostBar = document.getElementById('user-avatar-post-bar');
+        let currentUserProfile = null; // Store user profile data including public ID
         const tickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
-        const CACHE_TTL_MINUTES = 15;
-        let currentFeedData = null;
+        const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
+        let currentDashboardData = null; // Store stringified dashboard data for comparison
 
-        // === NOTIFICATION GLOBALS ===
+        // *** NEW: Role Image Mapping ***
+        const roleImages = {
+            'CR': 'https://i.ibb.co/gLzWCL5v/image.png',
+            'GreenClub': 'https://i.ibb.co/ycNjQ86Z/image-1.png',
+            'NCC': 'https://i.ibb.co/gMgsw8mf/image.png',
+            'NSS': 'https://i.ibb.co/9HPmxFTk/image.png',
+            'Kalamandal': 'https://i.ibb.co/ymyYD80T/Whats-App-Image-2025-11-04-at-11-44-23.jpg'
+        };
+
+        // --- DOM Elements ---
+        const shimmerLoader = document.getElementById('shimmer-loader');
+        const appContent = document.getElementById('app-content');
+        const friendsCountValue = document.getElementById('friends-count-value');
+        // Removed: academicScoreValue, netWorthValue
+        const recycledValue = document.getElementById('recycled-value');
+        const rolesBadgesContent = document.getElementById('roles-badges-content');
+        const lecturesContent = document.getElementById('lectures-content');
+        const activitiesContent = document.getElementById('activities-content');
+
+        // --- NOTIFICATION GLOBALS ---
         const notificationBellBtn = document.getElementById('notification-bell-btn');
         const notificationBadge = document.getElementById('notification-badge');
         const notificationPanel = document.getElementById('notification-panel');
@@ -476,7 +591,7 @@
         let notificationSubscription = null;
         const toastContainer = document.getElementById('toast-container');
 
-        // === SIDEBAR GLOBALS ===
+        // --- SIDEBAR GLOBALS ---
         const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarBackdrop = document.getElementById('sidebar-backdrop');
@@ -484,10 +599,11 @@
         const themeToggle = document.getElementById('theme-toggle');
 
         // --- 2. AUTH & INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', async () => { 
-             initializeTheme();
+        document.addEventListener('DOMContentLoaded', async () => {
+            initializeTheme(); // Initialize theme first
 
-             if ('serviceWorker' in navigator) {
+            // --- Service Worker Registration ---
+            if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
                         console.log('Service Worker registered with scope:', registration.scope);
@@ -496,535 +612,217 @@
                     });
             }
 
-             const { data: { session }, error } = await _supabase.auth.getSession();
-             if (error || !session) { window.location.href = 'login.html'; return; }
-             currentAuthUser = session.user;
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            if (error || !session) {
+                showShimmerAndRedirect('login.html', 500);
+                return;
+            }
+            currentAuthUser = session.user;
 
-             await fetchUserProfile(currentAuthUser.id);
-             await fetchPosts();
+            // Fetch dashboard data (includes profile, logs) & update UI
+            await fetchDashboardData(currentAuthUser.id);
 
-             feather.replace(); 
-             setupEventListeners(); 
-             subscribeToLikeChanges(); 
-             subscribeToPollVoteChanges(); 
-             subscribeToCommentChanges();
+            // Hide shimmer, show content (handled within fetchDashboardData based on cache)
+            // Initialize Notifications AFTER potential content visibility
+            setupNotificationListeners();
+            fetchUnreadCount();
+            setupRealtimeNotifications();
 
-             setupNotificationListeners();
-             fetchUnreadCount();
-             setupRealtimeNotifications();
-
-             setupSidebarListeners();
+            // Initialize Sidebar AFTER potential content visibility
+            setupSidebarListeners();
         });
 
-        // --- 3. FETCH USER PROFILE ---
-        async function fetchUserProfile(authId) { 
-             if (!authId) return; 
-             const { data, error } = await _supabase.from('users').select('id, name, img, tick, auth_id').eq('auth_id', authId).single(); 
-             if (error) { 
-                console.error("Error fetching user profile:", error.message); 
-             } 
-             else if (data) { 
-                 currentUserProfile = data; 
-                 const userAvatar = data.img || `https://placehold.co/40x40/A8E063/305B1C?text=${data.name ? data.name.charAt(0) : 'U'}`; 
-                 userAvatarPostBar.src = userAvatar; 
-                 populateSidebar(data);
-             }
-        }
-
-        // --- 4. SETUP EVENT LISTENERS ---
-        function setupEventListeners() { 
-             document.getElementById('create-post-bar').addEventListener('click', () => { window.location.href = 'create.html'; });
-             feedContainer.addEventListener('click', (event) => {
-                 const likeButton = event.target.closest('.like-button'); if (likeButton) { toggleLike(likeButton.dataset.postId, likeButton.dataset.liked === 'true', likeButton); return; }
-                 const pollOptionButton = event.target.closest('.poll-option-button'); if (pollOptionButton) { handlePollVote(pollOptionButton.dataset.postId, parseInt(pollOptionButton.dataset.optionIndex), pollOptionButton.closest('.poll-options-container'), pollOptionButton); return; }
-                 const toggleButton = event.target.closest('.toggle-comments-button'); if (toggleButton) { toggleCommentsSection(toggleButton.dataset.postId); return; }
-                 const submitButton = event.target.closest('.comment-submit-button'); if (submitButton) { handleCommentSubmit(submitButton.dataset.postId); return; }
-                 const shareButton = event.target.closest('.share-button'); if (shareButton) { handleShare(shareButton.dataset.postId); return; } 
-                 const deleteCommentButton = event.target.closest('.delete-comment-button'); if (deleteCommentButton) { handleDeleteComment(deleteCommentButton.dataset.commentId, deleteCommentButton.dataset.postId, deleteCommentButton); return; }
-                 const deletePostButton = event.target.closest('.delete-post-button'); if (deletePostButton) { handleDeletePost(deletePostButton.dataset.postId, deletePostButton); return; }
-             });
-        }
-
-        // --- Caching Utility Functions ---
-        function setCache(key, data, ttlMinutes) {
-            try {
-                const item = {
-                    data: data,
-                    timestamp: Date.now(),
-                    expires: Date.now() + ttlMinutes * 60 * 1000
-                };
-                localStorage.setItem(key, JSON.stringify(item));
-            } catch (e) {
-                console.error("Error setting cache:", e);
+        // --- 3. THEME ---
+        function initializeTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                if (themeToggle) themeToggle.checked = true; // Check if toggle exists
+            } else {
+                document.documentElement.classList.remove('dark');
+                if (themeToggle) themeToggle.checked = false;
             }
         }
+
+        function handleThemeToggle(e) {
+            if (e.target.checked) {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            }
+        }
+
+        // --- 4. SHIMMER & CONTENT DISPLAY ---
+        function showShimmerAndRedirect(url, delay = 0) {
+            // Shimmer should be visible by default
+             setTimeout(() => { window.location.href = url; }, delay);
+        }
+
+        function hideShimmerShowApp(delay = 0) {
+             setTimeout(() => {
+                 if (shimmerLoader && appContent) {
+                     shimmerLoader.style.transition = 'opacity 0.4s ease-out';
+                     shimmerLoader.style.opacity = '0';
+                     setTimeout(() => {
+                         shimmerLoader.style.display = 'none';
+                         appContent.classList.remove('hidden');
+                         appContent.classList.add('fade-in');
+                         feather.replace(); // Render icons now
+                     }, 400); 
+                 }
+             }, delay);
+        }
+
+        // --- 5. CACHING UTILITIES ---
+        function setCache(key, data, ttlMinutes) {
+            try {
+                const item = { data: data, expires: Date.now() + ttlMinutes * 60 * 1000 };
+                localStorage.setItem(key, JSON.stringify(item));
+            } catch (e) { console.error("Error setting cache:", e); }
+        }
+
         function getCache(key) {
             try {
                 const itemStr = localStorage.getItem(key);
                 if (!itemStr) return null;
                 const item = JSON.parse(itemStr);
                 if (Date.now() > item.expires) {
-                    localStorage.removeItem(key); 
-                    return null;
+                    localStorage.removeItem(key); return null;
                 }
                 return item.data;
-            } catch (e) {
-                console.error("Error getting cache:", e);
-                return null;
-            }
-        }
-        
-        // --- Shimmer/Skeleton Loader Functions ---
-        function renderShimmers(container, count = 3) {
-            container.innerHTML = Array(count).fill(createPostShimmerHTML()).join('');
-        }
-        function createPostShimmerHTML() {
-            return `
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div class="flex items-center space-x-3 p-4">
-                    <div class="w-10 h-10 rounded-full shimmer-wrapper flex-shrink-0"></div>
-                    <div class="flex-1 space-y-2">
-                        <div class="h-4 w-1/3 rounded shimmer-wrapper"></div>
-                        <div class="h-3 w-1/4 rounded shimmer-wrapper"></div>
-                    </div>
-                </div>
-                <div class="p-4 space-y-2">
-                     <div class="h-4 w-full rounded shimmer-wrapper"></div>
-                     <div class="h-4 w-5/6 rounded shimmer-wrapper"></div>
-                </div>
-                <div class="h-12 border-t border-gray-100 dark:border-gray-700 shimmer-wrapper"></div>
-            </div>
-            `;
+            } catch (e) { console.error("Error getting cache:", e); return null; }
         }
 
-        // --- 5. FETCH POSTS (with Caching & Shimmers) ---
-        async function fetchPosts() { 
-             if (!currentAuthUser) return; 
-             
-             const cacheKey = 'birlaone_feed';
-             const cachedData = getCache(cacheKey);
-             let isCacheRendered = false;
+        // --- 6. DATA FETCHING & UI UPDATE (with Caching) ---
+        async function fetchDashboardData(authId) {
+            if (!authId) return;
 
-             if (cachedData) {
-                 console.log("Loading feed from cache.");
-                 const processedPosts = cachedData.posts;
-                 currentFeedData = JSON.stringify(processedPosts);
-                 renderPosts(processedPosts); 
-                 isCacheRendered = true;
-             } else {
-                 renderShimmers(feedContainer, 3);
-             }
+            const cacheKey = 'birlaone_dashboard_data';
+            const cachedData = getCache(cacheKey);
+            let isCacheRendered = false;
 
-             try {
-                 const { data: posts, error } = await _supabase
-                     .from('posts')
-                     .select(`
-                         id, content, post_type, media_url, poll_options, is_anonymous, created_at, like_count, comment_count, 
-                         users:user_id (id, name, img, tick, auth_id), 
-                         likes!left (user_id), 
-                         poll_votes!left (user_id, selected_option_index) 
-                     `)
-                     .eq('likes.user_id', currentAuthUser.id)
-                     .eq('poll_votes.user_id', currentAuthUser.id)
-                     .order('created_at', { ascending: false }); 
-
-                 if (error) throw error; 
-
-                 const processedPosts = posts.map(post => ({ ...post, currentUserLiked: post.likes.length > 0, currentUserPollVote: post.poll_votes.length > 0 ? post.poll_votes[0].selected_option_index : null }));
-                 
-                 const newDataString = JSON.stringify(processedPosts);
-                 
-                 if (!isCacheRendered || newDataString !== currentFeedData) {
-                     console.log("Rendering fresh data from Supabase.");
-                     currentFeedData = newDataString;
-                     renderPosts(processedPosts); 
-                     setCache(cacheKey, { posts: processedPosts }, CACHE_TTL_MINUTES);
-                 } else {
-                     console.log("Cache is up-to-date.");
-                 }
-
-             } catch (error) { 
-                 console.error("Error fetching posts:", error.message); 
-                 if (!isCacheRendered) {
-                     feedContainer.innerHTML = `<p class="text-center text-red-500">Error loading posts.</p>`; 
-                 }
-             }
-        }
-
-        // --- 6. RENDER POSTS (with Animations) ---
-        function renderPosts(posts) { 
-             if (!posts || posts.length === 0) { 
-                 feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet.</p>`; 
-                 return; 
-             } 
-             const postsHtml = posts.map(post => createPostHTML(post)).join(''); 
-             feedContainer.innerHTML = postsHtml; 
-
-             const postElements = feedContainer.querySelectorAll('.post-item-enter');
-             postElements.forEach((post, index) => {
-                setTimeout(() => {
-                     requestAnimationFrame(() => {
-                         post.classList.add('post-item-enter-active');
-                     });
-                }, index * 50);
-             });
-             
-             feather.replace(); 
-        }
-
-        // --- 7. CREATE POST HTML (with Animation Class) ---
-        function createPostHTML(post) { 
-             const authorName = post.is_anonymous ? 'Campus Confession' : (post.users?.name || 'Unknown User'); 
-             const postTimestamp = formatTimeAgo(post.created_at); 
-             const isLiked = post.currentUserLiked; 
-             const likeClass = isLiked ? 'liked text-red-500' : 'text-gray-600'; 
-             const userVotedIndex = post.currentUserPollVote; 
-
-             let tickHtml = ''; 
-             const tickType = post.users?.tick?.toLowerCase(); 
-             if (!post.is_anonymous && tickType && tickImages[tickType]) { 
-                 tickHtml = `<img src="${tickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark">`; 
-             }
-             
-             const authorId = post.users?.id;
-             const authorAuthId = post.users?.auth_id;
-             let authorAvatar = '';
-             let authorNameHtml = '';
-
-             if (post.is_anonymous) {
-                authorAvatar = `<div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0"><i data-feather="eye-off" class="text-white w-5 h-5"></i></div>`;
-                authorNameHtml = `<p class="font-semibold text-white inline">${authorName}</p>`;
-             } else if (authorId) { 
-                const avatarImg = `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 transition-transform hover:scale-105 object-cover">`;
-                authorAvatar = `<a href="profile.html?user_id=${authorId}">${avatarImg}</a>`;
-                authorNameHtml = `<a href="profile.html?user_id=${authorId}" class="font-semibold text-gray-900 inline hover:underline">${authorName}</a>`;
-             } else {
-                authorAvatar = `<img src="${post.users?.img || `https://placehold.co/40x40/DCEFD3/305B1C?text=${authorName.charAt(0)}`}" alt="Profile" class="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 object-cover">`;
-                authorNameHtml = `<p class="font-semibold text-gray-900 inline">${authorName}</p>`;
-             }
- 
-             let deleteButtonHtml = '';
-             if (!post.is_anonymous && authorAuthId === currentAuthUser?.id) {
-                 deleteButtonHtml = `
-                 <button class="delete-post-button ml-2 p-2 text-gray-400 hover:text-danger-600 dark:text-gray-500 dark:hover:text-danger-500 transition-colors" 
-                         data-post-id="${post.id}" 
-                         title="Delete post">
-                     <i data-feather="trash-2" class="w-5 h-5"></i>
-                 </button>
-                 `;
-             }
-
-             let postBody = ''; 
-             let displayContent = post.content || '';
-             displayContent = displayContent
-                 .replace(/__(.*?)__/g, '<u>$1</u>')
-                 .replace(/~~(.*?)~~/g, '<s>$1</s>')
-                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                 .replace(/\n/g, '<br>');
-
-             switch(post.post_type) { 
-                 case 'photo': 
-                     postBody = ` ${displayContent ? `<div class="px-4 pb-3 text-gray-800">${displayContent}</div>` : ''} <img src="${post.media_url}" alt="Post media" class="w-full object-cover bg-gray-100 min-h-[200px]"> `; 
-                     break; 
-                 case 'poll': 
-                     const pollOptionsHtml = (post.poll_options || []).map((option, index) => { 
-                         return ` <button class="poll-option-button w-full text-left rounded-xl p-3 font-medium text-gray-900 relative transition-colors border border-gray-300 hover:bg-gray-100 cursor-pointer" data-post-id="${post.id}" data-option-index="${index}" > <div class="absolute inset-0 bg-primary-300/50 rounded-lg poll-bar-fg" style="width: 0%;"></div> <span class="relative z-10">${option.option} (0%)</span> </button> `; 
-                     }).join(''); 
-                     postBody = ` <div class="px-4 pb-3 font-semibold text-lg text-gray-900">${displayContent}</div> <div class="px-4 pb-4 space-y-3 poll-options-container" data-post-id="${post.id}">${pollOptionsHtml}</div> `; 
-                     setTimeout(() => { 
-                         const container = document.querySelector(`.poll-options-container[data-post-id="${post.id}"]`); 
-                         if(container) updatePollUI(post.id, container, userVotedIndex); 
-                     }, 0); 
-                     break; 
-                 case 'text': 
-                 case 'anonymous':
-                 default: 
-                     postBody = `<div class="px-4 py-2 pb-4 text-gray-800 text-base">${displayContent}</div>`; 
-                     break;
-             } 
-             const headerClass = post.is_anonymous ? 'bg-gray-800' : 'bg-white'; 
-             const subText = post.is_anonymous ? 'text-gray-400' : 'text-gray-500'; 
-             
-             return ` 
-             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden post-item-enter" id="post-${post.id}"> 
-                 <div class="flex items-center space-x-3 p-4 ${headerClass}"> 
-                     ${authorAvatar} 
-                     <div class="flex-1"> 
-                         ${authorNameHtml} 
-                         ${tickHtml} <p class="text-xs ${subText}">${postTimestamp}</p> 
-                     </div> 
-                     ${deleteButtonHtml} </div> 
-                 ${postBody} 
-                 <div class="flex justify-around border-t border-gray-100"> 
-                     <button class="like-button flex-1 flex justify-center items-center space-x-2 p-3 hover:bg-red-50 transition-colors ${likeClass}" data-post-id="${post.id}" data-liked="${isLiked}"> 
-                         <i data-feather="heart" class="engagement-icon ${isLiked ? 'fill-current' : ''}"></i> 
-                         <span class="like-count text-sm font-medium">${post.like_count}</span> 
-                     </button> 
-                     <button class="toggle-comments-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> 
-                         <i data-feather="message-square" class="engagement-icon"></i> 
-                         <span class="comment-count text-sm font-medium">${post.comment_count}</span> 
-                     </button> 
-                     <button class="share-button flex-1 flex justify-center items-center space-x-2 p-3 text-gray-600 hover:bg-gray-50 hover:text-primary-600 transition-colors" data-post-id="${post.id}"> 
-                         <i data-feather="share-2" class="engagement-icon"></i> 
-                         <span class="text-sm font-medium">Share</span> 
-                     </button> 
-                 </div> 
-                 <div id="comments-section-${post.id}" class="hidden p-4 border-t border-gray-100 space-y-3"> 
-                     <div id="comments-list-${post.id}" class="space-y-3 max-h-60 overflow-y-auto no-scrollbar"> 
-                         <p class="text-sm text-gray-500">Loading comments...</p> 
-                     </div> 
-                     <div class="flex items-center space-x-2 pt-2 border-t border-gray-100"> 
-                         <img src="${currentUserProfile?.img || `https://placehold.co/32x32/A8E063/305B1C?text=${currentUserProfile?.name ? currentUserProfile.name.charAt(0) : 'U'}`}" alt="You" class="w-8 h-8 rounded-full bg-gray-200 object-cover"> 
-                         <input type="text" id="comment-input-${post.id}" placeholder="Write a comment..." class="flex-1 bg-gray-100 rounded-full py-2 px-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary-600"> 
-                         <button class="comment-submit-button p-2 text-primary-600 hover:bg-primary-50 rounded-full" data-post-id="${post.id}"> 
-                             <i data-feather="send" class="w-5 h-5"></i> 
-                         </button> 
-                     </div> 
-                 </div> 
-             </div> 
-             `;
-        }
-
-        // --- 8. LIKE/UNLIKE LOGIC ---
-        async function toggleLike(postId, isLiked, buttonElement) { 
-             if (!currentAuthUser || buttonElement.disabled) return; 
-             buttonElement.disabled = true; 
-             const likeIcon = buttonElement.querySelector('svg.feather-heart'); 
-             const countSpan = buttonElement.querySelector('.like-count');
-             let currentCount = parseInt(countSpan.textContent);
-              if (isLiked) { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = Math.max(0, currentCount - 1); } 
-              else { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount + 1; }
-             try { if (isLiked) { const { error } = await _supabase.from('likes').delete().match({ user_id: currentAuthUser.id, post_id: postId }); if (error) throw error; } 
-                   else { const { error } = await _supabase.from('likes').insert({ user_id: currentAuthUser.id, post_id: postId }); if (error && error.code !== '23505') throw error; }
-             } catch (error) { console.error("Error toggling like in DB:", error.message);
-                  if (isLiked) { buttonElement.dataset.liked = 'true'; buttonElement.classList.add('liked', 'text-red-500'); buttonElement.classList.remove('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'currentColor'; countSpan.textContent = currentCount; } 
-                  else { buttonElement.dataset.liked = 'false'; buttonElement.classList.remove('liked', 'text-red-500'); buttonElement.classList.add('text-gray-600'); if (likeIcon) likeIcon.style.fill = 'none'; countSpan.textContent = currentCount; }
-             } finally { setTimeout(() => { buttonElement.disabled = false; }, 300); }
-        }
-
-        // --- 9. HELPER: Time Ago ---
-        function formatTimeAgo(dateString) { 
-              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
-        }
-
-        // --- 10 & 11. REALTIME LIKE ---
-        function subscribeToLikeChanges() { 
-             if (likesSubscription) { _supabase.removeChannel(likesSubscription); }
-             likesSubscription = _supabase.channel('public:likes').on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, handleRealtimeLikeUpdate).subscribe();
-        }
-        function handleRealtimeLikeUpdate(payload) { 
-              const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'likes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const userId = record.user_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const likeButton = postElement.querySelector(`.like-button[data-post-id="${postId}"]`); const countSpan = likeButton?.querySelector('.like-count'); const likeIcon = likeButton?.querySelector('svg.feather-heart'); if (!likeButton || !countSpan || !likeIcon) return; 
-              (async () => { try { const { data, error } = await _supabase.from('posts').select('like_count').eq('id', postId).single(); if (error) throw error; if (data) { countSpan.textContent = data.like_count; } if (userId === currentAuthUser?.id) { const isNowLiked = eventType === 'INSERT'; likeButton.dataset.liked = isNowLiked.toString(); likeButton.classList.toggle('liked', isNowLiked); likeButton.classList.toggle('text-red-500', isNowLiked); likeButton.classList.toggle('text-gray-600', !isNowLiked); likeIcon.style.fill = isNowLiked ? 'currentColor' : 'none'; } } catch(err) { console.error("Error fetching updated like count:", err); } })();
-        }
-
-        // --- 12 & 13. POLL VOTE LOGIC ---
-        async function handlePollVote(postId, optionIndex, optionsContainer, clickedButton) { 
-             if (!currentAuthUser) return;
-             const isCurrentlySelected = clickedButton.classList.contains('border-primary-600');
-             let operation = 'upsert'; 
-             if (isCurrentlySelected) { operation = 'delete'; }
-             optionsContainer.querySelectorAll('.poll-option-button').forEach(btn => btn.disabled = true);
-             try {
-                 if (operation === 'delete') {
-                     const { error: deleteError } = await _supabase.from('poll_votes').delete().match({ post_id: postId, user_id: currentAuthUser.id });
-                     if (deleteError) throw deleteError;
-                     await updatePollUI(postId, optionsContainer, null); 
-                 } else {
-                     const { error: upsertError } = await _supabase.from('poll_votes').upsert({ post_id: postId, user_id: currentAuthUser.id, selected_option_index: optionIndex }, { onConflict: 'post_id, user_id' });
-                     if (upsertError) throw upsertError;
-                     await updatePollUI(postId, optionsContainer, optionIndex); 
-                 }
-             } catch (error) { 
-                 console.error(`Error performing poll vote ${operation}:`, error.message); 
-                 showToast(`Could not ${operation === 'delete' ? 'remove' : 'record'} your vote.`, 'error');
-                 await updatePollUI(postId, optionsContainer, null); 
-             } 
-        }
-        async function updatePollUI(postId, optionsContainer, userVotedIndex = null) { 
-              if (!optionsContainer) return; try { const { data: votes, error: countError } = await _supabase.from('poll_votes').select('selected_option_index, user_id').eq('post_id', postId); if (countError) throw countError; const totalVotes = votes.length; const voteCounts = {}; let currentUserActualVoteIndex = null; votes.forEach(vote => { voteCounts[vote.selected_option_index] = (voteCounts[vote.selected_option_index] || 0) + 1; if(vote.user_id === currentAuthUser?.id) { currentUserActualVoteIndex = vote.selected_option_index; } }); currentUserActualVoteIndex = currentUserActualVoteIndex ?? userVotedIndex; optionsContainer.querySelectorAll('.poll-option-button').forEach(button => { const idx = parseInt(button.dataset.optionIndex); const votesForOption = voteCounts[idx] || 0; const percentage = totalVotes > 0 ? Math.round((votesForOption / totalVotes) * 100) : 0; button.querySelector('.poll-bar-fg').style.width = `${percentage}%`; const originalOptionText = button.querySelector('.relative.z-10').textContent.split('(')[0].trim(); button.querySelector('.relative.z-10').textContent = `${originalOptionText} (${percentage}%)`; const isSelectedByCurrentUser = currentUserActualVoteIndex === idx; button.disabled = false; button.classList.add('hover:bg-gray-100', 'cursor-pointer'); button.classList.toggle('border-2', isSelectedByCurrentUser); button.classList.toggle('border-primary-600', isSelectedByCurrentUser); button.classList.toggle('bg-primary-100', isSelectedByCurrentUser); button.classList.toggle('border', !isSelectedByCurrentUser); button.classList.toggle('border-gray-300', !isSelectedByCurrentUser); }); } catch (error) { console.error(`Error updating poll UI for post ${postId}:`, error.message); }
-        }
-
-        // --- 14. COMMENTS LOGIC ---
-        async function toggleCommentsSection(postId) { 
-              const commentsSection = document.getElementById(`comments-section-${postId}`); const commentsList = document.getElementById(`comments-list-${postId}`); if (!commentsSection || !commentsList) return; const isHidden = commentsSection.classList.contains('hidden'); if (isHidden) { commentsSection.classList.remove('hidden'); commentsList.innerHTML = '<p class="text-sm text-gray-500">Loading comments...</p>'; feather.replace(); try { const { data: comments, error } = await _supabase.from('comments').select(`id, content, created_at, user_id, users:user_id (name, img, tick)`).eq('post_id', postId).is('parent_comment_id', null).order('created_at', { ascending: true }); if (error) throw error; renderComments(postId, comments); } catch (error) { console.error("Error fetching comments:", error.message); commentsList.innerHTML = '<p class="text-sm text-red-500">Error loading comments.</p>'; } } else { commentsSection.classList.add('hidden'); }
-        }
-        function renderComments(postId, comments) { 
-             const commentsList = document.getElementById(`comments-list-${postId}`); 
-             if (!commentsList) return; 
-             if (comments.length === 0) { 
-                 commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>'; 
-                 return; 
-             } 
-             commentsList.innerHTML = comments.map(comment => { 
-                 const commenterName = comment.users?.name || 'Unknown User'; 
-                 const commenterAvatar = comment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; 
-                 const commentTime = formatTimeAgo(comment.created_at); 
-                 const deleteButtonHtml = (comment.user_id === currentUserProfile?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${comment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : ''; 
-                 let commenterTickHtml = ''; 
-                 const commenterTickType = comment.users?.tick?.toLowerCase(); 
-                 if (commenterTickType && tickImages[commenterTickType]) { 
-                     commenterTickHtml = `<img src="${tickImages[commenterTickType]}" alt="${commenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
-                 }
-                 return ` 
-                   <div class="comment-item flex items-start space-x-2" data-comment-id="${comment.id}"> 
-                       <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> 
-                       <div class="flex-1 bg-gray-100 rounded-xl p-2"> 
-                           <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> 
-                           ${commenterTickHtml} <p class="text-sm text-gray-700">${comment.content}</p> 
-                       </div> 
-                       <div class="flex items-center flex-shrink-0 self-center"> 
-                           <span class="text-xs text-gray-400">${commentTime}</span> 
-                           ${deleteButtonHtml} 
-                       </div> 
-                   </div> 
-                 `; 
-             }).join(''); 
-             feather.replace();
-        }
-        async function handleCommentSubmit(postId) { 
-              if (!currentAuthUser) return; const input = document.getElementById(`comment-input-${postId}`); const content = input.value.trim(); if (!content) return; const submitButton = document.querySelector(`.comment-submit-button[data-post-id="${postId}"]`); submitButton.disabled = true; const originalIconHTML = submitButton.innerHTML; submitButton.innerHTML = '<div class="spinner w-5 h-5 border-t-primary-600"></div>'; try { const { data: newComment, error } = await _supabase.from('comments').insert({ post_id: postId, user_id: currentUserProfile.id, content: content }).select(`*, users:user_id (name, img, tick)`).single(); if (error) throw error; const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList) { const noComments = commentsList.querySelector('p'); if (noComments && commentsList.children.length <= 1) { commentsList.innerHTML = ''; } const commenterName = newComment.users?.name || 'Unknown User'; const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`; const commentTime = formatTimeAgo(newComment.created_at); const deleteButtonHtml = `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>`; 
-                   let newCommenterTickHtml = ''; 
-                   const newCommenterTickType = newComment.users?.tick?.toLowerCase(); 
-                   if (newCommenterTickType && tickImages[newCommenterTickType]) { 
-                       newCommenterTickHtml = `<img src="${tickImages[newCommenterTickType]}" alt="${newCommenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
-                   }
-                  const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${newCommenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; commentsList.insertAdjacentHTML('beforeend', newCommentHtml); commentsList.scrollTop = commentsList.scrollHeight; feather.replace(); } input.value = ''; const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = parseInt(countSpan.textContent) + 1; } } catch (error) { console.error("Error submitting comment:", error.message); showToast("Could not post comment.", "error"); } finally { submitButton.disabled = false; submitButton.innerHTML = originalIconHTML; const restoredIcon = submitButton.querySelector('i[data-feather="send"]'); if(restoredIcon) feather.replace({ 'data-feather': 'send'}); }
-        }
-        async function handleDeleteComment(commentId, postId, buttonElement) {
-             if (!currentAuthUser) return;
-             if (!confirm("Are you sure you want to delete this comment?")) return; 
-             buttonElement.disabled = true; const commentElement = buttonElement.closest('.comment-item'); 
-             try { const { error } = await _supabase.from('comments').delete().match({ id: commentId, user_id: currentUserProfile.id }); if (error) throw error;
-                 if (commentElement) { commentElement.style.opacity = '0'; commentElement.style.transition = 'opacity 0.3s ease-out'; setTimeout(() => { commentElement.remove(); const commentsList = document.getElementById(`comments-list-${postId}`); if (commentsList && commentsList.children.length === 0) { commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>'; } }, 300); }
-                 const countSpan = document.querySelector(`#post-${postId} .comment-count`); if (countSpan) { countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1); }
-                  showToast("Comment deleted", "success");
-             } catch (error) { 
-                 console.error("Error deleting comment:", error.message); 
-                 showToast("Could not delete comment.", "error");
-                 buttonElement.disabled = false; 
-             }
-        }
-
-        // --- 15. DELETE POST LOGIC ---
-        async function handleDeletePost(postId, buttonElement) {
-            if (!currentAuthUser) return;
-            if (!confirm("Are you sure you want to delete this post? This action cannot be undone.")) return;
-            buttonElement.disabled = true;
-            const postElement = document.getElementById(`post-${postId}`);
-            try {
-                const { error } = await _supabase
-                    .from('posts')
-                    .delete()
-                    .match({ id: postId });
-                if (error) throw error;
-                showToast("Post deleted successfully.", "success");
-                if (postElement) {
-                    postElement.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
-                    postElement.style.opacity = '0';
-                    postElement.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        postElement.remove();
-                        if (feedContainer.querySelectorAll('div[id^="post-"]').length === 0) {
-                            feedContainer.innerHTML = `<p class="text-center text-gray-500">No posts yet.</p>`;
-                        }
-                    }, 300);
+            if (cachedData) {
+                console.log("Loading dashboard from cache.");
+                currentUserProfile = cachedData.profile; // Set global profile from cache
+                currentDashboardData = JSON.stringify(cachedData);
+                updateDashboardUI(cachedData); // Update UI from cache
+                populateSidebar(cachedData.profile); // Populate sidebar from cache
+                
+                // *** NEW: Fetch dynamic data using cached profile ***
+                if (cachedData.profile) {
+                    fetchAndDisplayRoles(cachedData.profile.id); // Use public ID (student_id)
+                    fetchAndDisplayLectures(cachedData.profile.course);
+                    fetchAndDisplayEvents();
                 }
+
+                hideShimmerShowApp(0); // Show content immediately
+                isCacheRendered = true;
+            } else {
+                // No cache, shimmer is already visible
+            }
+
+            try {
+                // Fetch fresh profile data
+                const { data: profileData, error: profileError } = await _supabase
+                    .from('users')
+                    .select('id, auth_id, name, img, tick, course, friend_count') // Added img, tick for sidebar
+                    .eq('auth_id', authId)
+                    .single();
+
+                if (profileError) throw profileError;
+                
+                // --- Placeholder: Fetch other dashboard data here if needed ---
+                const dashboardData = {
+                    profile: profileData,
+                    // recycledKg: 12.5, // Example
+                };
+                
+                // --- Log User Data (runs in background) ---
+                if (profileData) {
+                    logUserData(profileData); // Log fresh data
+                } else {
+                    console.warn("User profile data not found for logging.");
+                }
+
+                const newDataString = JSON.stringify(dashboardData);
+
+                if (!isCacheRendered || newDataString !== currentDashboardData) {
+                    console.log("Rendering fresh dashboard data.");
+                    currentUserProfile = dashboardData.profile; // Update global profile
+                    currentDashboardData = newDataString;
+                    updateDashboardUI(dashboardData);
+                    populateSidebar(dashboardData.profile); // Update sidebar
+
+                    // *** NEW: Fetch dynamic data using fresh profile ***
+                    if (dashboardData.profile) {
+                        fetchAndDisplayRoles(dashboardData.profile.id); // Use public ID (student_id)
+                        fetchAndDisplayLectures(dashboardData.profile.course);
+                        fetchAndDisplayEvents();
+                    }
+
+                    setCache(cacheKey, dashboardData, CACHE_TTL_MINUTES);
+                    if (!isCacheRendered) {
+                        hideShimmerShowApp(300); // Slight delay after fetch if no cache
+                    } else {
+                        feather.replace(); // Re-render icons if only updating UI
+                    }
+                } else {
+                     console.log("Dashboard cache is up-to-date.");
+                     if (!isCacheRendered) {
+                         hideShimmerShowApp(300); // Still need to show app if cache was expired but data is same
+                     }
+                }
+
             } catch (error) {
-                console.error("Error deleting post:", error.message);
-                showToast(`Error: ${error.message}`, 'error');
-                buttonElement.disabled = false;
+                console.error("Error fetching dashboard data:", error.message);
+                if (!isCacheRendered) {
+                    // Show error only if we couldn't load anything
+                    shimmerLoader.innerHTML = '<p class="text-center text-red-500 p-10">Could not load dashboard data.</p>';
+                }
+                 showToast("Could not refresh dashboard data.", "error");
             }
         }
 
-        // --- 16 & 17. SHARE LOGIC ---
-        async function handleShare(postId) {
-              const shareUrl = `${location.origin}/BirlaOne/post.html?id=${postId}`; const postElement = document.getElementById(`post-${postId}`); let shareText = `Check out this post on BirlaOne!`; if(postElement) { const contentP = postElement.querySelector('p.text-gray-800, div.text-gray-800'); if (contentP && contentP.textContent.trim().length > 0) { shareText = contentP.textContent.trim().substring(0, 100) + '...'; } } const shareData = { title: 'BirlaOne Post', text: shareText, url: shareUrl }; if (navigator.share) { try { await navigator.share(shareData); } catch (err) { if (err.name !== 'AbortError') { console.error('Error sharing:', err); showToast(`Could not share: ${err.message}`, 'error'); } } } else { fallbackCopyToClipboard(shareUrl); }
-        }
-        function fallbackCopyToClipboard(text) { 
-             copyToClipboard(text).then(() => { 
-                 showToast("Web Share not available. Link copied!", 'success');
-             }).catch(err => { 
-                 console.error('Failed to copy link: ', err); 
-                 showToast("Failed to copy link.", 'error');
-             }); 
-        }
-        function copyToClipboard(text) { 
-              return new Promise((resolve, reject) => { try { const listener = (e) => { e.clipboardData.setData('text/plain', text); e.preventDefault(); }; document.addEventListener('copy', listener); document.execCommand('copy'); document.removeEventListener('copy', listener); resolve(); } catch (err) { reject(err); } }); 
+        function updateDashboardUI(data) {
+            if (!data || !data.profile) return;
+            
+            // --- Update Main Cards ---
+            friendsCountValue.textContent = data.profile.friend_count ?? 0;
+            // Removed: academicScoreValue, netWorthValue
+            recycledValue.textContent = data.recycledKg ?? '--'; // Placeholder, update as needed
+
+            // --- Update Sections ---
+            // Placeholders are now set in their own fetch functions
+            // We can clear the "Loading..." text if we want, or let the functions do it.
+            // rolesBadgesContent.textContent = '';
+            // lecturesContent.textContent = '';
+            // activitiesContent.textContent = '';
         }
 
-        // --- 18 & 19. REALTIME POLL VOTE ---
-        function subscribeToPollVoteChanges() { 
-             if (pollVotesSubscription) { _supabase.removeChannel(pollVotesSubscription); }
-             pollVotesSubscription = _supabase.channel('public:poll_votes').on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, handleRealtimePollUpdate).subscribe();
-        }
-        function handleRealtimePollUpdate(payload) { 
-              const { eventType, new: newRecord, old: oldRecord, table } = payload; if (table !== 'poll_votes') return; const record = eventType === 'DELETE' ? oldRecord : newRecord; if (!record || !record.post_id) return; const postId = record.post_id; const postElement = document.getElementById(`post-${postId}`); if (!postElement) return; const optionsContainer = postElement.querySelector(`.poll-options-container[data-post-id="${postId}"]`); if (optionsContainer) { updatePollUI(postId, optionsContainer, null); }
-        }
-
-        // --- 20 & 21. REALTIME COMMENTS ---
-        function subscribeToCommentChanges() {
-             if (commentsSubscription) { _supabase.removeChannel(commentsSubscription); }
-             commentsSubscription = _supabase.channel('public:comments')
-                 .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, handleRealtimeCommentUpdate)
-                 .subscribe();
-        }
-        function handleRealtimeCommentUpdate(payload) {
-             const { eventType, new: newRecord, old: oldRecord, table } = payload;
-             if (table !== 'comments') return; 
-             const record = eventType === 'DELETE' ? oldRecord : newRecord;
-             if (!record || !record.post_id) return;
-             const postId = record.post_id;
-             const commentId = record.id;
-             const postElement = document.getElementById(`post-${postId}`);
-             if (postElement) {
-                 const countSpan = postElement.querySelector('.comment-count');
-                 if (countSpan) {
-                     _supabase.from('posts').select('comment_count').eq('id', postId).single().then(({data, error}) => {
-                         if (!error && data) countSpan.textContent = data.comment_count;
-                     });
-                 }
+        // --- 7. LOG USER DATA ---
+        async function logUserData(userData) {
+             if (!userData || !userData.auth_id) {
+                 console.error("Cannot log data: User Auth ID is missing."); return;
              }
-             const commentsSection = document.getElementById(`comments-section-${postId}`);
-             if (commentsSection && !commentsSection.classList.contains('hidden')) {
-                 const commentsList = document.getElementById(`comments-list-${postId}`);
-                 const existingCommentElement = commentsList?.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
-                 if (eventType === 'INSERT' && !existingCommentElement) {
-                     _supabase.from('comments').select(`*, users:user_id (name, img, tick)`).eq('id', commentId).single().then(({data: newComment, error}) => {
-                         if (!error && newComment && commentsList) {
-                             const noComments = commentsList.querySelector('p');
-                             if (noComments && commentsList.children.length <= 1) { commentsList.innerHTML = ''; }
-                             const commenterName = newComment.users?.name || 'Unknown User'; 
-                             const commenterAvatar = newComment.users?.img || `https://placehold.co/32x32/DCEFD3/305B1C?text=${commenterName.charAt(0)}`;
-                             const commentTime = formatTimeAgo(newComment.created_at);
-                             const deleteButtonHtml = (newComment.user_id === currentUserProfile?.id) ? `<button class="delete-comment-button ml-2 text-red-500 hover:text-red-700" data-comment-id="${newComment.id}" data-post-id="${postId}" title="Delete comment"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : '';
-                             let commenterTickHtml = ''; 
-                             const commenterTickType = newComment.users?.tick?.toLowerCase(); 
-                             if (commenterTickType && tickImages[commenterTickType]) { 
-                                 commenterTickHtml = `<img src="${tickImages[commenterTickType]}" alt="${commenterTickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`; 
-                             }
-                             const newCommentHtml = ` <div class="comment-item flex items-start space-x-2" data-comment-id="${newComment.id}"> <img src="${commenterAvatar}" alt="${commenterName}" class="w-8 h-8 rounded-full bg-gray-200 mt-1 flex-shrink-0 object-cover"> <div class="flex-1 bg-gray-100 rounded-xl p-2"> <p class="font-semibold text-sm text-gray-800 inline">${commenterName}</p> ${commenterTickHtml} <p class="text-sm text-gray-700">${newComment.content}</p> </div> <div class="flex items-center flex-shrink-0 self-center"> <span class="text-xs text-gray-400">${commentTime}</span> ${deleteButtonHtml} </div> </div> `; 
-                             commentsList.insertAdjacentHTML('beforeend', newCommentHtml); 
-                             commentsList.scrollTop = commentsList.scrollHeight; 
-                             feather.replace();
-                         }
-                     });
-                 } else if (eventType === 'DELETE' && existingCommentElement) {
-                     existingCommentElement.style.opacity = '0';
-                     existingCommentElement.style.transition = 'opacity 0.3s ease-out';
-                     setTimeout(() => { 
-                         existingCommentElement.remove(); 
-                         if (commentsList && commentsList.children.length === 0) {
-                             commentsList.innerHTML = '<p class="text-sm text-gray-500">No comments yet.</p>';
-                         }
-                     }, 300);
-                 } 
-             }
+             try {
+                 const { error: logError } = await _supabase.from('logs').insert({
+                     time: new Date().toISOString(),
+                     user_id: userData.auth_id,
+                     Name: userData.name || 'N/A',
+                     course: userData.course || 'N/A',
+                 });
+                 if (logError) { console.error("Error inserting into logs table:", logError.message); } 
+                 else { console.log("User data logged successfully."); }
+             } catch (error) { console.error("Exception during logging:", error.message); }
         }
 
-        // --- UPDATED SIDEBAR FUNCTIONS ---
+        // --- 8. SIDEBAR FUNCTIONS (Copied from feed.html fixes) ---
         function setupSidebarListeners() {
-            if (!sidebarToggleBtn) return;
+            if (!sidebarToggleBtn || !sidebarBackdrop || !logoutBtn || !themeToggle) {
+                console.warn("Sidebar elements not found, listeners not attached.");
+                return;
+            }
             sidebarToggleBtn.addEventListener('click', openSidebar);
             sidebarBackdrop.addEventListener('click', closeSidebar);
             logoutBtn.addEventListener('click', handleLogout);
@@ -1032,31 +830,24 @@
         }
 
         function openSidebar() {
-            closeNotificationPanel();
+            closeNotificationPanel(); // Close notifications if open
             if (!sidebar || !sidebarBackdrop) return;
-
-            sidebar.classList.remove('closing');
-            sidebar.classList.add('active', 'opening');
+            sidebar.classList.remove('hidden');
             sidebarBackdrop.classList.remove('hidden');
-            sidebarBackdrop.classList.add('fade-in');
-
-            sidebar.addEventListener('animationend', () => {
-              sidebar.classList.remove('opening');
-            }, { once: true });
-            
-            feather.replace();
+            requestAnimationFrame(() => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+            feather.replace(); // Ensure icons are rendered
         }
 
         function closeSidebar() {
             if (!sidebar || !sidebarBackdrop) return;
-
-            sidebar.classList.remove('opening');
-            sidebar.classList.add('closing');
+            sidebar.classList.add('-translate-x-full');
             sidebarBackdrop.classList.add('hidden');
-
-            sidebar.addEventListener('animationend', () => {
-              sidebar.classList.remove('active', 'closing');
-            }, { once: true });
+            // Optional: Add hidden class after transition for accessibility/performance
+            setTimeout(() => {
+                sidebar.classList.add('hidden');
+            }, 300);
         }
 
         async function handleLogout() {
@@ -1122,154 +913,422 @@
                          correctLevel : QRCode.CorrectLevel.H
                      });
                  } catch (e) {
-                      console.error("Error generating QR code:", e);
-                      qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
+                     console.error("Error generating QR code:", e);
+                     qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
                  }
             } else {
                 qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID available for QR code.</p>';
             }
         }
 
-        // --- THEME TOGGLE FUNCTIONS ---
-        function initializeTheme() {
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                if (themeToggle) themeToggle.checked = true;
-            } else {
-                document.documentElement.classList.remove('dark');
-                if (themeToggle) themeToggle.checked = false;
-            }
+
+        // --- 9. NOTIFICATION FUNCTIONS ---
+        function setupNotificationListeners() {
+            if (!notificationBellBtn || !closeNotificationPanelBtn || !markAllReadBtn || !notificationBackdrop) return;
+            notificationBellBtn.addEventListener('click', toggleNotificationPanel);
+            closeNotificationPanelBtn.addEventListener('click', closeNotificationPanel);
+            markAllReadBtn.addEventListener('click', markAllAsRead);
+            notificationBackdrop.addEventListener('click', closeNotificationPanel);
         }
-        function handleThemeToggle(e) {
-            if (e.target.checked) {
-                document.documentElement.classList.add('dark');
-                localStorage.theme = 'dark';
+
+        function toggleNotificationPanel() {
+            const isHidden = notificationPanel.classList.contains('hidden');
+            if (isHidden) {
+                closeSidebar(); // Close sidebar if open
+                openNotificationPanel();
+                fetchNotifications();
             } else {
-                document.documentElement.classList.remove('dark');
-                localStorage.theme = 'light';
+                closeNotificationPanel();
             }
         }
 
-        // --- NOTIFICATION FUNCTIONS ---
-        function setupNotificationListeners() {
-             if (!notificationBellBtn) return;
-             notificationBellBtn.addEventListener('click', toggleNotificationPanel);
-             closeNotificationPanelBtn.addEventListener('click', closeNotificationPanel);
-             markAllReadBtn.addEventListener('click', markAllAsRead);
-             notificationBackdrop.addEventListener('click', closeNotificationPanel);
+        function openNotificationPanel() {
+             if (!notificationPanel || !notificationBackdrop) return;
+            notificationPanel.classList.remove('hidden');
+            notificationBackdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                notificationPanel.classList.remove('translate-x-full');
+            });
         }
-        function toggleNotificationPanel() {
-             const isHidden = notificationPanel.classList.contains('hidden');
-             if (isHidden) { 
-                closeSidebar();
-                openNotificationPanel(); 
-                fetchNotifications(); 
-            } else { 
-                closeNotificationPanel(); 
+
+        function closeNotificationPanel() {
+             if (!notificationPanel || !notificationBackdrop) return;
+            notificationPanel.classList.add('translate-x-full');
+            notificationBackdrop.classList.add('hidden');
+            setTimeout(() => {
+                notificationPanel.classList.add('hidden');
+            }, 300);
+        }
+
+        async function fetchUnreadCount() {
+            if (!currentAuthUser) return;
+            try {
+                const { data, error } = await _supabase.rpc('get_unread_notifications_count');
+                if (error) throw error;
+                updateBadge(data);
+            } catch (error) {
+                console.error("Error fetching unread count:", error.message);
             }
         }
-        function openNotificationPanel() {
-             notificationPanel.classList.remove('hidden'); notificationBackdrop.classList.remove('hidden'); requestAnimationFrame(() => { notificationPanel.classList.remove('translate-x-full'); });
-        }
-        function closeNotificationPanel() {
-             notificationPanel.classList.add('translate-x-full'); notificationBackdrop.classList.add('hidden'); setTimeout(() => { notificationPanel.classList.add('hidden'); }, 300);
-        }
-        async function fetchUnreadCount() {
-             if (!currentAuthUser) return; try { const { data, error } = await _supabase.rpc('get_unread_notifications_count'); if (error) throw error; updateBadge(data); } catch (error) { console.error("Error fetching unread count:", error.message); }
-        }
+
         async function fetchNotifications() {
-             if (!currentAuthUser) return; notificationsLoading.style.display = 'block'; noNotifications.style.display = 'none'; notificationList.innerHTML = ''; try { const { data, error } = await _supabase.rpc('get_my_notifications'); if (error) throw error; notificationsLoading.style.display = 'none'; if (!data || data.length === 0) { noNotifications.style.display = 'block'; } else { renderNotifications(data); } } catch (error) { console.error("Error fetching notifications:", error.message); notificationsLoading.style.display = 'none'; notificationList.innerHTML = '<p class="text-center text-red-500 py-4">Could not load notifications.</p>'; }
+            if (!currentAuthUser) return;
+            if (!notificationsLoading || !noNotifications || !notificationList) return;
+            notificationsLoading.style.display = 'block';
+            noNotifications.style.display = 'none';
+            notificationList.innerHTML = ''; 
+
+            try {
+                const { data, error } = await _supabase.rpc('get_my_notifications');
+                if (error) throw error;
+                notificationsLoading.style.display = 'none';
+                 if (!data || (Array.isArray(data) && data.length === 0)) {
+                     noNotifications.style.display = 'block';
+                 } else {
+                     renderNotifications(data);
+                 }
+            } catch (error) {
+                console.error("Error fetching notifications:", error.message);
+                notificationsLoading.style.display = 'none';
+                notificationList.innerHTML = '<p class="text-center text-red-500 py-4">Could not load notifications.</p>';
+            }
         }
+
         function renderNotifications(notifications) {
-             notificationList.innerHTML = '';
-             const localTickImages = { blue: "https://i.ibb.co/kgJpMCHr/blue.png", silver: "https://i.ibb.co/gLJLF9Z2/silver.png", gold: "https://i.ibb.co/Q2C7MrM/gold.png", black: "https://i.ibb.co/zVNSNzrK/black.png", green: "https://i.ibb.co/SXGL4Nq0/green.png" };
-             notifications.forEach((notif, index) => {
+            if (!notificationList) return;
+            notificationList.innerHTML = '';
+            const localTickImages = tickImages; // Use global tickImages
+            const notificationsArray = Array.isArray(notifications) ? notifications : (notifications ? [notifications] : []);
+
+            notificationsArray.forEach((notif, index) => {
+                 if (!notif) return;
                  const div = document.createElement('div');
-                 div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors notification-item-enter ${!notif.is_read ? 'bg-primary-50' : 'bg-white'} hover:bg-gray-100`;
-                 div.dataset.notificationId = notif.id;
-                 const senderAvatar = notif.sender_img
-                     ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">`
-                     : `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">?</div>`;
-                 const tickType = notif.sender_tick?.toLowerCase();
-                 const tickHtml = (tickType && localTickImages[tickType])
-                         ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">`
-                         : '';
-                 const timeAgo = formatTimeAgo(notif.created_at);
-                 const contentHtml = `
-                     <p class="text-sm text-gray-800">
-                         ${notif.sender_name ? `<strong class="font-medium">${notif.sender_name}</strong>${tickHtml} ` : ''}
-                         ${notif.content_preview || `Notification type: ${notif.type}`}
-                     </p>
-                     <p class="text-xs text-gray-500 mt-0.5">${timeAgo}</p>
-                 `;
-                 const isDirectLink = notif.link && !notif.link.includes('myprofile.html'); 
-                 const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">'; 
-                 const linkWrapperEnd = isDirectLink ? '</a>' : '</div>';
-                 div.innerHTML = `
-                     ${senderAvatar}
-                     ${linkWrapperStart}
-                         ${contentHtml}
-                     ${linkWrapperEnd}
-                     ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
-                 `;
-                 div.addEventListener('click', (e) => {
-                     if (isDirectLink && !e.target.closest('.w-2.h-2')) {
-                         markSingleAsRead(notif.id); 
-                     } else {
-                          if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
-                               window.location.href = notif.link;
-                          }
-                          if (!notif.is_read) {
-                             markSingleAsRead(notif.id, div);
-                          }
-                     }
-                 });
-                 notificationList.appendChild(div);
-                 setTimeout(() => {
-                    requestAnimationFrame(() => { 
-                        div.classList.add('notification-item-enter-active'); 
-                    });
-                 }, index * 30);
-             });
-             feather.replace();
+                div.className = `notification-item p-3 rounded-lg flex items-start space-x-3 transition-colors notification-item-enter ${!notif.is_read ? 'bg-primary-50 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'} hover:bg-gray-100 dark:hover:bg-gray-700`;
+                div.dataset.notificationId = notif.id;
+                const senderAvatar = notif.sender_img
+                    ? `<img src="${notif.sender_img}" alt="${notif.sender_name || 'User'}" class="w-8 h-8 rounded-full flex-shrink-0 bg-gray-200 object-cover">`
+                    : `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0 text-sm">?</div>`;
+                const tickType = notif.sender_tick?.toLowerCase();
+                const tickHtml = (tickType && localTickImages[tickType]) ? `<img src="${localTickImages[tickType]}" alt="${tickType} tick" class="post-tick-mark ml-1 inline-block w-3 h-3">` : '';
+                const timeAgo = formatTimeAgo(notif.created_at);
+                const contentHtml = `
+                    <p class="text-sm text-gray-800 dark:text-gray-200">
+                        ${notif.sender_name ? `<strong class="font-medium">${notif.sender_name}</strong>${tickHtml} ` : ''}
+                        ${notif.content_preview || `Notification type: ${notif.type}`}
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${timeAgo}</p>
+                `;
+                const isDirectLink = notif.link && !notif.link.includes('myprofile.html');
+                const linkWrapperStart = isDirectLink ? `<a href="${notif.link}" class="block flex-1">` : '<div class="flex-1 cursor-pointer">';
+                const linkWrapperEnd = isDirectLink ? '</a>' : '</div>';
+                div.innerHTML = `
+                    ${senderAvatar}
+                    ${linkWrapperStart}${contentHtml}${linkWrapperEnd}
+                    ${!notif.is_read ? '<div class="w-2 h-2 bg-primary-500 rounded-full mt-1 flex-shrink-0 self-center" title="Unread"></div>' : ''}
+                `;
+                div.addEventListener('click', (e) => {
+                    if (isDirectLink && !e.target.closest('.w-2.h-2')) { markSingleAsRead(notif.id); } 
+                    else {
+                         if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
+                             if (!window.location.pathname.endsWith('myprofile.html')) { window.location.href = notif.link; }
+                         }
+                         if (!notif.is_read) { markSingleAsRead(notif.id, div); }
+                    }
+                });
+                notificationList.appendChild(div);
+                setTimeout(() => { requestAnimationFrame(() => { div.classList.add('notification-item-enter-active'); }); }, index * 30);
+            });
+            feather.replace();
         }
+
         async function markSingleAsRead(notificationId, elementToUpdate = null) {
-             if (!currentAuthUser) return;
-             const notificationElement = elementToUpdate || notificationList.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
-             const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
-             if (!unreadDot) return; 
+            if (!currentAuthUser) return;
+            const notificationElement = elementToUpdate || notificationList?.querySelector(`.notification-item[data-notification-id="${notificationId}"]`);
+            const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
+            if (!unreadDot) return;
             try {
                 const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
                 if (error) throw error;
                 if (notificationElement) {
-                    notificationElement.classList.remove('bg-primary-50');
-                    notificationElement.classList.add('bg-white');
+                    notificationElement.classList.remove('bg-primary-50', 'dark:bg-gray-700');
+                    notificationElement.classList.add('bg-white', 'dark:bg-gray-800');
                     unreadDot.remove();
                 }
-                fetchUnreadCount();
+                fetchUnreadCount(); // Update badge count
             } catch (error) {
                 console.error("Error marking notification read:", error.message);
                 showToast("Could not mark notification as read.", 'error');
             }
         }
+
         async function markAllAsRead() {
-             if (!currentAuthUser) return; setButtonLoading(markAllReadBtn, true); try { const { error } = await _supabase.rpc('mark_all_notifications_read'); if (error) throw error; notificationList.querySelectorAll('.notification-item.bg-primary-50').forEach(el => { el.classList.remove('bg-primary-50'); el.classList.add('bg-white'); const unreadDot = el.querySelector('.w-2.h-2.bg-primary-500'); if (unreadDot) unreadDot.remove(); }); updateBadge(0); showToast("All notifications marked as read.", 'success'); } catch (error) { console.error("Error marking all notifications read:", error.message); showToast("Could not mark all as read.", 'error'); } finally { setButtonLoading(markAllReadBtn, false); }
+            if (!currentAuthUser || !markAllReadBtn) return;
+            setButtonLoading(markAllReadBtn, true);
+            try {
+                const { error } = await _supabase.rpc('mark_all_notifications_read');
+                if (error) throw error;
+                notificationList?.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
+                    el.classList.remove('bg-primary-50', 'dark:bg-gray-700');
+                    el.classList.add('bg-white', 'dark:bg-gray-800');
+                    el.querySelector('.w-2.h-2.bg-primary-500')?.remove();
+                });
+                updateBadge(0);
+                showToast("All notifications marked as read.", 'success');
+            } catch (error) {
+                console.error("Error marking all notifications read:", error.message);
+                showToast("Could not mark all as read.", 'error');
+            } finally {
+                setButtonLoading(markAllReadBtn, false);
+            }
         }
+
         function setupRealtimeNotifications() {
-              if (!currentAuthUser) return; if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } notificationSubscription = _supabase .channel('public:notifications') .on( 'postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => { console.log('New notification received:', payload.new); fetchUnreadCount(); showToast(payload.new.content_preview || 'You have a new notification!', 'success'); if (!notificationPanel.classList.contains('hidden')) { fetchNotifications(); } } ) .subscribe(); window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
+             if (!currentAuthUser) return;
+             if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
+             notificationSubscription = _supabase.channel('public:notifications')
+                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => {
+                     console.log('New notification received:', payload.new);
+                     fetchUnreadCount();
+                     showToast(payload.new.content_preview || 'You have a new notification!', 'success');
+                     if (notificationPanel && !notificationPanel.classList.contains('hidden')) { fetchNotifications(); }
+                 })
+                 .subscribe((status, err) => {
+                     if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
+                     if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
+                 });
+             window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
         }
+
         function updateBadge(count) {
-             if (!notificationBadge) return; if (count > 0) { notificationBadge.textContent = count > 9 ? '9+' : count; notificationBadge.classList.remove('hidden'); } else { notificationBadge.classList.add('hidden'); }
+             if (!notificationBadge) return;
+            if (count > 0) {
+                notificationBadge.textContent = count > 9 ? '9+' : count;
+                notificationBadge.classList.remove('hidden');
+            } else {
+                notificationBadge.classList.add('hidden');
+            }
         }
 
-        // --- Utility: Toast ---
-         function showToast(message, type = 'success') {
-             const toast = document.createElement('div'); const iconName = type === 'success' ? 'check-circle' : 'alert-circle'; toast.className = `toast toast-${type}`; toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`; toastContainer.appendChild(toast); feather.replace(); setTimeout(() => { toast.classList.add('show'); }, 10); setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove(), { once: true }); }, 3000);
-         }
+        // --- 10. NEW DYNAMIC CONTENT FUNCTIONS ---
+        
+        async function fetchAndDisplayRoles(studentId) {
+            if (!studentId || !rolesBadgesContent) return;
+            rolesBadgesContent.innerHTML = '<div class="spinner"></div>';
+            rolesBadgesContent.classList.add('italic', 'text-center');
 
-         // --- Utility: Button Loading ---
-         function setButtonLoading(buttonEl, isLoading, isSmall = false, iconName = null) {
-              buttonEl.disabled = isLoading; const textEl = buttonEl.querySelector('.button-text'); const spinnerEl = buttonEl.querySelector('.button-spinner'); if (isSmall) { const iconEl = buttonEl.querySelector('i[data-feather]'); if (isLoading) { if (iconEl) iconEl.style.display = 'none'; if (!spinnerEl) { const spinner = document.createElement('div'); spinner.className = 'spinner button-spinner w-5 h-5'; buttonEl.prepend(spinner); } else { spinnerEl.style.display = 'block'; } } else { const existingSpinner = buttonEl.querySelector('.button-spinner'); if (existingSpinner) existingSpinner.remove(); if (iconEl) { iconEl.style.display = 'block'; } else if (iconName) { buttonEl.innerHTML = `<i data-feather="${iconName}" class="w-5 h-5"></i>`; feather.replace(); } } } else { const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim(); if (isLoading) { buttonEl.dataset.originalText = originalText; buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>'; } else { buttonEl.innerHTML = originalText; delete buttonEl.dataset.originalText; feather.replace(); } }
+            try {
+                const { data: roles, error } = await _supabaseClassCount
+                    .from('roles')
+                    .select('role_type')
+                    .eq('student_id', studentId);
+
+                if (error) throw error;
+
+                if (!roles || roles.length === 0) {
+                    rolesBadgesContent.innerHTML = "No Roles Assigned";
+                    return;
+                }
+
+                let html = '<div class="flex flex-wrap gap-3 justify-center">';
+                roles.forEach(role => {
+                    const imgUrl = roleImages[role.role_type];
+                    if (imgUrl) {
+                        html += `<img src="${imgUrl}" alt="${role.role_type}" class="h-14 md:h-16 w-auto rounded-lg object-contain shadow-md" title="${role.role_type}">`;
+                    } else {
+                        // Fallback for roles without a specified image
+                        html += `<span class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full font-medium text-sm">${role.role_type}</span>`;
+                    }
+                });
+                html += '</div>';
+
+                rolesBadgesContent.innerHTML = html;
+                rolesBadgesContent.classList.remove('italic', 'text-center');
+
+            } catch (error) {
+                console.error("Error fetching roles:", error.message);
+                rolesBadgesContent.innerHTML = "Could not load roles.";
+            }
+        }
+
+        async function fetchAndDisplayLectures(userCourse) {
+            if (!userCourse || !lecturesContent) return;
+            lecturesContent.innerHTML = '<div class="spinner"></div>';
+            lecturesContent.classList.add('italic', 'text-center');
+
+            const now = new Date();
+            const today = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+            const currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
+
+            try {
+                const { data: lectures, error } = await _supabaseClassCount
+                    .from('lectures')
+                    .select('subject_name, prof_name, date, start_time, end_time')
+                    .eq('course', userCourse)
+                    .gte('date', today) // Get lectures from today onwards
+                    .order('date', { ascending: true })
+                    .order('start_time', { ascending: true });
+                
+                if (error) throw error;
+
+                // Filter out lectures from today that have already passed
+                const upcomingLectures = lectures.filter(lec => {
+                    if (lec.date > today) return true; // Future date is always upcoming
+                    return lec.start_time >= currentTime; // Check time if on the same day
+                });
+
+                if (!upcomingLectures || upcomingLectures.length === 0) {
+                    lecturesContent.innerHTML = "No Upcoming Lectures";
+                    return;
+                }
+
+                let html = '<div class="space-y-3">';
+                upcomingLectures.forEach(lec => {
+                    html += `
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl flex items-center space-x-4">
+                            <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 rounded-lg p-2.5 flex flex-col items-center justify-center w-16 text-center">
+                                <span class="font-bold text-sm uppercase">${formatDate(lec.date).split(', ')[0]}</span>
+                                <span class="font-extrabold text-2xl">${formatDate(lec.date).split(' ')[1]}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white truncate">${lec.subject_name}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${lec.prof_name}</p>
+                                <p class="text-sm font-medium text-primary-600 dark:text-primary-400 mt-1">
+                                    ${formatTime(lec.start_time)} - ${formatTime(lec.end_time)}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                lecturesContent.innerHTML = html;
+                lecturesContent.classList.remove('italic', 'text-center');
+                feather.replace();
+
+            } catch (error) {
+                console.error("Error fetching lectures:", error.message);
+                lecturesContent.innerHTML = "Could not load lectures.";
+            }
+        }
+
+        async function fetchAndDisplayEvents() {
+            if (!activitiesContent) return;
+            activitiesContent.innerHTML = '<div class="spinner"></div>';
+            activitiesContent.classList.add('italic', 'text-center');
+            
+            const now = new Date();
+            const today = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+            const currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
+
+            try {
+                const { data: events, error } = await _supabaseClassCount
+                    .from('events')
+                    .select('event_name, organizer_name, date, start_time, end_time')
+                    .gte('date', today) // Get events from today onwards
+                    .order('date', { ascending: true })
+                    .order('start_time', { ascending: true });
+
+                if (error) throw error;
+
+                // Filter out events from today that have already passed
+                const upcomingEvents = events.filter(evt => {
+                    if (evt.date > today) return true; // Future date is always upcoming
+                    return evt.start_time >= currentTime; // Check time if on the same day
+                });
+
+                if (!upcomingEvents || upcomingEvents.length === 0) {
+                    activitiesContent.innerHTML = "No Upcoming Activities";
+                    return;
+                }
+
+                let html = '<div class="space-y-3">';
+                upcomingEvents.forEach(evt => {
+                    html += `
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl flex items-center space-x-4">
+                            <div class="flex-shrink-0 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-lg p-2.5 flex flex-col items-center justify-center w-16 text-center">
+                                <span class="font-bold text-sm uppercase">${formatDate(evt.date).split(', ')[0]}</span>
+                                <span class="font-extrabold text-2xl">${formatDate(evt.date).split(' ')[1]}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white truncate">${evt.event_name}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${evt.organizer_name}</p>
+                                <p class="text-sm font-medium text-green-600 dark:text-green-400 mt-1">
+                                    ${formatTime(evt.start_time)}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                activitiesContent.innerHTML = html;
+                activitiesContent.classList.remove('italic', 'text-center');
+                feather.replace();
+
+            } catch (error) {
+                console.error("Error fetching events:", error.message);
+                activitiesContent.innerHTML = "Could not load activities.";
+            }
+        }
+
+
+        // --- 11. HELPER FUNCTIONS ---
+        function formatTimeAgo(dateString) {
+             const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
+        }
+
+        // *** NEW HELPER: Format time string (e.g., "13:30:00" -> "1:30 PM") ***
+        function formatTime(timeString) {
+            if (!timeString) return '';
+            try {
+                const [hours, minutes] = timeString.split(':');
+                const date = new Date();
+                date.setHours(hours);
+                date.setMinutes(minutes);
+                return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            } catch (e) {
+                return timeString; // Fallback
+            }
+        }
+
+        // *** NEW HELPER: Format date string (e.g., "2025-11-04" -> "Tue, 04 Nov") ***
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            try {
+                const date = new Date(dateString + 'T00:00:00'); // Assume local time
+                return date.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' });
+            } catch (e) {
+                return dateString; // Fallback
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            if (!toastContainer) return;
+            const toast = document.createElement('div');
+            const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i data-feather="${iconName}" class="toast-icon"></i><span class="font-medium">${message}</span>`;
+            toastContainer.appendChild(toast);
+            feather.replace();
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+            }, 3000);
+        }
+
+        function setButtonLoading(buttonEl, isLoading) {
+             if (!buttonEl) return;
+             buttonEl.disabled = isLoading;
+             const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
+             if (isLoading) {
+                 buttonEl.dataset.originalText = originalText;
+                 buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
+             } else {
+                 buttonEl.innerHTML = originalText;
+                 delete buttonEl.dataset.originalText;
+                 feather.replace(); 
+             }
         }
 
     </script>
