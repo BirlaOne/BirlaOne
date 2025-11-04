@@ -733,31 +733,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
 
                 // 1. Fetch Roles
+                // *** MODIFIED: 'role_type' to 'role' ***
                 const { data: rolesData, error: rolesError } = await _supabase2
                     .from('roles')
-                    .select('role_type')
+                    .select('role') 
                     .eq('student_id', studentId);
 
                 // 2. Fetch Lectures
+                // *** MODIFIED: 'data' to 'date' ***
                 const { data: lecturesData, error: lecturesError } = await _supabase2
                     .from('lectures')
-                    .select('subject_name, prof_name, data, start_time, end_time')
+                    .select('subject_name, prof_name, date, start_time, end_time')
                     .eq('course', userCourse)
-                    .gte('data', today) // 'data' is the column name, not 'date'
-                    .order('data', { ascending: true })
+                    .gte('date', today) 
+                    .order('date', { ascending: true })
                     .order('start_time', { ascending: true });
 
                 // 3. Fetch Events (Activities)
+                // *** MODIFIED: 'data' to 'date' ***
                 const { data: eventsData, error: eventsError } = await _supabase2
                     .from('events')
-                    .select('event_name, organizer_name, data, start_time, end_time')
-                    .gte('data', today) // 'data' is the column name
-                    .order('data', { ascending: true })
+                    .select('event_name, organizer_name, date, start_time, end_time')
+                    .gte('date', today) 
+                    .order('date', { ascending: true })
                     .order('start_time', { ascending: true });
                 
-                if (rolesError) console.error("Error fetching roles:", rolesError.message);
-                if (lecturesError) console.error("Error fetching lectures:", lecturesError.message);
-                if (eventsError) console.error("Error fetching events:", eventsError.message);
+                if (rolesError) {
+                    console.error("Error fetching roles:", rolesError.message);
+                    throw rolesError; // Throw to stop execution if query fails
+                }
+                if (lecturesError) {
+                    console.error("Error fetching lectures:", lecturesError.message);
+                    throw lecturesError;
+                }
+                if (eventsError) {
+                    console.error("Error fetching events:", eventsError.message);
+                    throw eventsError;
+                }
                 
                 // --- Combine all data ---
                 const dashboardData = {
@@ -796,7 +808,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error fetching dashboard data:", error.message);
                 if (!isCacheRendered) {
                     // Show error only if we couldn't load anything
-                    shimmerLoader.innerHTML = '<p class="text-center text-red-500 p-10">Could not load dashboard data.</p>';
+                    shimmerLoader.innerHTML = `<p class="text-center text-red-500 p-10">Could not load dashboard data. Check console.</p>`;
                 }
                  showToast("Could not refresh dashboard data.", "error");
             }
@@ -827,10 +839,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 data.roles.forEach(role => {
-                    let roleKey = role.role_type;
-                    if (roleKey === 'cr') roleKey = 'CR'; // Normalize from DB
+                    // *** MODIFIED: 'role_type' to 'role' ***
+                    let roleKey = role.role; 
+                    if (roleKey === 'cr') roleKey = 'CR'; // Normalize
                     
-                    const detail = roleDetails[roleKey] || { title: role.role_type, img: null, icon: 'award' };
+                    const detail = roleDetails[roleKey] || { title: role.role, img: null, icon: 'award' };
                     const subTitle = subtitleMap[roleKey] || detail.title; // Get subtitle
 
                     const card = document.createElement('div');
@@ -868,7 +881,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.className = 'space-y-3';
 
                 data.lectures.forEach(lecture => {
-                    const { month, day } = formatEventDate(lecture.data);
+                    // *** MODIFIED: 'data' to 'date' ***
+                    const { month, day } = formatEventDate(lecture.date);
                     const startTime = formatLectureTime(lecture.start_time);
                     const endTime = formatLectureTime(lecture.end_time);
 
@@ -902,7 +916,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.className = 'space-y-3';
 
                 data.activities.forEach(event => {
-                    const { month, day } = formatEventDate(event.data);
+                    // *** MODIFIED: 'data' to 'date' ***
+                    const { month, day } = formatEventDate(event.date);
                     const startTime = formatLectureTime(event.start_time);
                     const endTime = formatLectureTime(event.end_time);
 
