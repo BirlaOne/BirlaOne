@@ -341,7 +341,7 @@
                             <i data-feather="refresh-ccw" class="text-green-600 dark:text-green-400 h-5 w-5"></i>
                         </div>
                         <div>
-                            <span id="recycled-value" class="text-4xl font-bold text-gray-900 dark:text-white">0</span>
+                            <span id="recycled-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
                             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">kg</span>
                         </div>
                     </div>
@@ -561,11 +561,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentDashboardData = null; // Store stringified dashboard data for comparison
 
         // --- Role & Badge Mappings ---
-        // *** MODIFIED: Reverted to use image URLs as requested ***
         const roleDetails = {
             'CR': { title: 'CR', img: 'https://i.ibb.co/gLzWCL5v/image.png' },
             'cr': { title: 'CR', img: 'https://i.ibb.co/gLzWCL5v/image.png' },
             'GreenClub': { title: 'GreenClub', img: 'https://i.ibb.co/ycNjQ86Z/image-1.png' },
+            'Green Club': { title: 'Green Club', img: 'https://i.ibb.co/ycNjQ86Z/image-1.png' }, // Added entry for "Green Club"
             'NCC': { title: 'NCC', img: 'https://i.ibb.co/gMgsw8mf/image.png' },
             'NSS': { title: 'NSS', img: 'https://i.ibb.co/9HPmxFTk/image.png' },
             'Kalamandal': { title: 'Kalamandal', img: 'https://i.ibb.co/ymyYD80T/Whats-App-Image-2025-11-04-at-11-44-23.jpg' }
@@ -719,10 +719,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // Fetch fresh profile data from OLD project
-                // *** MODIFIED: Added recycled_kg to select ***
                 const { data: profileData, error: profileError } = await _supabase
                     .from('users')
-                    .select('id, auth_id, name, img, tick, course, friend_count, recycled_kg') 
+                    .select('id, auth_id, name, img, tick, course, friend_count') 
                     .eq('auth_id', authId)
                     .single();
 
@@ -735,9 +734,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const today = new Date().toISOString().split('T')[0]; 
 
                 // 1. Fetch Roles
+                // *** MODIFIED: Select 'title' and 'role' ***
                 const { data: rolesData, error: rolesError } = await _supabase2
                     .from('roles')
-                    .select('role') 
+                    .select('title, role') 
                     .eq('student_id', studentId);
 
                 // 2. Fetch Lectures
@@ -776,7 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     roles: rolesData || [],
                     lectures: lecturesData || [],
                     activities: eventsData || [],
-                    // Note: recycled_kg is now inside profileData
                 };
                 
                 // --- Log User Data (runs in background) ---
@@ -817,8 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // --- Update Main Cards ---
             friendsCountValue.textContent = data.profile.friend_count ?? 0;
-            // *** MODIFIED: Read from profile.recycled_kg, default to 0 ***
-            recycledValue.textContent = data.profile.recycled_kg ?? 0;
+            recycledValue.textContent = '--'; // Reverted to placeholder
 
             // --- 1. Render Roles & Badges ---
             if (data.roles && data.roles.length > 0) {
@@ -828,31 +826,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const scrollContainer = document.createElement('div');
                 scrollContainer.className = 'flex space-x-3 overflow-x-auto no-scrollbar pb-2';
                 
-                // Subtitle map for roles
-                const subtitleMap = {
-                    'CR': data.profile.course ? data.profile.course.toUpperCase() : 'Representative',
-                    'GreenClub': 'Green Club',
-                    'NCC': 'NCC Cadet',
-                    'NSS': 'NSS Volunteer',
-                    'Kalamandal': 'Kalamandal Member'
-                };
-
                 data.roles.forEach(role => {
-                    let roleKey = role.role; 
-                    if (roleKey === 'cr') roleKey = 'CR'; // Normalize
-                    
-                    // *** MODIFIED: Use image map from roleDetails ***
-                    const detail = roleDetails[roleKey] || { title: role.role, img: null };
-                    const subTitle = subtitleMap[roleKey] || detail.title; 
+                    // *** MODIFIED: Get title and subtitle from role object ***
+                    let roleTitle = role.title; // e.g., "CR", "Green Club"
+                    let roleSubTitle = role.role; // e.g., "SYBAF", "Co-ordinator"
+
+                    // Use the title to look up the image
+                    const detail = roleDetails[roleTitle] || { title: roleTitle, img: null };
 
                     const card = document.createElement('div');
-                    // *** MODIFIED: Use rounded-lg for card (from mock-up) ***
                     card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex items-center space-x-3 flex-shrink-0 w-auto min-w-[160px]';
 
-                    // *** MODIFIED: Build iconHTML using img tags ***
                     let iconHtml;
                     if (detail.img) {
-                        // Use rounded-full for the image itself
                         iconHtml = `<img src="${detail.img}" alt="${detail.title}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">`;
                     } else {
                         // Fallback to line art icon if no image URL found
@@ -861,11 +847,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                     </div>`;
                     }
 
+                    // *** MODIFIED: Use roleTitle and roleSubTitle ***
                     card.innerHTML = `
                         ${iconHtml}
                         <div class="flex-1 min-w-0">
-                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${detail.title}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${subTitle}</p>
+                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${roleTitle}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${roleSubTitle}</p>
                         </div>
                     `;
                     scrollContainer.appendChild(card);
@@ -892,7 +879,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = document.createElement('div');
                     card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
                     
-                    // Logic with divider (from previous fix)
                     card.innerHTML = `
                         <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
                             <span class="text-sm font-medium text-primary-600 dark:text-primary-400">${month}</span>
@@ -927,7 +913,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = document.createElement('div');
                     card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
                     
-                    // Logic with divider (from previous fix)
                     card.innerHTML = `
                         <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
                             <span class="text-sm font-medium text-green-600 dark:text-green-400">${month}</span>
@@ -1031,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const qrContainer = document.getElementById('sidebar-qr-code-img');
 
             if (!avatarEl || !nameEl || !tickContainer || !qrContainer) {
-                 console.warn("Sidebar profile elements not found.");
+                 console.warn("Sidebar elements not found.");
                  return;
             }
             if (!profileData) {
@@ -1254,7 +1239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateBadge(count) {
              if (!notificationBadge) return;
             if (count > 0) {
-                notificationBadge.textContent = count > 9 ? '9+' : '9+';
+                notificationBadge.textContent = count > 9 ? '9+' : count;
                 notificationBadge.classList.remove('hidden');
             } else {
                 notificationBadge.classList.add('hidden');
