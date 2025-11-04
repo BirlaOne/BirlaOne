@@ -62,7 +62,7 @@
     .notification-item-enter { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease; }
     .notification-item-enter-active { opacity: 1; transform: translateY(0); }
 
-    /* --- Shimmer Loader Styles --- */
+    /* --- Shimmer Loader Styles (Original) --- */
     .shimmer-wrapper {
         animation: shimmer 1.5s infinite linear;
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -226,8 +226,10 @@
     .dark .text-gray-400 { color: #9ca3af; }
     .dark .border-gray-100 { border-color: #374151; }
     .dark .border-gray-200 { border-color: #374151; }
+    .dark .border-gray-300 { border-color: #4b5563; }
     .dark .bg-gray-50 { background-color: #374151; }
     .dark .bg-gray-100 { background-color: #374151; }
+    .dark .bg-gray-200 { background-color: #374151; }
     .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
     .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
     .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
@@ -284,7 +286,7 @@
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-slate-800">
 
         <div id="shimmer-loader" class="absolute inset-0 z-50 bg-white dark:bg-gray-900 pt-20 pb-24 px-4 overflow-hidden">
-            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
+             <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-24 h-6 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
@@ -293,22 +295,28 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                     <div class="h-28 shimmer-wrapper rounded-2xl"></div>
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
+                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                 </div>
+                
                 <div>
                     <div class="h-5 w-1/3 shimmer-wrapper rounded-full mb-3"></div>
-                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
+                    <div class="flex space-x-3">
+                        <div class="w-32 h-16 shimmer-wrapper rounded-2xl"></div>
+                        <div class="w-32 h-16 shimmer-wrapper rounded-2xl"></div>
+                        <div class="w-32 h-16 shimmer-wrapper rounded-2xl"></div>
+                    </div>
                 </div>
+                
                 <div class="h-32 shimmer-wrapper rounded-2xl"></div>
+                
                 <div class="space-y-3">
                     <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
                     <div class="h-20 shimmer-wrapper rounded-2xl"></div>
-                </div>
-                <div class="space-y-3">
-                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
                     <div class="h-20 shimmer-wrapper rounded-2xl"></div>
                 </div>
             </div>
-            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
+             <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
@@ -335,6 +343,16 @@
             <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar bg-slate-50 dark:bg-gray-900">
                 
                 <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Academic Score</h2>
+                            <i data-feather="award" class="text-primary-600 dark:text-primary-400 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span id="academic-score-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ 100</span>
+                        </div>
+                    </div>
                     
                     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
                         <div class="flex justify-between items-center">
@@ -358,6 +376,16 @@
                         </div>
                     </div>
                     
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Net Worth</h2>
+                            <i data-feather="credit-card" class="text-indigo-500 dark:text-indigo-400 h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <span id="net-worth-value" class="text-4xl font-bold text-gray-900 dark:text-white">₹--</span>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Personal Wealth</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-3">
@@ -365,19 +393,25 @@
                         <i data-feather="star" class="text-yellow-500 dark:text-yellow-400"></i>
                         <span>Roles & Badges</span>
                     </h2>
-                    <div id="roles-badges-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center min-h-[5rem] flex items-center justify-center">
-                        Loading...
-                    </div>
+                    <div id="roles-badges-content" class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar min-h-[5rem] items-center">
+                        <div class="spinner"></div> </div>
                 </div>
+
+                <a href="#" class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-6 rounded-2xl flex justify-between items-center shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 dark:shadow-primary-900/30">
+                    <div>
+                        <h3 class="text-xl font-bold">BeAware</h3>
+                        <p class="text-sm text-primary-100">Smart Ingredient-Based Product Rating</p>
+                    </div>
+                    <i data-feather="camera" class="h-12 w-12 opacity-70"></i>
+                </a>
 
                 <div class="space-y-3">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
                         <i data-feather="book-open" class="text-primary-600 dark:text-primary-400"></i>
                         <span>Scheduled Lectures</span>
                     </h2>
-                     <div id="lectures-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center min-h-[5rem] flex items-center justify-center">
-                            Loading...
-                    </div>
+                    <div id="lectures-content" class="space-y-3 min-h-[5rem]">
+                         <div class="spinner"></div> </div>
                 </div>
 
                 <div class="space-y-3">
@@ -385,9 +419,8 @@
                         <i data-feather="calendar" class="text-green-600 dark:text-green-400"></i>
                         <span>Upcoming Activities</span>
                     </h2>
-                    <div id="activities-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center min-h-[5rem] flex items-center justify-center">
-                            Loading...
-                    </div>
+                    <div id="activities-content" class="space-y-3 min-h-[5rem]">
+                        <div class="spinner"></div> </div>
                 </div>
 
             </main>
@@ -547,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // *** NEW: Client for ClassCount Project (Roles, Lectures, Events) ***
+        // --- Client for ClassCount Project (Roles, Lectures, Events) ---
         const SUPABASE_URL_CLASSCOUNT = "https://qbtxcpyjceemqdqipcdd.supabase.co";
         const SUPABASE_KEY_CLASSCOUNT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFidHhjcHlqY2VlbXFkcWlwY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MjQ3ODYsImV4cCI6MjA3NzAwMDc4Nn0.xlYnj-EKqXcqFlYdx4Us1iEI2OoRV2IjtAyLIG6PVok";
         const _supabaseClassCount = createClient(SUPABASE_URL_CLASSCOUNT, SUPABASE_KEY_CLASSCOUNT);
@@ -559,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
         let currentDashboardData = null; // Store stringified dashboard data for comparison
 
-        // *** NEW: Role Image Mapping ***
+        // --- Role Image Mapping ---
         const roleImages = {
             'CR': 'https://i.ibb.co/gLzWCL5v/image.png',
             'GreenClub': 'https://i.ibb.co/ycNjQ86Z/image-1.png',
@@ -571,8 +604,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- DOM Elements ---
         const shimmerLoader = document.getElementById('shimmer-loader');
         const appContent = document.getElementById('app-content');
+        
+        // ** RE-ADDED from prototype **
+        const academicScoreValue = document.getElementById('academic-score-value');
+        const netWorthValue = document.getElementById('net-worth-value');
+        
         const friendsCountValue = document.getElementById('friends-count-value');
-        // Removed: academicScoreValue, netWorthValue
         const recycledValue = document.getElementById('recycled-value');
         const rolesBadgesContent = document.getElementById('roles-badges-content');
         const lecturesContent = document.getElementById('lectures-content');
@@ -709,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateDashboardUI(cachedData); // Update UI from cache
                 populateSidebar(cachedData.profile); // Populate sidebar from cache
                 
-                // *** NEW: Fetch dynamic data using cached profile ***
+                // --- Fetch dynamic data using cached profile ---
                 if (cachedData.profile) {
                     fetchAndDisplayRoles(cachedData.profile.id); // Use public ID (student_id)
                     fetchAndDisplayLectures(cachedData.profile.course);
@@ -735,7 +772,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // --- Placeholder: Fetch other dashboard data here if needed ---
                 const dashboardData = {
                     profile: profileData,
+                    // academicScore: 88, // Example
                     // recycledKg: 12.5, // Example
+                    // netWorth: 1500 // Example
                 };
                 
                 // --- Log User Data (runs in background) ---
@@ -754,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateDashboardUI(dashboardData);
                     populateSidebar(dashboardData.profile); // Update sidebar
 
-                    // *** NEW: Fetch dynamic data using fresh profile ***
+                    // --- Fetch dynamic data using fresh profile ---
                     if (dashboardData.profile) {
                         fetchAndDisplayRoles(dashboardData.profile.id); // Use public ID (student_id)
                         fetchAndDisplayLectures(dashboardData.profile.course);
@@ -789,15 +828,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // --- Update Main Cards ---
             friendsCountValue.textContent = data.profile.friend_count ?? 0;
-            // Removed: academicScoreValue, netWorthValue
-            recycledValue.textContent = data.recycledKg ?? '--'; // Placeholder, update as needed
+            
+            // ** RE-ADDED for prototype UI **
+            academicScoreValue.textContent = data.academicScore ?? '--';
+            recycledValue.textContent = data.recycledKg ?? '--';
+            netWorthValue.textContent = `₹${data.netWorth ?? '--'}`;
 
             // --- Update Sections ---
-            // Placeholders are now set in their own fetch functions
-            // We can clear the "Loading..." text if we want, or let the functions do it.
-            // rolesBadgesContent.textContent = '';
-            // lecturesContent.textContent = '';
-            // activitiesContent.textContent = '';
+            // (These are now handled by their own functions)
         }
 
         // --- 7. LOG USER DATA ---
@@ -817,7 +855,7 @@ document.addEventListener('DOMContentLoaded', () => {
              } catch (error) { console.error("Exception during logging:", error.message); }
         }
 
-        // --- 8. SIDEBAR FUNCTIONS (Copied from feed.html fixes) ---
+        // --- 8. SIDEBAR FUNCTIONS ---
         function setupSidebarListeners() {
             if (!sidebarToggleBtn || !sidebarBackdrop || !logoutBtn || !themeToggle) {
                 console.warn("Sidebar elements not found, listeners not attached.");
@@ -844,7 +882,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!sidebar || !sidebarBackdrop) return;
             sidebar.classList.add('-translate-x-full');
             sidebarBackdrop.classList.add('hidden');
-            // Optional: Add hidden class after transition for accessibility/performance
             setTimeout(() => {
                 sidebar.classList.add('hidden');
             }, 300);
@@ -860,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Clear theme and caches on logout
                 localStorage.removeItem('theme');
                 localStorage.removeItem('birlaone_dashboard_data');
-                localStorage.removeItem('birlaone_feed'); // Clear other related caches if they exist
+                localStorage.removeItem('birlaone_feed'); 
                 localStorage.removeItem('birlaone_popular');
                 Object.keys(localStorage).forEach(key => {
                     if (key.startsWith('birlaone_search_')) {
@@ -883,7 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  return;
             }
             if (!profileData) {
-                 // Optionally set defaults if profile data is missing after load attempt
                  nameEl.textContent = 'User';
                  avatarEl.src = 'https://placehold.co/64x64/cccccc/969696?text=U';
                  tickContainer.innerHTML = '';
@@ -1114,46 +1150,47 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchAndDisplayRoles(studentId) {
             if (!studentId || !rolesBadgesContent) return;
             rolesBadgesContent.innerHTML = '<div class="spinner"></div>';
-            rolesBadgesContent.classList.add('italic', 'text-center');
-
+            
             try {
+                // *** FIX: Changed 'role_type' to 'role' ***
                 const { data: roles, error } = await _supabaseClassCount
                     .from('roles')
-                    .select('role_type')
+                    .select('role') 
                     .eq('student_id', studentId);
 
                 if (error) throw error;
 
                 if (!roles || roles.length === 0) {
-                    rolesBadgesContent.innerHTML = "No Roles Assigned";
+                    rolesBadgesContent.innerHTML = "<p class='text-gray-500 dark:text-gray-400 italic px-4'>No Roles Assigned</p>";
                     return;
                 }
-
-                let html = '<div class="flex flex-wrap gap-3 justify-center">';
+                
+                // ** UPDATED UI: Uses horizontal scroll from prototype **
+                let html = ''; // No wrapper, just inject items
                 roles.forEach(role => {
-                    const imgUrl = roleImages[role.role_type];
+                    const imgUrl = roleImages[role.role]; // ** FIX: uses role.role **
                     if (imgUrl) {
-                        html += `<img src="${imgUrl}" alt="${role.role_type}" class="h-14 md:h-16 w-auto rounded-lg object-contain shadow-md" title="${role.role_type}">`;
+                        html += `<img src="${imgUrl}" alt="${role.role}" class="flex-shrink-0 h-14 md:h-16 w-auto rounded-lg object-contain shadow-md" title="${role.role}">`;
                     } else {
                         // Fallback for roles without a specified image
-                        html += `<span class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full font-medium text-sm">${role.role_type}</span>`;
+                        html += `<div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-2xl">
+                                    <span class="font-medium text-gray-800 dark:text-gray-200">${role.role}</span>
+                                 </div>`;
                     }
                 });
                 html += '</div>';
 
                 rolesBadgesContent.innerHTML = html;
-                rolesBadgesContent.classList.remove('italic', 'text-center');
 
             } catch (error) {
                 console.error("Error fetching roles:", error.message);
-                rolesBadgesContent.innerHTML = "Could not load roles.";
+                rolesBadgesContent.innerHTML = "<p class='text-red-500 px-4'>Could not load roles.</p>";
             }
         }
 
         async function fetchAndDisplayLectures(userCourse) {
             if (!userCourse || !lecturesContent) return;
             lecturesContent.innerHTML = '<div class="spinner"></div>';
-            lecturesContent.classList.add('italic', 'text-center');
 
             const now = new Date();
             const today = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
@@ -1170,31 +1207,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) throw error;
 
-                // Filter out lectures from today that have already passed
                 const upcomingLectures = lectures.filter(lec => {
-                    if (lec.date > today) return true; // Future date is always upcoming
-                    return lec.start_time >= currentTime; // Check time if on the same day
+                    if (lec.date > today) return true; // Future date
+                    return lec.start_time >= currentTime; // Same day, check time
                 });
 
                 if (!upcomingLectures || upcomingLectures.length === 0) {
-                    lecturesContent.innerHTML = "No Upcoming Lectures";
+                    lecturesContent.innerHTML = "<p class='text-gray-500 dark:text-gray-400 italic px-4'>No Upcoming Lectures</p>";
                     return;
                 }
 
+                // ** UPDATED UI: Matches prototype layout **
                 let html = '<div class="space-y-3">';
                 upcomingLectures.forEach(lec => {
                     html += `
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl flex items-center space-x-4">
-                            <div class="flex-shrink-0 bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 rounded-lg p-2.5 flex flex-col items-center justify-center w-16 text-center">
-                                <span class="font-bold text-sm uppercase">${formatDate(lec.date).split(', ')[0]}</span>
-                                <span class="font-extrabold text-2xl">${formatDate(lec.date).split(' ')[1]}</span>
+                        <div class="flex space-x-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl">
+                            <div class="flex flex-col items-center text-center w-12 flex-shrink-0">
+                                <span class="font-bold text-lg text-primary-600 dark:text-primary-400">${formatDateMonth(lec.date)}</span>
+                                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400 -mt-1">${formatDateDay(lec.date)}</span>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-lg font-semibold text-gray-900 dark:text-white truncate">${lec.subject_name}</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">${lec.prof_name}</p>
-                                <p class="text-sm font-medium text-primary-600 dark:text-primary-400 mt-1">
-                                    ${formatTime(lec.start_time)} - ${formatTime(lec.end_time)}
-                                </p>
+                            <div class="border-l border-gray-300 dark:border-gray-600 pl-4 flex-1 min-w-0">
+                                <p class="font-semibold text-gray-800 dark:text-gray-100 truncate">${lec.subject_name}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${lec.prof_name}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${formatTime(lec.start_time)} - ${formatTime(lec.end_time)}</p>
                             </div>
                         </div>
                     `;
@@ -1202,19 +1237,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += '</div>';
 
                 lecturesContent.innerHTML = html;
-                lecturesContent.classList.remove('italic', 'text-center');
                 feather.replace();
 
             } catch (error) {
                 console.error("Error fetching lectures:", error.message);
-                lecturesContent.innerHTML = "Could not load lectures.";
+                lecturesContent.innerHTML = "<p class='text-red-500 px-4'>Could not load lectures.</p>";
             }
         }
 
         async function fetchAndDisplayEvents() {
             if (!activitiesContent) return;
             activitiesContent.innerHTML = '<div class="spinner"></div>';
-            activitiesContent.classList.add('italic', 'text-center');
             
             const now = new Date();
             const today = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
@@ -1230,31 +1263,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (error) throw error;
 
-                // Filter out events from today that have already passed
                 const upcomingEvents = events.filter(evt => {
-                    if (evt.date > today) return true; // Future date is always upcoming
-                    return evt.start_time >= currentTime; // Check time if on the same day
+                    if (evt.date > today) return true; // Future date
+                    return evt.start_time >= currentTime; // Same day, check time
                 });
 
                 if (!upcomingEvents || upcomingEvents.length === 0) {
-                    activitiesContent.innerHTML = "No Upcoming Activities";
+                    activitiesContent.innerHTML = "<p class='text-gray-500 dark:text-gray-400 italic px-4'>No Upcoming Activities</p>";
                     return;
                 }
 
+                // ** UPDATED UI: Matches prototype layout **
                 let html = '<div class="space-y-3">';
                 upcomingEvents.forEach(evt => {
                     html += `
-                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl flex items-center space-x-4">
-                            <div class="flex-shrink-0 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-lg p-2.5 flex flex-col items-center justify-center w-16 text-center">
-                                <span class="font-bold text-sm uppercase">${formatDate(evt.date).split(', ')[0]}</span>
-                                <span class="font-extrabold text-2xl">${formatDate(evt.date).split(' ')[1]}</span>
+                        <div class="flex space-x-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl">
+                            <div class="flex flex-col items-center text-center w-12 flex-shrink-0">
+                                <span class="font-bold text-lg text-green-600 dark:text-green-400">${formatDateMonth(evt.date)}</span>
+                                <span class="text-2xl font-bold text-green-600 dark:text-green-400 -mt-1">${formatDateDay(evt.date)}</span>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-lg font-semibold text-gray-900 dark:text-white truncate">${evt.event_name}</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">${evt.organizer_name}</p>
-                                <p class="text-sm font-medium text-green-600 dark:text-green-400 mt-1">
-                                    ${formatTime(evt.start_time)}
-                                </p>
+                            <div class="border-l border-gray-300 dark:border-gray-600 pl-4 flex-1 min-w-0">
+                                <p class="font-semibold text-gray-800 dark:text-gray-100 truncate">${evt.event_name}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Organized by: ${evt.organizer_name}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Starts at: ${formatTime(evt.start_time)}</p>
                             </div>
                         </div>
                     `;
@@ -1262,12 +1293,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += '</div>';
 
                 activitiesContent.innerHTML = html;
-                activitiesContent.classList.remove('italic', 'text-center');
                 feather.replace();
 
             } catch (error) {
                 console.error("Error fetching events:", error.message);
-                activitiesContent.innerHTML = "Could not load activities.";
+                activitiesContent.innerHTML = "<p class='text-red-500 px-4'>Could not load activities.</p>";
             }
         }
 
@@ -1277,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', () => {
              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
 
-        // *** NEW HELPER: Format time string (e.g., "13:30:00" -> "1:30 PM") ***
+        // --- Format time string (e.g., "13:30:00" -> "1:30 PM") ---
         function formatTime(timeString) {
             if (!timeString) return '';
             try {
@@ -1291,7 +1321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // *** NEW HELPER: Format date string (e.g., "2025-11-04" -> "Tue, 04 Nov") ***
+        // --- Format date string (e.g., "2025-11-04" -> "Tue, 04 Nov") ---
         function formatDate(dateString) {
             if (!dateString) return '';
             try {
@@ -1301,6 +1331,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 return dateString; // Fallback
             }
         }
+        
+        // ** NEW HELPERS for prototype UI **
+        function formatDateMonth(dateString) { // "2025-11-04" -> "Nov"
+            if (!dateString) return '';
+            try {
+                const date = new Date(dateString + 'T00:00:00');
+                return date.toLocaleDateString('en-GB', { month: 'short' });
+            } catch (e) { return ''; }
+        }
+        function formatDateDay(dateString) { // "2025-11-04" -> "04"
+             if (!dateString) return '';
+             try {
+                const date = new Date(dateString + 'T00:00:00');
+                return date.toLocaleDateString('en-GB', { day: '2-digit' });
+            } catch (e) { return ''; }
+        }
+
 
         function showToast(message, type = 'success') {
             if (!toastContainer) return;
