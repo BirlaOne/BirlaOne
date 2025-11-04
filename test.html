@@ -12,7 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script> 
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,7 +62,7 @@
     .notification-item-enter { opacity: 0; transform: translateY(-10px); transition: opacity 0.3s ease, transform 0.3s ease; }
     .notification-item-enter-active { opacity: 1; transform: translateY(0); }
 
-    /* --- Shimmer Loader Styles (Original) --- */
+    /* --- Shimmer Loader Styles --- */
     .shimmer-wrapper {
         animation: shimmer 1.5s infinite linear;
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -88,8 +88,8 @@
     button:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ==============================
-        🔹 ENHANCED SIDEBAR STYLES
-        ============================== */
+     * 🔹 ENHANCED SIDEBAR STYLES
+     * ============================== */
     #sidebar {
         position: fixed;
         inset-y: 0;
@@ -209,8 +209,8 @@
     }
 
     /* ==============================
-        🌙 DARK MODE SUPPORT
-        ============================== */
+     * 🌙 DARK MODE SUPPORT
+     * ============================== */
     :root { color-scheme: light; }
     :root.dark { color-scheme: dark; }
     .dark body { background-color: #111827; }
@@ -226,10 +226,8 @@
     .dark .text-gray-400 { color: #9ca3af; }
     .dark .border-gray-100 { border-color: #374151; }
     .dark .border-gray-200 { border-color: #374151; }
-    .dark .border-gray-300 { border-color: #4b5563; }
     .dark .bg-gray-50 { background-color: #374151; }
     .dark .bg-gray-100 { background-color: #374151; }
-    .dark .bg-gray-200 { background-color: #374151; }
     .dark .hover\:bg-gray-50:hover { background-color: #4b5563; }
     .dark .hover\:bg-gray-100:hover { background-color: #4b5563; }
     .dark .bg-white\/95 { background-color: rgba(31, 41, 55, 0.95); }
@@ -249,8 +247,8 @@
     .dark .sidebar-menu-item.logout:hover { background-color: rgba(239, 68, 68, 0.15); }
 
     /* ==============================
-        📱 RESPONSIVE SIDEBAR (MOBILE)
-        ============================== */
+     * 📱 RESPONSIVE SIDEBAR (MOBILE)
+     * ============================== */
     @media (max-width: 640px) {
         #sidebar {
             width: 260px;
@@ -286,7 +284,7 @@
     <div class="relative min-h-screen w-full md:max-w-md md:mx-auto md:shadow-2xl md:overflow-hidden bg-white dark:bg-slate-800">
 
         <div id="shimmer-loader" class="absolute inset-0 z-50 bg-white dark:bg-gray-900 pt-20 pb-24 px-4 overflow-hidden">
-             <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
+            <div class="fixed top-0 left-0 right-0 md:max-w-md md:mx-auto h-16 bg-white dark:bg-gray-900 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-24 h-6 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
@@ -295,28 +293,21 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                     <div class="h-28 shimmer-wrapper rounded-2xl"></div>
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
-                    <div class="h-28 shimmer-wrapper rounded-2xl"></div>
                 </div>
-                
                 <div>
                     <div class="h-5 w-1/3 shimmer-wrapper rounded-full mb-3"></div>
-                    <div class="flex space-x-3">
-                        <div class="w-32 h-16 shimmer-wrapper rounded-2xl"></div>
-                        <div class="w-32 h-16 shimmer-wrapper rounded-2xl"></div>
-                        <div class="w-32 h-16 shimmer-wrapper rounded-2xl"></div>
-                    </div>
+                    <div class="h-20 shimmer-wrapper rounded-2xl"></div>
                 </div>
-                
-                <div class="h-32 shimmer-wrapper rounded-2xl"></div>
-                
                 <div class="space-y-3">
                     <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
                     <div class="h-20 shimmer-wrapper rounded-2xl"></div>
+                </div>
+                <div class="space-y-3">
+                    <div class="h-5 w-1/2 shimmer-wrapper rounded-full"></div>
                     <div class="h-20 shimmer-wrapper rounded-2xl"></div>
                 </div>
             </div>
-             <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
+            <div class="fixed bottom-0 left-0 right-0 md:max-w-md md:mx-auto h-20 bg-white dark:bg-gray-900 flex justify-around items-center p-3 border-t border-gray-100 dark:border-gray-800">
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
                 <div class="w-8 h-8 shimmer-wrapper rounded-full"></div>
@@ -343,16 +334,6 @@
             <main class="pt-20 pb-28 p-4 space-y-6 overflow-y-auto h-screen no-scrollbar bg-slate-50 dark:bg-gray-900">
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Academic Score</h2>
-                            <i data-feather="award" class="text-primary-600 dark:text-primary-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="academic-score-value" class="text-4xl font-bold text-gray-900 dark:text-white">--</span>
-                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">/ 100</span>
-                        </div>
-                    </div>
                     
                     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
                         <div class="flex justify-between items-center">
@@ -376,42 +357,25 @@
                         </div>
                     </div>
                     
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl flex flex-col justify-between">
-                        <div class="flex justify-between items-center">
-                            <h2 class="font-semibold text-sm text-gray-600 dark:text-gray-400">Net Worth</h2>
-                            <i data-feather="credit-card" class="text-indigo-500 dark:text-indigo-400 h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <span id="net-worth-value" class="text-4xl font-bold text-gray-900 dark:text-white">₹--</span>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Personal Wealth</p>
-                        </div>
-                    </div>
                 </div>
-
                 <div class="space-y-3">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
                         <i data-feather="star" class="text-yellow-500 dark:text-yellow-400"></i>
                         <span>Roles & Badges</span>
                     </h2>
-                    <div id="roles-badges-content" class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar min-h-[5rem] items-center">
-                        <div class="spinner"></div> </div>
-                </div>
-
-                <a href="#" class="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-6 rounded-2xl flex justify-between items-center shadow-lg shadow-primary-500/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 active:scale-95 dark:shadow-primary-900/30">
-                    <div>
-                        <h3 class="text-xl font-bold">BeAware</h3>
-                        <p class="text-sm text-primary-100">Smart Ingredient-Based Product Rating</p>
+                    <div id="roles-badges-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                            Loading...
                     </div>
-                    <i data-feather="camera" class="h-12 w-12 opacity-70"></i>
-                </a>
+                </div>
 
                 <div class="space-y-3">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
                         <i data-feather="book-open" class="text-primary-600 dark:text-primary-400"></i>
-                        <span>Scheduled Lectures</span>
+                        <span>Today's Lectures</span>
                     </h2>
-                    <div id="lectures-content" class="space-y-3 min-h-[5rem]">
-                         <div class="spinner"></div> </div>
+                     <div id="lectures-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                            Loading...
+                    </div>
                 </div>
 
                 <div class="space-y-3">
@@ -419,8 +383,9 @@
                         <i data-feather="calendar" class="text-green-600 dark:text-green-400"></i>
                         <span>Upcoming Activities</span>
                     </h2>
-                    <div id="activities-content" class="space-y-3 min-h-[5rem]">
-                        <div class="spinner"></div> </div>
+                     <div id="activities-content" class="text-gray-500 dark:text-gray-400 italic p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-center">
+                            Loading...
+                    </div>
                 </div>
 
             </main>
@@ -530,8 +495,8 @@
     </div>
 <script>
 /* ==============================
-    🔹 SIDEBAR SLIDE ANIMATION CONTROL
-    ============================== */
+ * 🔹 SIDEBAR SLIDE ANIMATION CONTROL
+ * ============================== */
 document.addEventListener('DOMContentLoaded', () => {
   const sidebar = document.getElementById('sidebar');
   const sidebarBackdrop = document.getElementById('sidebar-backdrop');
@@ -574,16 +539,18 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
     <script>
-        // --- 1. SUPABASE CLIENTS SETUP ---
+        // --- 1. SUPABASE CLIENT SETUP ---
+        // Client for OLD project (Auth, User Profile)
         const SUPABASE_URL = 'https://eikriuddsuguybvvyzjl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa3JpdWRkc3VndXlidnZ5empsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgxMjIxNTAsImV4cCI6MjA3MzY5ODE1MH0.HNh2gGO8nWzAjxh5Oa3cs_8WKaq9mq9TyLCvPOkcr2c';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- Client for ClassCount Project (Roles, Lectures, Events) ---
-        const SUPABASE_URL_CLASSCOUNT = "https://qbtxcpyjceemqdqipcdd.supabase.co";
-        const SUPABASE_KEY_CLASSCOUNT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFidHhjcHlqY2VlbXFkcWlwY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MjQ3ODYsImV4cCI6MjA3NzAwMDc4Nn0.xlYnj-EKqXcqFlYdx4Us1iEI2OoRV2IjtAyLIG6PVok";
-        const _supabaseClassCount = createClient(SUPABASE_URL_CLASSCOUNT, SUPABASE_KEY_CLASSCOUNT);
+        // Client for NEW project (Roles, Lectures, Events)
+        const SUPABASE_URL_NEW = "https://qbtxcpyjceemqdqipcdd.supabase.co";
+        const SUPABASE_KEY_NEW = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFidHhjcHlqY2VlbXFkcWlwY2RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0MjQ3ODYsImV4cCI6MjA3NzAwMDc4Nn0.xlYnj-EKqXcqFlYdx4Us1iEI2OoRV2IjtAyLIG6PVok";
+        const _supabase2 = createClient(SUPABASE_URL_NEW, SUPABASE_KEY_NEW);
+
 
         // --- Global variables ---
         let currentAuthUser = null;
@@ -592,28 +559,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const CACHE_TTL_MINUTES = 30; // Cache dashboard data for 30 minutes
         let currentDashboardData = null; // Store stringified dashboard data for comparison
 
-        // --- Role Image Mapping ---
-        const roleImages = {
-            'CR': 'https://i.ibb.co/gLzWCL5v/image.png',
-            'GreenClub': 'https://i.ibb.co/ycNjQ86Z/image-1.png',
-            'NCC': 'https://i.ibb.co/gMgsw8mf/image.png',
-            'NSS': 'https://i.ibb.co/9HPmxFTk/image.png',
-            'Kalamandal': 'https://i.ibb.co/ymyYD80T/Whats-App-Image-2025-11-04-at-11-44-23.jpg'
+        // --- Role & Badge Mappings ---
+        const roleDetails = {
+            'CR': { title: 'CR', img: 'https://i.ibb.co/gLzWCL5v/image.png', icon: 'user-check' },
+            'cr': { title: 'CR', img: 'https://i.ibb.co/gLzWCL5v/image.png', icon: 'user-check' }, // Handle 'cr' from DB
+            'GreenClub': { title: 'GreenClub', img: 'https://i.ibb.co/ycNjQ86Z/image-1.png', icon: 'leaf' },
+            'NCC': { title: 'NCC', img: 'https://i.ibb.co/gMgsw8mf/image.png', icon: 'shield' },
+            'NSS': { title: 'NSS', img: 'https://i.ibb.co/9HPmxFTk/image.png', icon: 'heart' },
+            'Kalamandal': { title: 'Kalamandal', img: 'https://i.ibb.co/ymyYD80T/Whats-App-Image-2025-11-04-at-11-44-23.jpg', icon: 'music' }
         };
+
 
         // --- DOM Elements ---
         const shimmerLoader = document.getElementById('shimmer-loader');
         const appContent = document.getElementById('app-content');
-        
-        // ** RE-ADDED from prototype **
-        const academicScoreValue = document.getElementById('academic-score-value');
-        const netWorthValue = document.getElementById('net-worth-value');
-        
         const friendsCountValue = document.getElementById('friends-count-value');
         const recycledValue = document.getElementById('recycled-value');
         const rolesBadgesContent = document.getElementById('roles-badges-content');
         const lecturesContent = document.getElementById('lectures-content');
         const activitiesContent = document.getElementById('activities-content');
+        // Removed: academicScoreValue, netWorthValue
 
         // --- NOTIFICATION GLOBALS ---
         const notificationBellBtn = document.getElementById('notification-bell-btn');
@@ -699,14 +664,14 @@ document.addEventListener('DOMContentLoaded', () => {
         function hideShimmerShowApp(delay = 0) {
              setTimeout(() => {
                  if (shimmerLoader && appContent) {
-                     shimmerLoader.style.transition = 'opacity 0.4s ease-out';
-                     shimmerLoader.style.opacity = '0';
-                     setTimeout(() => {
-                         shimmerLoader.style.display = 'none';
-                         appContent.classList.remove('hidden');
-                         appContent.classList.add('fade-in');
-                         feather.replace(); // Render icons now
-                     }, 400); 
+                      shimmerLoader.style.transition = 'opacity 0.4s ease-out';
+                      shimmerLoader.style.opacity = '0';
+                      setTimeout(() => {
+                           shimmerLoader.style.display = 'none';
+                           appContent.classList.remove('hidden');
+                           appContent.classList.add('fade-in');
+                           feather.replace(); // Render icons now
+                      }, 400); 
                  }
              }, delay);
         }
@@ -735,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchDashboardData(authId) {
             if (!authId) return;
 
-            const cacheKey = 'birlaone_dashboard_data';
+            const cacheKey = 'birlaone_dashboard_data_v2'; // Changed cache key
             const cachedData = getCache(cacheKey);
             let isCacheRendered = false;
 
@@ -745,14 +710,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentDashboardData = JSON.stringify(cachedData);
                 updateDashboardUI(cachedData); // Update UI from cache
                 populateSidebar(cachedData.profile); // Populate sidebar from cache
-                
-                // --- Fetch dynamic data using cached profile ---
-                if (cachedData.profile) {
-                    fetchAndDisplayRoles(cachedData.profile.id); // Use public ID (student_id)
-                    fetchAndDisplayLectures(cachedData.profile.course);
-                    fetchAndDisplayEvents();
-                }
-
                 hideShimmerShowApp(0); // Show content immediately
                 isCacheRendered = true;
             } else {
@@ -760,29 +717,59 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // Fetch fresh profile data
+                // Fetch fresh profile data from OLD project
                 const { data: profileData, error: profileError } = await _supabase
                     .from('users')
-                    .select('id, auth_id, name, img, tick, course, friend_count') // Added img, tick for sidebar
+                    .select('id, auth_id, name, img, tick, course, friend_count') // 'id' is public student_id, 'course' is needed
                     .eq('auth_id', authId)
                     .single();
 
                 if (profileError) throw profileError;
+                if (!profileData) throw new Error("User profile not found.");
+
+                // --- NEW: Fetch data from the SECOND Supabase project ---
+                const studentId = profileData.id; // Public ID (e.g., 5207872)
+                const userCourse = profileData.course; // e.g., 'sybaf'
+                const today = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+                // 1. Fetch Roles
+                const { data: rolesData, error: rolesError } = await _supabase2
+                    .from('roles')
+                    .select('role_type')
+                    .eq('student_id', studentId);
+
+                // 2. Fetch Lectures
+                const { data: lecturesData, error: lecturesError } = await _supabase2
+                    .from('lectures')
+                    .select('subject_name, prof_name, data, start_time, end_time')
+                    .eq('course', userCourse)
+                    .gte('data', today) // 'data' is the column name, not 'date'
+                    .order('data', { ascending: true })
+                    .order('start_time', { ascending: true });
+
+                // 3. Fetch Events (Activities)
+                const { data: eventsData, error: eventsError } = await _supabase2
+                    .from('events')
+                    .select('event_name, organizer_name, data, start_time, end_time')
+                    .gte('data', today) // 'data' is the column name
+                    .order('data', { ascending: true })
+                    .order('start_time', { ascending: true });
                 
-                // --- Placeholder: Fetch other dashboard data here if needed ---
+                if (rolesError) console.error("Error fetching roles:", rolesError.message);
+                if (lecturesError) console.error("Error fetching lectures:", lecturesError.message);
+                if (eventsError) console.error("Error fetching events:", eventsError.message);
+                
+                // --- Combine all data ---
                 const dashboardData = {
                     profile: profileData,
-                    // academicScore: 88, // Example
-                    // recycledKg: 12.5, // Example
-                    // netWorth: 1500 // Example
+                    roles: rolesData || [],
+                    lectures: lecturesData || [],
+                    activities: eventsData || [],
+                    recycledKg: 12.5, // Placeholder from old code, user didn't ask to change
                 };
                 
                 // --- Log User Data (runs in background) ---
-                if (profileData) {
-                    logUserData(profileData); // Log fresh data
-                } else {
-                    console.warn("User profile data not found for logging.");
-                }
+                logUserData(profileData); // Log fresh data
 
                 const newDataString = JSON.stringify(dashboardData);
 
@@ -792,14 +779,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentDashboardData = newDataString;
                     updateDashboardUI(dashboardData);
                     populateSidebar(dashboardData.profile); // Update sidebar
-
-                    // --- Fetch dynamic data using fresh profile ---
-                    if (dashboardData.profile) {
-                        fetchAndDisplayRoles(dashboardData.profile.id); // Use public ID (student_id)
-                        fetchAndDisplayLectures(dashboardData.profile.course);
-                        fetchAndDisplayEvents();
-                    }
-
                     setCache(cacheKey, dashboardData, CACHE_TTL_MINUTES);
                     if (!isCacheRendered) {
                         hideShimmerShowApp(300); // Slight delay after fetch if no cache
@@ -807,10 +786,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         feather.replace(); // Re-render icons if only updating UI
                     }
                 } else {
-                     console.log("Dashboard cache is up-to-date.");
-                     if (!isCacheRendered) {
-                         hideShimmerShowApp(300); // Still need to show app if cache was expired but data is same
-                     }
+                    console.log("Dashboard cache is up-to-date.");
+                    if (!isCacheRendered) {
+                        hideShimmerShowApp(300); // Still need to show app if cache was expired but data is same
+                    }
                 }
 
             } catch (error) {
@@ -828,34 +807,149 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // --- Update Main Cards ---
             friendsCountValue.textContent = data.profile.friend_count ?? 0;
-            
-            // ** RE-ADDED for prototype UI **
-            academicScoreValue.textContent = data.academicScore ?? '--';
             recycledValue.textContent = data.recycledKg ?? '--';
-            netWorthValue.textContent = `₹${data.netWorth ?? '--'}`;
+            // Removed: academicScoreValue, netWorthValue updates
 
-            // --- Update Sections ---
-            // (These are now handled by their own functions)
+            // --- 1. Render Roles & Badges ---
+            if (data.roles && data.roles.length > 0) {
+                rolesBadgesContent.innerHTML = ''; // Clear 'Loading...'
+                rolesBadgesContent.classList.remove('italic', 'text-center', 'p-4'); // Remove loading styles
+                const scrollContainer = document.createElement('div');
+                scrollContainer.className = 'flex space-x-3 overflow-x-auto no-scrollbar pb-2';
+                
+                // Subtitle map
+                const subtitleMap = {
+                    'CR': data.profile.course ? data.profile.course.toUpperCase() : 'Representative',
+                    'GreenClub': 'Green Club',
+                    'NCC': 'NCC Cadet',
+                    'NSS': 'NSS Volunteer',
+                    'Kalamandal': 'Kalamandal Member'
+                };
+
+                data.roles.forEach(role => {
+                    let roleKey = role.role_type;
+                    if (roleKey === 'cr') roleKey = 'CR'; // Normalize from DB
+                    
+                    const detail = roleDetails[roleKey] || { title: role.role_type, img: null, icon: 'award' };
+                    const subTitle = subtitleMap[roleKey] || detail.title; // Get subtitle
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-3 flex-shrink-0 w-auto min-w-[160px]';
+
+                    let iconHtml;
+                    if (detail.img) {
+                        iconHtml = `<img src="${detail.img}" alt="${detail.title}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">`;
+                    } else {
+                        iconHtml = `<div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                        <i data-feather="${detail.icon}" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                                    </div>`;
+                    }
+
+                    card.innerHTML = `
+                        ${iconHtml}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${detail.title}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${subTitle}</p>
+                        </div>
+                    `;
+                    scrollContainer.appendChild(card);
+                });
+                rolesBadgesContent.appendChild(scrollContainer);
+            } else {
+                rolesBadgesContent.innerHTML = 'No Roles Assigned';
+                rolesBadgesContent.classList.add('italic', 'text-center', 'p-4');
+            }
+
+            // --- 2. Render Lectures ---
+            if (data.lectures && data.lectures.length > 0) {
+                lecturesContent.innerHTML = ''; // Clear 'Loading...'
+                lecturesContent.classList.remove('italic', 'text-center', 'p-4');
+                const container = document.createElement('div');
+                container.className = 'space-y-3';
+
+                data.lectures.forEach(lecture => {
+                    const { month, day } = formatEventDate(lecture.data);
+                    const startTime = formatLectureTime(lecture.start_time);
+                    const endTime = formatLectureTime(lecture.end_time);
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
+                    
+                    card.innerHTML = `
+                        <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
+                            <span class="text-sm font-medium text-primary-600 dark:text-primary-400">${month}</span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${lecture.subject_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">${lecture.prof_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                lecturesContent.appendChild(container);
+            } else {
+                lecturesContent.innerHTML = 'No Upcoming Lectures';
+                lecturesContent.classList.add('italic', 'text-center', 'p-4');
+            }
+
+            // --- 3. Render Activities (Events) ---
+            if (data.activities && data.activities.length > 0) {
+                activitiesContent.innerHTML = ''; // Clear 'Loading...'
+                activitiesContent.classList.remove('italic', 'text-center', 'p-4');
+                const container = document.createElement('div');
+                container.className = 'space-y-3';
+
+                data.activities.forEach(event => {
+                    const { month, day } = formatEventDate(event.data);
+                    const startTime = formatLectureTime(event.start_time);
+                    const endTime = formatLectureTime(event.end_time);
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 flex items-center space-x-4';
+                    
+                    card.innerHTML = `
+                        <div class="flex flex-col items-center justify-center w-12 flex-shrink-0">
+                            <span class="text-sm font-medium text-green-600 dark:text-green-400">${month}</span>
+                            <span class="text-2xl font-bold text-gray-900 dark:text-white">${day}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-base font-bold text-gray-900 dark:text-white truncate">${event.event_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 truncate">Organized by: ${event.organizer_name}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${startTime} - ${endTime}</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                activitiesContent.appendChild(container);
+            } else {
+                activitiesContent.innerHTML = 'No Upcoming Activities';
+                activitiesContent.classList.add('italic', 'text-center', 'p-4');
+            }
+
+            // Re-render icons for new content
+            feather.replace();
         }
 
         // --- 7. LOG USER DATA ---
         async function logUserData(userData) {
              if (!userData || !userData.auth_id) {
-                 console.error("Cannot log data: User Auth ID is missing."); return;
+                  console.error("Cannot log data: User Auth ID is missing."); return;
              }
              try {
-                 const { error: logError } = await _supabase.from('logs').insert({
-                     time: new Date().toISOString(),
-                     user_id: userData.auth_id,
-                     Name: userData.name || 'N/A',
-                     course: userData.course || 'N/A',
-                 });
-                 if (logError) { console.error("Error inserting into logs table:", logError.message); } 
-                 else { console.log("User data logged successfully."); }
+                  const { error: logError } = await _supabase.from('logs').insert({ // Log to OLD project
+                       time: new Date().toISOString(),
+                       user_id: userData.auth_id,
+                       Name: userData.name || 'N/A',
+                       course: userData.course || 'N/A',
+                  });
+                  if (logError) { console.error("Error inserting into logs table:", logError.message); } 
+                  else { console.log("User data logged successfully."); }
              } catch (error) { console.error("Exception during logging:", error.message); }
         }
 
-        // --- 8. SIDEBAR FUNCTIONS ---
+        // --- 8. SIDEBAR FUNCTIONS (Copied from feed.html fixes) ---
         function setupSidebarListeners() {
             if (!sidebarToggleBtn || !sidebarBackdrop || !logoutBtn || !themeToggle) {
                 console.warn("Sidebar elements not found, listeners not attached.");
@@ -882,6 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!sidebar || !sidebarBackdrop) return;
             sidebar.classList.add('-translate-x-full');
             sidebarBackdrop.classList.add('hidden');
+            // Optional: Add hidden class after transition for accessibility/performance
             setTimeout(() => {
                 sidebar.classList.add('hidden');
             }, 300);
@@ -896,8 +991,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Clear theme and caches on logout
                 localStorage.removeItem('theme');
-                localStorage.removeItem('birlaone_dashboard_data');
-                localStorage.removeItem('birlaone_feed'); 
+                localStorage.removeItem('birlaone_dashboard_data_v2'); // Clear new cache
+                localStorage.removeItem('birlaone_dashboard_data'); // Clear old cache
+                localStorage.removeItem('birlaone_feed'); // Clear other related caches if they exist
                 localStorage.removeItem('birlaone_popular');
                 Object.keys(localStorage).forEach(key => {
                     if (key.startsWith('birlaone_search_')) {
@@ -920,6 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  return;
             }
             if (!profileData) {
+                 // Optionally set defaults if profile data is missing after load attempt
                  nameEl.textContent = 'User';
                  avatarEl.src = 'https://placehold.co/64x64/cccccc/969696?text=U';
                  tickContainer.innerHTML = '';
@@ -940,17 +1037,17 @@ document.addEventListener('DOMContentLoaded', () => {
             qrContainer.innerHTML = ''; // Clear previous QR or spinner
             if (profileData.id) { // Use public integer ID
                  try {
-                     new QRCode(qrContainer, {
-                         text: String(profileData.id),
-                         width: 256,
-                         height: 256,
-                         colorDark : "#000000",
-                         colorLight : "#ffffff",
-                         correctLevel : QRCode.CorrectLevel.H
-                     });
+                      new QRCode(qrContainer, {
+                           text: String(profileData.id),
+                           width: 256,
+                           height: 256,
+                           colorDark : "#000000",
+                           colorLight : "#ffffff",
+                           correctLevel : QRCode.CorrectLevel.H
+                      });
                  } catch (e) {
-                     console.error("Error generating QR code:", e);
-                     qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
+                       console.error("Error generating QR code:", e);
+                       qrContainer.innerHTML = '<p class="text-xs text-center text-red-500">QR Error</p>';
                  }
             } else {
                 qrContainer.innerHTML = '<p class="text-xs text-center text-gray-500">No User ID available for QR code.</p>';
@@ -999,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', () => {
         async function fetchUnreadCount() {
             if (!currentAuthUser) return;
             try {
-                const { data, error } = await _supabase.rpc('get_unread_notifications_count');
+                const { data, error } = await _supabase.rpc('get_unread_notifications_count'); // From OLD project
                 if (error) throw error;
                 updateBadge(data);
             } catch (error) {
@@ -1015,13 +1112,13 @@ document.addEventListener('DOMContentLoaded', () => {
             notificationList.innerHTML = ''; 
 
             try {
-                const { data, error } = await _supabase.rpc('get_my_notifications');
+                const { data, error } = await _supabase.rpc('get_my_notifications'); // From OLD project
                 if (error) throw error;
                 notificationsLoading.style.display = 'none';
                  if (!data || (Array.isArray(data) && data.length === 0)) {
-                     noNotifications.style.display = 'block';
+                      noNotifications.style.display = 'block';
                  } else {
-                     renderNotifications(data);
+                      renderNotifications(data);
                  }
             } catch (error) {
                 console.error("Error fetching notifications:", error.message);
@@ -1066,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (isDirectLink && !e.target.closest('.w-2.h-2')) { markSingleAsRead(notif.id); } 
                     else {
                          if(notif.type === 'friend_request' && notif.link?.includes('myprofile.html')){
-                             if (!window.location.pathname.endsWith('myprofile.html')) { window.location.href = notif.link; }
+                              if (!window.location.pathname.endsWith('myprofile.html')) { window.location.href = notif.link; }
                          }
                          if (!notif.is_read) { markSingleAsRead(notif.id, div); }
                     }
@@ -1083,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const unreadDot = notificationElement?.querySelector('.w-2.h-2.bg-primary-500');
             if (!unreadDot) return;
             try {
-                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId });
+                const { error } = await _supabase.rpc('mark_notification_read', { notification_id_to_mark: notificationId }); // From OLD project
                 if (error) throw error;
                 if (notificationElement) {
                     notificationElement.classList.remove('bg-primary-50', 'dark:bg-gray-700');
@@ -1101,7 +1198,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!currentAuthUser || !markAllReadBtn) return;
             setButtonLoading(markAllReadBtn, true);
             try {
-                const { error } = await _supabase.rpc('mark_all_notifications_read');
+                const { error } = await _supabase.rpc('mark_all_notifications_read'); // From OLD project
                 if (error) throw error;
                 notificationList?.querySelectorAll('.notification-item.bg-primary-50').forEach(el => {
                     el.classList.remove('bg-primary-50', 'dark:bg-gray-700');
@@ -1121,16 +1218,16 @@ document.addEventListener('DOMContentLoaded', () => {
         function setupRealtimeNotifications() {
              if (!currentAuthUser) return;
              if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); }
-             notificationSubscription = _supabase.channel('public:notifications')
+             notificationSubscription = _supabase.channel('public:notifications') // From OLD project
                  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_user_id=eq.${currentAuthUser.id}` }, (payload) => {
-                     console.log('New notification received:', payload.new);
-                     fetchUnreadCount();
-                     showToast(payload.new.content_preview || 'You have a new notification!', 'success');
-                     if (notificationPanel && !notificationPanel.classList.contains('hidden')) { fetchNotifications(); }
+                      console.log('New notification received:', payload.new);
+                      fetchUnreadCount();
+                      showToast(payload.new.content_preview || 'You have a new notification!', 'success');
+                      if (notificationPanel && !notificationPanel.classList.contains('hidden')) { fetchNotifications(); }
                  })
                  .subscribe((status, err) => {
-                     if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
-                     if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
+                       if (status === 'SUBSCRIBED') { console.log('Realtime notification channel subscribed!'); }
+                       if (status === 'CHANNEL_ERROR') { console.error('Realtime notification channel error:', err); }
                  });
              window.addEventListener('beforeunload', () => { if (notificationSubscription) { _supabase.removeChannel(notificationSubscription); } });
         }
@@ -1145,209 +1242,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- 10. NEW DYNAMIC CONTENT FUNCTIONS ---
-        
-        async function fetchAndDisplayRoles(studentId) {
-            if (!studentId || !rolesBadgesContent) return;
-            rolesBadgesContent.innerHTML = '<div class="spinner"></div>';
-            
+        // --- 10. HELPER FUNCTIONS ---
+        function formatLectureTime(timeStr) {
+            if (!timeStr) return '';
             try {
-                // *** FIX: Changed 'role_type' to 'role' ***
-                const { data: roles, error } = await _supabaseClassCount
-                    .from('roles')
-                    .select('role') 
-                    .eq('student_id', studentId);
-
-                if (error) throw error;
-
-                if (!roles || roles.length === 0) {
-                    rolesBadgesContent.innerHTML = "<p class='text-gray-500 dark:text-gray-400 italic px-4'>No Roles Assigned</p>";
-                    return;
-                }
-                
-                // ** UPDATED UI: Uses horizontal scroll from prototype **
-                let html = ''; // No wrapper, just inject items
-                roles.forEach(role => {
-                    const imgUrl = roleImages[role.role]; // ** FIX: uses role.role **
-                    if (imgUrl) {
-                        html += `<img src="${imgUrl}" alt="${role.role}" class="flex-shrink-0 h-14 md:h-16 w-auto rounded-lg object-contain shadow-md" title="${role.role}">`;
-                    } else {
-                        // Fallback for roles without a specified image
-                        html += `<div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-2xl">
-                                    <span class="font-medium text-gray-800 dark:text-gray-200">${role.role}</span>
-                                 </div>`;
-                    }
-                });
-                html += '</div>';
-
-                rolesBadgesContent.innerHTML = html;
-
-            } catch (error) {
-                console.error("Error fetching roles:", error.message);
-                rolesBadgesContent.innerHTML = "<p class='text-red-500 px-4'>Could not load roles.</p>";
+                const [hours, minutes] = timeStr.split(':');
+                const date = new Date(0, 0, 0, hours, minutes);
+                return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            } catch (e) {
+                console.error("Error formatting time:", e);
+                return timeStr;
             }
         }
 
-        async function fetchAndDisplayLectures(userCourse) {
-            if (!userCourse || !lecturesContent) return;
-            lecturesContent.innerHTML = '<div class="spinner"></div>';
-
-            const now = new Date();
-            const today = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
-            const currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
-
+        function formatEventDate(dateStr) {
+            if (!dateStr) return { month: '', day: '' };
             try {
-                const { data: lectures, error } = await _supabaseClassCount
-                    .from('lectures')
-                    .select('subject_name, prof_name, date, start_time, end_time')
-                    .eq('course', userCourse)
-                    .gte('date', today) // Get lectures from today onwards
-                    .order('date', { ascending: true })
-                    .order('start_time', { ascending: true });
-                
-                if (error) throw error;
-
-                const upcomingLectures = lectures.filter(lec => {
-                    if (lec.date > today) return true; // Future date
-                    return lec.start_time >= currentTime; // Same day, check time
-                });
-
-                if (!upcomingLectures || upcomingLectures.length === 0) {
-                    lecturesContent.innerHTML = "<p class='text-gray-500 dark:text-gray-400 italic px-4'>No Upcoming Lectures</p>";
-                    return;
-                }
-
-                // ** UPDATED UI: Matches prototype layout **
-                let html = '<div class="space-y-3">';
-                upcomingLectures.forEach(lec => {
-                    html += `
-                        <div class="flex space-x-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl">
-                            <div class="flex flex-col items-center text-center w-12 flex-shrink-0">
-                                <span class="font-bold text-lg text-primary-600 dark:text-primary-400">${formatDateMonth(lec.date)}</span>
-                                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400 -mt-1">${formatDateDay(lec.date)}</span>
-                            </div>
-                            <div class="border-l border-gray-300 dark:border-gray-600 pl-4 flex-1 min-w-0">
-                                <p class="font-semibold text-gray-800 dark:text-gray-100 truncate">${lec.subject_name}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">${lec.prof_name}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">${formatTime(lec.start_time)} - ${formatTime(lec.end_time)}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-
-                lecturesContent.innerHTML = html;
-                feather.replace();
-
-            } catch (error) {
-                console.error("Error fetching lectures:", error.message);
-                lecturesContent.innerHTML = "<p class='text-red-500 px-4'>Could not load lectures.</p>";
+                // Use T00:00:00 to ensure it's interpreted as local time, not UTC
+                const date = new Date(dateStr + 'T00:00:00'); 
+                return {
+                    month: date.toLocaleDateString('en-US', { month: 'short' }),
+                    day: date.toLocaleDateString('en-US', { day: '2-digit' })
+                };
+            } catch (e) {
+                console.error("Error formatting date:", e);
+                return { month: '??', day: '??' };
             }
         }
 
-        async function fetchAndDisplayEvents() {
-            if (!activitiesContent) return;
-            activitiesContent.innerHTML = '<div class="spinner"></div>';
-            
-            const now = new Date();
-            const today = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
-            const currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
-
-            try {
-                const { data: events, error } = await _supabaseClassCount
-                    .from('events')
-                    .select('event_name, organizer_name, date, start_time, end_time')
-                    .gte('date', today) // Get events from today onwards
-                    .order('date', { ascending: true })
-                    .order('start_time', { ascending: true });
-
-                if (error) throw error;
-
-                const upcomingEvents = events.filter(evt => {
-                    if (evt.date > today) return true; // Future date
-                    return evt.start_time >= currentTime; // Same day, check time
-                });
-
-                if (!upcomingEvents || upcomingEvents.length === 0) {
-                    activitiesContent.innerHTML = "<p class='text-gray-500 dark:text-gray-400 italic px-4'>No Upcoming Activities</p>";
-                    return;
-                }
-
-                // ** UPDATED UI: Matches prototype layout **
-                let html = '<div class="space-y-3">';
-                upcomingEvents.forEach(evt => {
-                    html += `
-                        <div class="flex space-x-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl">
-                            <div class="flex flex-col items-center text-center w-12 flex-shrink-0">
-                                <span class="font-bold text-lg text-green-600 dark:text-green-400">${formatDateMonth(evt.date)}</span>
-                                <span class="text-2xl font-bold text-green-600 dark:text-green-400 -mt-1">${formatDateDay(evt.date)}</span>
-                            </div>
-                            <div class="border-l border-gray-300 dark:border-gray-600 pl-4 flex-1 min-w-0">
-                                <p class="font-semibold text-gray-800 dark:text-gray-100 truncate">${evt.event_name}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Organized by: ${evt.organizer_name}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Starts at: ${formatTime(evt.start_time)}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-
-                activitiesContent.innerHTML = html;
-                feather.replace();
-
-            } catch (error) {
-                console.error("Error fetching events:", error.message);
-                activitiesContent.innerHTML = "<p class='text-red-500 px-4'>Could not load activities.</p>";
-            }
-        }
-
-
-        // --- 11. HELPER FUNCTIONS ---
         function formatTimeAgo(dateString) {
              const date = new Date(dateString); const now = new Date(); const seconds = Math.floor((now - date) / 1000); let interval = seconds / 31536000; if (interval > 1) return Math.floor(interval) + "y ago"; interval = seconds / 2592000; if (interval > 1) return Math.floor(interval) + "mo ago"; interval = seconds / 86400; if (interval > 1) return Math.floor(interval) + "d ago"; interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + "h ago"; interval = seconds / 60; if (interval > 1) return Math.floor(interval) + "m ago"; if (seconds < 5) return "just now"; return Math.floor(seconds) + "s ago";
         }
-
-        // --- Format time string (e.g., "13:30:00" -> "1:30 PM") ---
-        function formatTime(timeString) {
-            if (!timeString) return '';
-            try {
-                const [hours, minutes] = timeString.split(':');
-                const date = new Date();
-                date.setHours(hours);
-                date.setMinutes(minutes);
-                return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-            } catch (e) {
-                return timeString; // Fallback
-            }
-        }
-
-        // --- Format date string (e.g., "2025-11-04" -> "Tue, 04 Nov") ---
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            try {
-                const date = new Date(dateString + 'T00:00:00'); // Assume local time
-                return date.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' });
-            } catch (e) {
-                return dateString; // Fallback
-            }
-        }
-        
-        // ** NEW HELPERS for prototype UI **
-        function formatDateMonth(dateString) { // "2025-11-04" -> "Nov"
-            if (!dateString) return '';
-            try {
-                const date = new Date(dateString + 'T00:00:00');
-                return date.toLocaleDateString('en-GB', { month: 'short' });
-            } catch (e) { return ''; }
-        }
-        function formatDateDay(dateString) { // "2025-11-04" -> "04"
-             if (!dateString) return '';
-             try {
-                const date = new Date(dateString + 'T00:00:00');
-                return date.toLocaleDateString('en-GB', { day: '2-digit' });
-            } catch (e) { return ''; }
-        }
-
 
         function showToast(message, type = 'success') {
             if (!toastContainer) return;
@@ -1368,14 +1293,14 @@ document.addEventListener('DOMContentLoaded', () => {
              if (!buttonEl) return;
              buttonEl.disabled = isLoading;
              const originalText = buttonEl.dataset.originalText || buttonEl.textContent.trim();
-             if (isLoading) {
-                 buttonEl.dataset.originalText = originalText;
-                 buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
-             } else {
-                 buttonEl.innerHTML = originalText;
-                 delete buttonEl.dataset.originalText;
-                 feather.replace(); 
-             }
+              if (isLoading) {
+                   buttonEl.dataset.originalText = originalText;
+                   buttonEl.innerHTML = '<div class="spinner button-spinner mx-auto"></div>';
+              } else {
+                   buttonEl.innerHTML = originalText;
+                   delete buttonEl.dataset.originalText;
+                   feather.replace(); 
+              }
         }
 
     </script>
