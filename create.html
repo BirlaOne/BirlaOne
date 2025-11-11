@@ -830,12 +830,12 @@
                 case 'text':
                     const textContent = editableContentToText('text-post-content');
                     if (!textContent) { showToast("Please write something!", 'error'); return null; }
-                    return { ...baseData, content: textContent, html_content: document.getElementById('text-post-content').innerHTML };
+                    return { ...baseData, content: textContent, content: document.getElementById('text-post-content').innerHTML };
                 
                 case 'anonymous':
                     const anonContent = editableContentToText('anonymous-post-content');
                     if (!anonContent) { showToast("Please write something!", 'error'); return null; }
-                    return { ...baseData, post_type: 'anonymous', content: anonContent, html_content: document.getElementById('anonymous-post-content').innerHTML, is_anonymous: true };
+                    return { ...baseData, post_type: 'anonymous', content: anonContent, content: document.getElementById('anonymous-post-content').innerHTML, is_anonymous: true };
 
                 case 'photo':
                     const caption = document.getElementById('photo-post-caption').value;
